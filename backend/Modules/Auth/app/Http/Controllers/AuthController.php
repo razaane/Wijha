@@ -145,9 +145,16 @@ class AuthController extends Controller
     {
         $status = $this->authService->sendPasswordResetLink($request->input('email'));
 
-        // Always return success to prevent email enumeration
-        return $this->successResponse(
-            message: 'If an account exists with that email, a password reset link has been sent.'
+        if ($status === Password::RESET_LINK_SENT) {
+            return $this->successResponse(
+                message: 'A password reset link has been sent to your email address.'
+            );
+        }
+
+        return $this->errorResponse(
+            'USER_NOT_FOUND',
+            'No account exists with this email address.',
+            404
         );
     }
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Base API URL pointing to the Laravel Backend
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -14,7 +15,7 @@ export const api = axios.create({
 // Intercept requests to attach the JWT token if it exists
 api.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('wijha_token');
+        const token = Cookies.get('wijha_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -28,7 +29,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('wijha_token');
+                Cookies.remove('wijha_token');
                 // Optional: redirect to login
             }
         }
