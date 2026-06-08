@@ -1,101 +1,100 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Search, MapPin, Calendar, Users, Compass } from 'lucide-react';
+import { Metadata } from 'next';
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: 'Home',
+};
+
+export default function LandingPage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-neutral-50 flex flex-col font-sans">
+      
+      {/* Navigation Bar */}
+      <nav className="absolute top-0 w-full z-50 flex items-center justify-between px-8 py-6 text-white">
+        <div className="flex items-center gap-2">
+          <Compass size={28} className="text-amber-500" />
+          <span className="text-2xl font-bold tracking-tight">Wijha</span>
+        </div>
+        
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+          <Link href="/destinations" className="hover:text-amber-400 transition-colors">Destinations</Link>
+          <Link href="/stays" className="hover:text-amber-400 transition-colors">Stays</Link>
+          <Link href="/experiences" className="hover:text-amber-400 transition-colors">Experiences</Link>
+          <Link href="/events" className="hover:text-amber-400 transition-colors">Events</Link>
+        </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="text-sm font-semibold hover:text-amber-400 transition-colors">
+            Sign In
+          </Link>
+          <Link href="/register" className="bg-amber-500 hover:bg-amber-400 text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg shadow-amber-500/30">
+            Create Account
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="relative h-screen min-h-[700px] flex items-center justify-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70?q=80&w=2000&auto=format&fit=crop" 
+            alt="Beautiful Moroccan Architecture" 
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"></div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-4 w-full max-w-5xl mt-16">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight drop-shadow-lg mb-6 leading-tight">
+            Discover the Heart <br /> of the <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">MENA Region</span>
+          </h1>
+          <p className="text-lg md:text-xl text-neutral-200 mb-12 max-w-2xl mx-auto drop-shadow-md">
+            Your all-in-one platform for unforgettable accommodations, rich local experiences, transport, and vibrant events.
+          </p>
+
+          {/* Search Glass Container */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-2 md:p-3 rounded-full flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto shadow-2xl">
+            
+            <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-full flex-1 w-full hover:bg-white/10 transition">
+              <MapPin className="text-amber-400" size={20} />
+              <div className="flex flex-col text-left">
+                <span className="text-xs text-neutral-300 font-medium">Location</span>
+                <input type="text" placeholder="Where are you going?" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
+              </div>
+            </div>
+
+            <div className="hidden md:block w-px h-10 bg-white/20"></div>
+
+            <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-full flex-1 w-full hover:bg-white/10 transition">
+              <Calendar className="text-amber-400" size={20} />
+              <div className="flex flex-col text-left">
+                <span className="text-xs text-neutral-300 font-medium">Dates</span>
+                <input type="text" placeholder="Add dates" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
+              </div>
+            </div>
+
+            <div className="hidden md:block w-px h-10 bg-white/20"></div>
+
+            <div className="flex items-center gap-3 px-4 py-3 bg-white/5 rounded-full flex-1 w-full hover:bg-white/10 transition">
+              <Users className="text-amber-400" size={20} />
+              <div className="flex flex-col text-left">
+                <span className="text-xs text-neutral-300 font-medium">Travelers</span>
+                <input type="text" placeholder="Add guests" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
+              </div>
+            </div>
+
+            <button className="bg-amber-500 hover:bg-amber-400 text-white p-4 rounded-full flex items-center justify-center transition-transform hover:scale-105 shadow-lg w-full md:w-auto mt-2 md:mt-0">
+              <Search size={24} />
+            </button>
+            
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
     </div>
   );
 }
