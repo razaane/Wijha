@@ -15,7 +15,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Wijha',
+    template: 'Wijha | %s',
     default: 'Wijha - The All-in-One Travel Platform',
   },
   description: "Discover, plan, and book your next adventure in the MENA region with Wijha.",

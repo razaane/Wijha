@@ -60,7 +60,7 @@ class SocialAuthController extends Controller
             }
 
             // Generate JWT Token
-            $token = auth()->login($user);
+            $token = auth()->guard('api')->login($user);
 
             if (!$token) {
                 throw new Exception("Failed to generate token");

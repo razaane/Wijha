@@ -3,7 +3,7 @@ import { Search, MapPin, Calendar, Users, Compass } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Home',
+  title: 'Wijha | Home',
 };
 
 export default function LandingPage() {
@@ -49,8 +49,8 @@ export default function LandingPage() {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 w-full max-w-5xl mt-16">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight drop-shadow-lg mb-6 leading-tight">
-            Discover the Heart <br /> of the <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">MENA Region</span>
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-tight" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+            Discover the Heart <br /> of the <span className="text-amber-500">MENA Region</span>
           </h1>
           <p className="text-lg md:text-xl text-neutral-200 mb-12 max-w-2xl mx-auto drop-shadow-md">
             Your all-in-one platform for unforgettable accommodations, rich local experiences, transport, and vibrant events.
