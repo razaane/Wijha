@@ -25,12 +25,7 @@ class AppServiceProvider extends ServiceProvider
 
             return (new \Illuminate\Notifications\Messages\MailMessage)
                 ->subject('Reset Your Wijha Password 🌍')
-                ->greeting('Hello Explorer!')
-                ->line('You are receiving this email because we received a password reset request for your Wijha account.')
-                ->action('Reset Password', $url)
-                ->line('If you did not request a password reset, no further action is required.')
-                ->line('Safe travels!')
-                ->salutation('The Wijha Team');
+                ->view('auth::emails.reset', ['url' => $url]);
         });
     }
 }
