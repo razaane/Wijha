@@ -19,6 +19,10 @@ Route::prefix('v1/auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
     });
 
+    // Social Authentication Routes
+    Route::get('/google/redirect', [\Modules\Auth\Http\Controllers\SocialAuthController::class, 'redirectToGoogle'])->name('auth.google.redirect');
+    Route::get('/google/callback', [\Modules\Auth\Http\Controllers\SocialAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
     Route::middleware('throttle:10,1')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
     });
