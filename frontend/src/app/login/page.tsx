@@ -60,7 +60,7 @@ export default function LoginPage() {
 
                     {/* Social Logins */}
                     <div className="flex flex-col gap-3 mb-8">
-                        <button className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
+                        <button type="button" onClick={() => alert('Google authentication is coming soon!')} className="w-full flex items-center justify-center gap-3 bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all active:scale-[0.98]">
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                             </svg>
                             Continue with Google
                         </button>
-                        <button className="w-full flex items-center justify-center gap-3 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]">
+                        <button type="button" onClick={() => alert('Apple authentication is coming soon!')} className="w-full flex items-center justify-center gap-3 bg-neutral-900 hover:bg-neutral-800 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98]">
                             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.74 3.58-.74 1.2 0 2.22.38 3.1 1.05-1.57 1.07-1.3 3.34.2 4.19-.52 1.48-1.21 2.82-1.96 3.67M12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.02 4.36-3.74 4.25"/>
                             </svg>
@@ -158,8 +158,8 @@ export default function LoginPage() {
             {/* Right Side: The Inspiration */}
             <div className="hidden lg:block lg:w-1/2 relative">
                 <img 
-                    src="https://images.unsplash.com/photo-1552633095-2bd33e4f6cb9?q=80&w=1600&auto=format&fit=crop" 
-                    alt="Chefchaouen, Morocco" 
+                    src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70?q=80&w=1600&auto=format&fit=crop" 
+                    alt="Marrakech, Morocco" 
                     className="absolute inset-0 w-full h-full object-cover rounded-l-[3rem] shadow-2xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-l-[3rem]"></div>
@@ -170,9 +170,9 @@ export default function LoginPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
                     >
-                        <h2 className="text-4xl font-bold mb-3 tracking-tight drop-shadow-md">The Blue Pearl of Morocco</h2>
+                        <h2 className="text-4xl font-bold mb-3 tracking-tight drop-shadow-md">The Heart of Marrakech</h2>
                         <p className="text-lg text-white/90 drop-shadow-sm max-w-md">
-                            Discover Chefchaouen&apos;s magical blue streets and breathtaking mountain views. Your next adventure awaits.
+                            Experience the vibrant colors and timeless architecture of the Medina. Your next adventure awaits.
                         </p>
                     </motion.div>
                 </div>
