@@ -22,8 +22,8 @@ class AuthTest extends TestCase
         $response = $this->postJson("{$this->apiPrefix}/register", [
             'name' => 'Test User',
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
-            'password_confirmation' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
+            'password_confirmation' => 'Wijha_Super_Secure_P@ssw0rd!2026',
             'locale' => 'fr',
         ]);
 
@@ -86,8 +86,8 @@ class AuthTest extends TestCase
         $response = $this->postJson("{$this->apiPrefix}/register", [
             'name' => 'Test User',
             'email' => 'taken@wijha.ma',
-            'password' => 'SecureP@ss1',
-            'password_confirmation' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
+            'password_confirmation' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response->assertStatus(422)
@@ -101,12 +101,12 @@ class AuthTest extends TestCase
     {
         User::factory()->create([
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response = $this->postJson("{$this->apiPrefix}/login", [
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response->assertStatus(200)
@@ -130,7 +130,7 @@ class AuthTest extends TestCase
     {
         User::factory()->create([
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response = $this->postJson("{$this->apiPrefix}/login", [
@@ -347,8 +347,8 @@ class AuthTest extends TestCase
         $response = $this->postJson("{$this->apiPrefix}/register", [
             'name' => 'Test User',
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
-            'password_confirmation' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
+            'password_confirmation' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response->assertStatus(200);
@@ -363,8 +363,8 @@ class AuthTest extends TestCase
         $response = $this->postJson("{$this->apiPrefix}/register", [
             'name' => 'Test User',
             'email' => 'test@wijha.ma',
-            'password' => 'SecureP@ss1',
-            'password_confirmation' => 'SecureP@ss1',
+            'password' => 'Wijha_Super_Secure_P@ssw0rd!2026',
+            'password_confirmation' => 'Wijha_Super_Secure_P@ssw0rd!2026',
         ]);
 
         $response->assertStatus(200)
