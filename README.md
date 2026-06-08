@@ -1,58 +1,136 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌍 Wijha (وجهة) - The All-in-One Travel Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Wijha Banner](https://images.unsplash.com/photo-1539020140153-e479b8c22e70?q=80&w=1200&auto=format&fit=crop)
 
-## About Laravel
+**Wijha** (meaning "Destination" in Arabic) is a comprehensive, all-in-one travel platform built specifically for the MENA region. It serves as a unified digital ecosystem connecting travelers with accommodations, transportation, local tourism activities, and events.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+By combining the functionalities of Booking.com (accommodations), Airbnb (experiences), Skyscanner (flights/transport), and Eventbrite (events) into one seamless application, Wijha aims to digitize and elevate the tourism experience across the Maghreb and Middle East.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🏗️ Architecture & Tech Stack
 
-## Learning Laravel
+Wijha is structured as a **Monorepo** consisting of a modern, SEO-optimized frontend and a robust, modular backend API.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🌐 Frontend (`/frontend`)
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS + Framer Motion (for dynamic, ultra-premium animations)
+- **State Management:** React Context / Zustand
+- **Data Fetching:** React Query (TanStack Query)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### ⚙️ Backend (`/backend`)
+- **Framework:** [Laravel 11](https://laravel.com/)
+- **Architecture:** Domain-Driven Design (DDD) via `nwidart/laravel-modules`
+- **Database:** PostgreSQL 16
+- **Authentication:** JWT (JSON Web Tokens) via `tymon/jwt-auth`
+- **Media Management:** Spatie MediaLibrary v11
+- **Multilingual Support:** Spatie Translatable (Arabic, French, English)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 📁 Repository Structure
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+Wijha/
+├── backend/                  # Laravel 11 API Backend
+│   ├── Modules/              # Domain-Driven Modules (Auth, Core, Places, etc.)
+│   ├── app/                  # Base Laravel Application
+│   ├── config/               # Global Configuration (MENA focused)
+│   └── tests/                # Automated Feature & Unit Tests
+│
+├── frontend/                 # Next.js 14 Frontend Application
+│   ├── src/app/              # Next.js App Router Pages
+│   └── tailwind.config.ts    # Design System Tokens
+│
+└── README.md                 # You are here!
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## 🚀 Getting Started
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing.
 
-## Code of Conduct
+### Prerequisites
+- PHP 8.3+
+- Node.js 20+
+- PostgreSQL 16
+- Composer
+- Git
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1. Backend Setup (Laravel)
 
-## Security Vulnerabilities
+```bash
+# Navigate to the backend directory
+cd backend
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Install PHP dependencies
+composer install
 
-## License
+# Copy the environment file
+cp .env.example .env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Generate application key
+php artisan key:generate
+
+# Generate JWT secret key
+php artisan jwt:secret
+
+# Run database migrations and seeders (populates Geography data)
+php artisan migrate --seed
+
+# Start the local development server
+php artisan serve
+```
+*Note: Ensure you have configured your PostgreSQL credentials inside `backend/.env` before running migrations.*
+
+### 2. Frontend Setup (Next.js)
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install Node.js dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+*The frontend will be accessible at `http://localhost:3000`.*
+
+---
+
+## 🧩 Active Modules
+
+The backend is strictly modularized to maintain separation of concerns:
+
+1. **Auth Module:** Handles user registration, login, JWT token rotation, and Role-Based Access Control (RBAC).
+2. **Core Module:** The foundation layer. Contains shared geographic dictionaries (Countries, Regions, Cities with coordinates) and global API response traits. Fully supports `ar`, `fr`, and `en` translations.
+3. *(Upcoming)* **Places Module:** Management of Points of Interest (Monuments, Medinas, Parks).
+4. *(Upcoming)* **Events Module:** Ticketing and local event management.
+5. *(Upcoming)* **Accommodations Module:** Hotel and riad bookings.
+
+---
+
+## 🧪 Testing
+
+Wijha strictly enforces automated testing to ensure platform stability. 
+
+```bash
+# Run all backend tests
+cd backend
+vendor/bin/phpunit
+```
+
+---
+
+## 🌍 MENA Focus
+The platform is currently optimized for the MENA region with:
+- Default Application Timezone: `Africa/Casablanca`
+- Default Locale: `ar` (Arabic)
+- Fallback Locale: `fr` (French)
+
+---
+
+*Designed and engineered for the future of travel.*
