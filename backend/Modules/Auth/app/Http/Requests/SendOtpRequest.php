@@ -5,7 +5,7 @@ namespace Modules\Auth\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-class RegisterRequest extends FormRequest
+class SendOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -37,7 +37,6 @@ class RegisterRequest extends FormRequest
             ],
             'phone' => ['nullable', 'string', 'regex:/^\+?[1-9]\d{6,14}$/', 'unique:users,phone'],
             'locale' => ['nullable', 'string', 'in:en,fr,ar'],
-            'otp' => ['required', 'string', 'size:6'],
         ];
     }
 }

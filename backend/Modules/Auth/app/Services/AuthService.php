@@ -6,11 +6,25 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Modules\Auth\Models\RefreshToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
+    /**
+     * Generate and send a 6-digit OTP to the user's email.
+     */
+    public function generateAndSendOtp(string $email, string $name): void
+    {
+        $otp = (string) random_int(100000, 999999);
+        
+        Cache::put('otp_register_' . $email, $otp, now()->addMinutes(10));
+        
+        Mail::to($email)->send(new \Modules\Auth\Emails\OtpMail($otp, $name));
+    }
+
     /**
      * Register a new user.
      *
@@ -19,6 +33,16 @@ class AuthService
      */
     public function register(array $data): array
     {
+        $cachedOtp = Cache::get('otp_register_' . $data['email']);
+        
+        if (!$cachedOtp || $cachedOtp !== $data['otp']) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'otp' => ['The verification code is invalid or has expired.'],
+            ]);
+        }
+
+        Cache::forget('otp_register_' . $data['email']);
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

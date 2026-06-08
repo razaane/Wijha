@@ -10,6 +10,7 @@ use Modules\Auth\Http\Requests\ForgotPasswordRequest;
 use Modules\Auth\Http\Requests\LoginRequest;
 use Modules\Auth\Http\Requests\RegisterRequest;
 use Modules\Auth\Http\Requests\ResetPasswordRequest;
+use Modules\Auth\Http\Requests\SendOtpRequest;
 use Modules\Auth\Services\AuthService;
 use Modules\Core\Traits\ApiResponse;
 
@@ -20,6 +21,23 @@ class AuthController extends Controller
     public function __construct(
         private readonly AuthService $authService,
     ) {}
+
+    /**
+     * Generate and send an OTP for registration.
+     *
+     * POST /api/v1/auth/register/send-otp
+     */
+    public function sendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $this->authService->generateAndSendOtp(
+            $request->input('email'),
+            $request->input('name')
+        );
+
+        return $this->successResponse(
+            message: 'Verification code sent to your email.'
+        );
+    }
 
     /**
      * Register a new user.

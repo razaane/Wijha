@@ -16,6 +16,7 @@ Route::prefix('v1/auth')->group(function () {
 
     // Public routes (no authentication required)
     Route::middleware('throttle:5,1')->group(function () {
+        Route::post('/register/send-otp', [AuthController::class, 'sendOtp'])->name('auth.register.send-otp');
         Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
     });
 
