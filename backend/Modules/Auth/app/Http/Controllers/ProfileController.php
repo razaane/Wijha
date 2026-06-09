@@ -77,8 +77,9 @@ class ProfileController extends Controller
             'otp' => $otp
         ], now()->addMinutes(10));
         
-        // Simulate sending SMS by logging it
+        // Simulate sending SMS by logging it to both the log file and the terminal
         Log::info("SMS OTP for User {$userId} to phone {$phone}: {$otp}");
+        error_log("!!! MOCK SMS OTP for User {$userId} to phone {$phone}: {$otp} !!!");
 
         return $this->successResponse(
             message: 'Verification code sent to your phone number.'

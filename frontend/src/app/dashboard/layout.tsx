@@ -2,9 +2,9 @@
 
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter, usePathname } from 'next/navigation';
-import { Compass, LayoutDashboard, User, Settings, LogOut, Menu, X, Plane } from 'lucide-react';
+import { Compass, User, Settings, LogOut, Menu, X, Plane, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 
@@ -12,13 +12,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { user, logout } = useAuthStore();
     const router = useRouter();
     const pathname = usePathname();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setMounted(true);
         
-        // If we have a token but no user object (e.g. after page refresh), fetch the user
         const fetchUser = async () => {
             const token = useAuthStore.getState().token;
             if (!user && token) {
@@ -33,6 +34,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         };
 
         fetchUser();
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsProfileDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [user, router]);
 
     const handleLogout = async () => {
@@ -47,15 +57,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     const navLinks = [
-        { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'My Profile', href: '/dashboard/profile', icon: User },
-        { name: 'My Bookings', href: '/dashboard/bookings', icon: Plane },
-        { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+        { name: 'Stays', href: '/dashboard' },
+        { name: 'Experiences', href: '/dashboard/experiences' },
+        { name: 'My Bookings', href: '/dashboard/bookings' },
     ];
 
     if (!mounted || !user) {
         return (
-            <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+            <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
             </div>
         );
@@ -67,81 +76,104 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return `http://localhost:8000/storage/${avatar}`;
     };
 
-    const SidebarContent = () => (
-        <div className="h-full flex flex-col justify-between py-6">
-            <div className="px-6">
-                <Link href="/" className="flex items-center gap-3 group mb-10">
-                    <Compass size={32} className="text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
-                    <span className="text-2xl font-bold text-neutral-900 tracking-tight">Wijha</span>
-                </Link>
+    return (
+        <div className="min-h-screen bg-white">
+            {/* Top Navigation Bar */}
+            <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+                    
+                    {/* Logo (Left) */}
+                    <div className="flex items-center">
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <Compass size={32} className="text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
+                            <span className="text-2xl font-bold text-neutral-900 tracking-tight">Wijha</span>
+                        </Link>
+                    </div>
 
-                <nav className="space-y-2">
-                    {navLinks.map((link) => {
-                        const Icon = link.icon;
-                        const isActive = pathname === link.href;
-                        return (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
-                                    isActive 
-                                    ? 'bg-amber-50 text-amber-600' 
-                                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
-                                }`}
+                    {/* Navigation Pills (Center - Desktop) */}
+                    <nav className="hidden md:flex items-center space-x-2">
+                        {navLinks.map((link) => {
+                            const isActive = pathname === link.href;
+                            return (
+                                <Link
+                                    key={link.name}
+                                    href={link.href}
+                                    className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+                                        isActive 
+                                        ? 'bg-neutral-900 text-white shadow-md' 
+                                        : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                                    }`}
+                                >
+                                    {link.name}
+                                </Link>
+                            );
+                        })}
+                    </nav>
+
+                    {/* Profile & Mobile Menu (Right) */}
+                    <div className="flex items-center gap-4">
+                        
+                        {/* Profile Dropdown (Desktop) */}
+                        <div className="hidden md:block relative" ref={dropdownRef}>
+                            <button 
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                                className="flex items-center gap-3 pl-3 pr-4 py-2 bg-white border border-neutral-200 hover:shadow-md rounded-full transition-all"
                             >
-                                <Icon size={20} className={isActive ? 'text-amber-500' : 'text-neutral-400'} />
-                                {link.name}
-                            </Link>
-                        );
-                    })}
-                </nav>
-            </div>
+                                <img 
+                                    src={getAvatarUrl(user.avatar)} 
+                                    alt={user.name} 
+                                    className="w-8 h-8 rounded-full object-cover"
+                                />
+                                <div className="flex flex-col items-start">
+                                    <span className="text-sm font-bold text-neutral-900 leading-tight">{user.name.split(' ')[0]}</span>
+                                </div>
+                                <ChevronDown size={16} className={`text-neutral-500 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                            </button>
 
-            <div className="px-6">
-                <div className="flex items-center gap-4 px-4 py-3 bg-neutral-50 rounded-xl mb-4 border border-neutral-100">
-                    <img 
-                        src={getAvatarUrl(user.avatar)} 
-                        alt={user.name} 
-                        className="w-10 h-10 rounded-full object-cover shadow-sm border border-neutral-200"
-                    />
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-neutral-900 truncate">{user.name}</p>
-                        <p className="text-xs text-neutral-500 truncate capitalize">{user.role}</p>
+                            <AnimatePresence>
+                                {isProfileDropdownOpen && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        transition={{ duration: 0.15 }}
+                                        className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden py-2"
+                                    >
+                                        <div className="px-4 py-3 border-b border-neutral-100 mb-2">
+                                            <p className="text-sm font-bold text-neutral-900 truncate">{user.name}</p>
+                                            <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+                                        </div>
+                                        
+                                        <Link href="/dashboard/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                            <User size={18} className="text-neutral-400" /> My Profile
+                                        </Link>
+                                        <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                            <Settings size={18} className="text-neutral-400" /> Settings
+                                        </Link>
+                                        
+                                        <div className="h-px bg-neutral-100 my-2"></div>
+                                        
+                                        <button 
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                        >
+                                            <LogOut size={18} /> Log Out
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Mobile Menu Toggle */}
+                        <button 
+                            onClick={() => setIsMobileMenuOpen(true)}
+                            className="md:hidden p-2 text-neutral-600 hover:bg-neutral-100 rounded-full transition-colors"
+                        >
+                            <Menu size={24} />
+                        </button>
                     </div>
                 </div>
-
-                <button 
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all font-semibold"
-                >
-                    <LogOut size={18} />
-                    Log Out
-                </button>
-            </div>
-        </div>
-    );
-
-    return (
-        <div className="min-h-screen bg-neutral-50 flex">
-            {/* Desktop Sidebar */}
-            <aside className="hidden lg:block w-72 bg-white border-r border-neutral-200 fixed inset-y-0 z-50 shadow-sm">
-                <SidebarContent />
-            </aside>
-
-            {/* Mobile Header & Overlay */}
-            <div className="lg:hidden fixed top-0 inset-x-0 h-16 bg-white border-b border-neutral-200 z-40 px-4 flex items-center justify-between shadow-sm">
-                <Link href="/" className="flex items-center gap-2">
-                    <Compass size={28} className="text-amber-500" />
-                    <span className="text-xl font-bold text-neutral-900">Wijha</span>
-                </Link>
-                <button 
-                    onClick={() => setIsMobileMenuOpen(true)}
-                    className="p-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
-                >
-                    <Menu size={24} />
-                </button>
-            </div>
+            </header>
 
             {/* Mobile Sidebar */}
             <AnimatePresence>
@@ -152,29 +184,83 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="fixed inset-0 bg-black/50 z-50 lg:hidden backdrop-blur-sm"
+                            className="fixed inset-0 bg-black/50 z-50 md:hidden backdrop-blur-sm"
                         />
                         <motion.aside 
-                            initial={{ x: '-100%' }}
+                            initial={{ x: '100%' }}
                             animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
+                            exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl z-50 lg:hidden"
+                            className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 md:hidden flex flex-col"
                         >
-                            <button 
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="absolute top-5 right-5 p-2 text-neutral-400 hover:bg-neutral-100 rounded-lg transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                            <SidebarContent />
+                            <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                                <span className="text-xl font-bold text-neutral-900">Menu</span>
+                                <button 
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="p-2 text-neutral-400 hover:bg-neutral-100 rounded-full transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="p-6 flex-1 overflow-y-auto">
+                                <div className="flex items-center gap-4 mb-8">
+                                    <img 
+                                        src={getAvatarUrl(user.avatar)} 
+                                        alt={user.name} 
+                                        className="w-12 h-12 rounded-full object-cover shadow-sm"
+                                    />
+                                    <div>
+                                        <p className="text-base font-bold text-neutral-900">{user.name}</p>
+                                        <p className="text-sm text-neutral-500">{user.email}</p>
+                                    </div>
+                                </div>
+
+                                <nav className="space-y-2 mb-8">
+                                    {navLinks.map((link) => {
+                                        const isActive = pathname === link.href;
+                                        return (
+                                            <Link
+                                                key={link.name}
+                                                href={link.href}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold ${
+                                                    isActive ? 'bg-amber-50 text-amber-600' : 'text-neutral-600 hover:bg-neutral-50'
+                                                }`}
+                                            >
+                                                {link.name}
+                                            </Link>
+                                        );
+                                    })}
+                                </nav>
+                                
+                                <div className="h-px bg-neutral-100 my-6"></div>
+
+                                <nav className="space-y-2">
+                                    <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                        <User size={20} /> My Profile
+                                    </Link>
+                                    <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                        <Settings size={20} /> Settings
+                                    </Link>
+                                </nav>
+                            </div>
+
+                            <div className="p-6 border-t border-neutral-100">
+                                <button 
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all"
+                                >
+                                    <LogOut size={20} /> Log Out
+                                </button>
+                            </div>
                         </motion.aside>
                     </>
                 )}
             </AnimatePresence>
 
             {/* Main Content Area */}
-            <main className="flex-1 lg:ml-72 min-h-screen pt-16 lg:pt-0">
+            <main>
                 {children}
             </main>
         </div>

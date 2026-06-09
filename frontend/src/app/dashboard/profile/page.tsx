@@ -204,7 +204,7 @@ export default function ProfilePage() {
                                             value={digit}
                                             onChange={(e) => handleOtpChange(index, e.target.value)}
                                             onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                                            className="w-12 h-14 text-center text-2xl font-bold bg-neutral-50 border border-neutral-200 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                            className="w-12 h-14 text-center text-2xl font-bold text-neutral-900 bg-neutral-50 border border-neutral-200 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                                         />
                                     ))}
                                 </div>
