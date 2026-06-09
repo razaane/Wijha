@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Listing\app\Http\Controllers;
+namespace Modules\Listing\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\Listing\app\Models\Listing;
+use Modules\Listing\Models\Listing;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
