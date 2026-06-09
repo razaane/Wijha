@@ -100,6 +100,7 @@ export default function HostOnboardingPage() {
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const mapRef = useRef<HTMLDivElement>(null);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
     if (!user) {
@@ -360,7 +361,7 @@ export default function HostOnboardingPage() {
                                     <p className="text-lg text-neutral-500 mt-2">Your address is only shared with guests after they've made a reservation.</p>
                                 </div>
                                 
-                                <div className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
+                                <div ref={mapRef} className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
                                     {/* Real OpenStreetMap Background */}
                                     <iframe 
                                         className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 mix-blend-multiply" 
@@ -369,7 +370,13 @@ export default function HostOnboardingPage() {
                                     />
                                     
                                     {/* UI Match of Screenshot: Drag the map pill + pin */}
-                                    <div className="relative z-10 flex flex-col items-center">
+                                    <motion.div 
+                                        drag 
+                                        dragConstraints={mapRef}
+                                        dragElastic={0.2}
+                                        dragMomentum={false}
+                                        className="relative z-10 flex flex-col items-center cursor-move"
+                                    >
                                         <div className="bg-white/95 backdrop-blur rounded-full px-6 py-3 shadow-lg flex items-center gap-3 relative border border-neutral-100">
                                             <span className="font-bold text-neutral-900 text-[15px] pl-2 pr-10">Drag the map to reposition the pin</span>
                                             
@@ -382,7 +389,7 @@ export default function HostOnboardingPage() {
                                         </div>
                                         {/* The small black dot below */}
                                         <div className="w-2 h-2 bg-neutral-900 rounded-full mt-4 shadow-sm translate-x-14"></div>
-                                    </div>
+                                    </motion.div>
                                 </div>
                             </motion.div>
                         )}
