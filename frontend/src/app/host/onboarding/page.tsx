@@ -15,6 +15,9 @@ import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
 import Link from 'next/link';
 import { Country, City } from 'country-state-city';
+import dynamic from 'next/dynamic';
+
+const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), { ssr: false });
 
 // --- Constants ---
 const TYPES = [
@@ -109,6 +112,7 @@ export default function HostOnboardingPage() {
     
     const [selectedCountryCode, setSelectedCountryCode] = useState('MA');
     const [availableCities, setAvailableCities] = useState<any[]>([]);
+    const [mapCenter, setMapCenter] = useState<{lat: number, lng: number} | null>(null);
 
     useEffect(() => {
         // Initialize cities for Morocco ('MA')
@@ -136,6 +140,19 @@ export default function HostOnboardingPage() {
         const newCities = City.getCitiesOfCountry(code) || [];
         setAvailableCities(newCities);
         updateForm('address_city', ''); // Reset city to force re-selection
+        setMapCenter(null);
+    };
+
+    // Haversine formula
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
     };
 
     const nextStep = () => {
@@ -143,6 +160,23 @@ export default function HostOnboardingPage() {
             alert('Tour and Event creation is coming soon! Please select Rental for now.');
             return;
         }
+
+        if (step === 5) {
+            // Validate distance
+            const city = availableCities.find(c => c.name === formData.address_city);
+            if (city && city.latitude && city.longitude && mapCenter) {
+                const dist = calculateDistance(
+                    parseFloat(city.latitude), parseFloat(city.longitude), 
+                    mapCenter.lat, mapCenter.lng
+                );
+                
+                if (dist > 15) { // 15 km allowed radius
+                    alert(`The pin must be placed within ${formData.address_city}. You placed it ${dist.toFixed(1)} km away.`);
+                    return;
+                }
+            }
+        }
+
         setStep(s => s + 1);
     };
     const prevStep = () => setStep(s => s - 1);
@@ -157,23 +191,13 @@ export default function HostOnboardingPage() {
         });
     };
 
-    const getCityBbox = () => {
-        const defaultBbox = "-7.65,33.55,-7.55,33.60"; // Casablanca fallback
-        if (!formData.address_city) return defaultBbox;
-        
+    const getCityCenter = (): [number, number] => {
+        if (mapCenter) return [mapCenter.lat, mapCenter.lng];
         const city = availableCities.find(c => c.name === formData.address_city);
-        if (!city || !city.latitude || !city.longitude) return defaultBbox;
-        
-        const lat = parseFloat(city.latitude);
-        const lon = parseFloat(city.longitude);
-        
-        // Create a ~10km bounding box around the city center for OpenStreetMap
-        const minLon = (lon - 0.05).toFixed(4);
-        const minLat = (lat - 0.05).toFixed(4);
-        const maxLon = (lon + 0.05).toFixed(4);
-        const maxLat = (lat + 0.05).toFixed(4);
-        
-        return `${minLon},${minLat},${maxLon},${maxLat}`;
+        if (city && city.latitude && city.longitude) {
+            return [parseFloat(city.latitude), parseFloat(city.longitude)];
+        }
+        return [33.5731, -7.5898]; // Casablanca default
     };
 
     const toggleArrayItem = (key: 'amenities' | 'safety_items', id: string) => {
@@ -375,7 +399,10 @@ export default function HostOnboardingPage() {
                                             <div className="relative">
                                                 <select 
                                                     value={formData.address_city}
-                                                    onChange={(e) => updateForm('address_city', e.target.value)}
+                                                    onChange={(e) => {
+                                                        updateForm('address_city', e.target.value);
+                                                        setMapCenter(null); // Reset pin when city changes
+                                                    }}
                                                     className="w-full text-lg font-medium text-neutral-900 bg-transparent outline-none appearance-none cursor-pointer pr-8"
                                                 >
                                                     <option value="" disabled>Select a city</option>
@@ -420,12 +447,12 @@ export default function HostOnboardingPage() {
                                 </div>
                                 
                                 <div ref={mapRef} className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
-                                    {/* Real OpenStreetMap Background - NOW INTERACTIVE */}
-                                    <iframe 
-                                        className="absolute inset-0 w-full h-full border-0 opacity-90 mix-blend-multiply" 
-                                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${getCityBbox()}&layer=mapnik`}
-                                        title="Map"
-                                    />
+                                    <div className="absolute inset-0 w-full h-full">
+                                        <InteractiveMap 
+                                            center={getCityCenter()} 
+                                            onMoveEnd={(lat, lng) => setMapCenter({ lat, lng })}
+                                        />
+                                    </div>
                                     
                                     {/* UI Match of Screenshot: Fixed pin, drag the map beneath it */}
                                     <div className="relative z-10 flex flex-col items-center pointer-events-none mb-14">
