@@ -105,9 +105,11 @@ export default function HostOnboardingPage() {
     const [cities, setCities] = useState<any[]>([]);
 
     useEffect(() => {
-        api.get('/locations/cities').then(res => {
+        api.get('/core/locations/cities').then(res => {
             if (res.data && res.data.data) {
                 setCities(res.data.data);
+            } else if (Array.isArray(res.data)) {
+                setCities(res.data);
             }
         }).catch(err => console.error("Failed to load cities", err));
     }, []);
