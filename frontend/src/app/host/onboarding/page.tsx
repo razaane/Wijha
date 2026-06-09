@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ChevronLeft, ChevronRight, Home, MapPin, 
@@ -102,6 +102,15 @@ export default function HostOnboardingPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mapRef = useRef<HTMLDivElement>(null);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [cities, setCities] = useState<any[]>([]);
+
+    useEffect(() => {
+        api.get('/locations/cities').then(res => {
+            if (res.data && res.data.data) {
+                setCities(res.data.data);
+            }
+        }).catch(err => console.error("Failed to load cities", err));
+    }, []);
 
     if (!user) {
         return (
@@ -301,9 +310,23 @@ export default function HostOnboardingPage() {
                                                 onChange={(e) => updateForm('address_country', e.target.value)}
                                                 className="w-full bg-transparent text-lg font-bold text-neutral-900 outline-none appearance-none"
                                             >
-                                                <option>Morocco</option>
-                                                <option>France</option>
-                                                <option>Spain</option>
+                                                <option value="Morocco">Morocco</option>
+                                                <option value="Algeria">Algeria</option>
+                                                <option value="Tunisia">Tunisia</option>
+                                                <option value="Egypt">Egypt</option>
+                                                <option value="Libya">Libya</option>
+                                                <option value="Saudi Arabia">Saudi Arabia</option>
+                                                <option value="United Arab Emirates">United Arab Emirates</option>
+                                                <option value="Qatar">Qatar</option>
+                                                <option value="Bahrain">Bahrain</option>
+                                                <option value="Kuwait">Kuwait</option>
+                                                <option value="Oman">Oman</option>
+                                                <option value="Jordan">Jordan</option>
+                                                <option value="Lebanon">Lebanon</option>
+                                                <option value="Palestine">Palestine</option>
+                                                <option value="Syria">Syria</option>
+                                                <option value="Iraq">Iraq</option>
+                                                <option value="Yemen">Yemen</option>
                                             </select>
                                         </div>
                                         <div className="p-4 border-b border-neutral-300 relative group">
@@ -324,11 +347,21 @@ export default function HostOnboardingPage() {
                                         </div>
                                         <div className="p-4 border-b border-neutral-300">
                                             <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">City / town</label>
-                                            <input 
-                                                type="text" placeholder="e.g. Marrakech" 
-                                                value={formData.address_city} onChange={(e) => updateForm('address_city', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 placeholder-neutral-300 outline-none"
-                                            />
+                                            <div className="relative">
+                                                <select 
+                                                    value={formData.address_city}
+                                                    onChange={(e) => updateForm('address_city', e.target.value)}
+                                                    className="w-full text-lg font-medium text-neutral-900 bg-transparent outline-none appearance-none cursor-pointer pr-8"
+                                                >
+                                                    <option value="" disabled>Select a city</option>
+                                                    {cities.map((city) => (
+                                                        <option key={city.id} value={city.slug}>{city.name?.en || city.name?.fr || city.name?.ar || city.name}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
+                                                    <ChevronRight size={20} className="rotate-90" />
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="p-4 border-b border-neutral-300">
                                             <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Province / state</label>
