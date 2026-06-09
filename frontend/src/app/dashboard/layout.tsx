@@ -79,29 +79,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
         <div className="min-h-screen bg-white">
             {/* Top Navigation Bar */}
-            <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
-                <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-neutral-100 shadow-sm transition-all">
+                <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 h-24 flex items-center justify-between">
                     
                     {/* Logo (Left) */}
                     <div className="flex items-center">
-                        <Link href="/" className="flex items-center gap-2 group">
-                            <Compass size={32} className="text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
-                            <span className="text-2xl font-bold text-neutral-900 tracking-tight">Wijha</span>
+                        <Link href="/dashboard" className="flex items-center gap-2 group">
+                            <Compass size={36} className="text-amber-500 group-hover:rotate-45 transition-transform duration-500" />
+                            <span className="text-3xl font-black text-amber-500 tracking-tight">Wijha</span>
                         </Link>
                     </div>
 
                     {/* Navigation Pills (Center - Desktop) */}
-                    <nav className="hidden md:flex items-center space-x-2">
+                    <nav className="hidden md:flex items-center space-x-1 p-1.5 bg-neutral-100/70 rounded-full border border-neutral-200">
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href;
                             return (
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all ${
+                                    className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
                                         isActive 
-                                        ? 'bg-neutral-900 text-white shadow-md' 
-                                        : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                                        ? 'bg-white text-neutral-900 shadow-sm border border-neutral-200/50' 
+                                        : 'text-neutral-500 hover:text-neutral-900 hover:bg-white/60'
                                     }`}
                                 >
                                     {link.name}
@@ -117,17 +117,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="hidden md:block relative" ref={dropdownRef}>
                             <button 
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                className="flex items-center gap-3 pl-3 pr-4 py-2 bg-white border border-neutral-200 hover:shadow-md rounded-full transition-all"
+                                className="flex items-center gap-3 pl-3 pr-4 py-2 bg-white hover:bg-neutral-50 border border-neutral-200 hover:border-neutral-300 hover:shadow-md rounded-full transition-all"
                             >
                                 <img 
                                     src={getAvatarUrl(user.avatar)} 
                                     alt={user.name} 
-                                    className="w-8 h-8 rounded-full object-cover"
+                                    className="w-10 h-10 rounded-full object-cover shadow-sm border border-neutral-100"
                                 />
-                                <div className="flex flex-col items-start">
+                                <div className="flex flex-col items-start hidden lg:flex">
                                     <span className="text-sm font-bold text-neutral-900 leading-tight">{user.name.split(' ')[0]}</span>
                                 </div>
-                                <ChevronDown size={16} className={`text-neutral-500 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                                <Menu size={18} className="text-neutral-500 ml-1" />
                             </button>
 
                             <AnimatePresence>

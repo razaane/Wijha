@@ -28,7 +28,7 @@ export default function DashboardOverviewPage() {
         <div className="min-h-screen bg-white pb-20">
             
             {/* HERO BANNER SECTION (Eventbrite Style) */}
-            <div className="relative pt-8 px-4 sm:px-8 max-w-[1440px] mx-auto">
+            <div className="relative pt-8 px-4 sm:px-8 lg:px-12 xl:px-16 w-full">
                 <div className="relative h-[400px] md:h-[480px] rounded-[32px] overflow-hidden flex items-center justify-center">
                     {/* Background Image & Overlay */}
                     <img 
@@ -96,8 +96,8 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* CATEGORIES SECTION */}
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-12">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-12">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
                     {categories.map((cat, idx) => (
                         <motion.div 
                             key={cat.name}
@@ -116,7 +116,7 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* WHY WIJHA (Booking.com feature cards style) */}
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-16">
+            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-16">
                 <h2 className="text-2xl font-bold text-neutral-900 mb-6">Why book with Wijha?</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <motion.div 
@@ -161,7 +161,7 @@ export default function DashboardOverviewPage() {
             </div>
 
             {/* POPULAR DESTINATIONS (Airbnb card grid style) */}
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-8 mt-16">
+            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-16">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-neutral-900">Popular Destinations</h2>
                     <Link href="/explore" className="text-amber-500 font-bold flex items-center hover:text-amber-600 transition-colors">
