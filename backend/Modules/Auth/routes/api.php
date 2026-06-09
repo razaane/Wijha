@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Auth\Http\Controllers\AuthController;
+use Modules\Auth\Http\Controllers\HostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,5 +45,8 @@ Route::prefix('v1/auth')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
         Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+        
+        // Host Application
+        Route::post('/host/apply', [HostController::class, 'apply'])->name('auth.host.apply');
     });
 });
