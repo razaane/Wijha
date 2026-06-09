@@ -72,8 +72,8 @@ export default function RegisterPage() {
                 password_confirmation: passwordConfirmation,
                 otp
             });
-            const { user, token } = res.data;
-            setAuth(user, token);
+            const { user, access_token } = res.data.data;
+            setAuth(user, access_token);
             router.push('/dashboard');
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string, errors?: { otp?: string[] } } } };
