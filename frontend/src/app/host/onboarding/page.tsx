@@ -113,6 +113,7 @@ export default function HostOnboardingPage() {
     const [selectedCountryCode, setSelectedCountryCode] = useState('MA');
     const [availableCities, setAvailableCities] = useState<any[]>([]);
     const [mapCenter, setMapCenter] = useState<{lat: number, lng: number} | null>(null);
+    const [stepError, setStepError] = useState<string | null>(null);
 
     useEffect(() => {
         // Initialize cities for Morocco ('MA')
@@ -156,8 +157,10 @@ export default function HostOnboardingPage() {
     };
 
     const nextStep = () => {
+        setStepError(null);
+
         if (step === 1 && formData.type !== 'rental') {
-            alert('Tour and Event creation is coming soon! Please select Rental for now.');
+            setStepError('Tour and Event creation is coming soon! Please select Rental for now.');
             return;
         }
 
@@ -171,7 +174,7 @@ export default function HostOnboardingPage() {
                 );
                 
                 if (dist > 15) { // 15 km allowed radius
-                    alert(`The pin must be placed within ${formData.address_city}. You placed it ${dist.toFixed(1)} km away.`);
+                    setStepError(`The pin must be placed within ${formData.address_city}. You placed it ${dist.toFixed(1)} km away.`);
                     return;
                 }
             }
@@ -179,7 +182,10 @@ export default function HostOnboardingPage() {
 
         setStep(s => s + 1);
     };
-    const prevStep = () => setStep(s => s - 1);
+    const prevStep = () => {
+        setStepError(null);
+        setStep(s => s - 1);
+    };
 
     const updateForm = (key: string, value: any) => setFormData(prev => ({ ...prev, [key]: value }));
 
@@ -274,7 +280,7 @@ export default function HostOnboardingPage() {
             </header>
 
             {/* Progress Bar */}
-            <div className="w-full bg-neutral-100 h-1.5">
+            <div className="w-full bg-neutral-100 h-1.5 relative z-40">
                 <div 
                     className="bg-neutral-900 h-1.5 transition-all duration-500 ease-out" 
                     style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
@@ -284,6 +290,21 @@ export default function HostOnboardingPage() {
             {/* Main Content */}
             <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pb-32">
                 <div className="w-full max-w-3xl">
+                    {/* Global Step Error */}
+                    <AnimatePresence>
+                        {stepError && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -10 }} 
+                                animate={{ opacity: 1, y: 0 }} 
+                                exit={{ opacity: 0, y: -10 }}
+                                className="mb-8 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl font-medium flex items-center gap-3 shadow-sm"
+                            >
+                                <ShieldAlert size={24} className="shrink-0" />
+                                <p>{stepError}</p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <AnimatePresence mode="wait">
                         
                         {/* STEP 1: Main Type */}
