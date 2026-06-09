@@ -361,8 +361,12 @@ export default function HostOnboardingPage() {
                                 </div>
                                 
                                 <div className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
-                                    {/* Clean Map Mockup Background */}
-                                    <div className="absolute inset-0 opacity-60 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=33.5731,-7.5898&zoom=15&size=800x600&sensor=false&style=feature:all|element:labels|visibility:off')] bg-cover bg-center mix-blend-multiply"></div>
+                                    {/* Real OpenStreetMap Background */}
+                                    <iframe 
+                                        className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 mix-blend-multiply" 
+                                        src="https://www.openstreetmap.org/export/embed.html?bbox=-7.65,33.55,-7.55,33.60&layer=mapnik"
+                                        title="Map"
+                                    />
                                     
                                     {/* UI Match of Screenshot: Drag the map pill + pin */}
                                     <div className="relative z-10 flex flex-col items-center">
