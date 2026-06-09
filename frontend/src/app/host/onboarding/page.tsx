@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
 import Link from 'next/link';
+import { Country, City } from 'country-state-city';
 
 // --- Constants ---
 const TYPES = [
@@ -68,6 +69,9 @@ const SAFETY_ITEMS = [
     { id: 'carbon_monoxide', name: 'Carbon monoxide alarm', icon: Flame },
 ];
 
+const MENA_ISO_CODES = ['MA', 'DZ', 'TN', 'EG', 'LY', 'SA', 'AE', 'QA', 'BH', 'KW', 'OM', 'JO', 'LB', 'PS', 'SY', 'IQ', 'YE'];
+const MENA_COUNTRIES = Country.getAllCountries().filter(c => MENA_ISO_CODES.includes(c.isoCode));
+
 export default function HostOnboardingPage() {
     const router = useRouter();
     const { user, token, setAuth } = useAuthStore();
@@ -102,16 +106,13 @@ export default function HostOnboardingPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mapRef = useRef<HTMLDivElement>(null);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-    const [cities, setCities] = useState<any[]>([]);
+    
+    const [selectedCountryCode, setSelectedCountryCode] = useState('MA');
+    const [availableCities, setAvailableCities] = useState<any[]>([]);
 
     useEffect(() => {
-        api.get('/core/locations/cities').then(res => {
-            if (res.data && res.data.data) {
-                setCities(res.data.data);
-            } else if (Array.isArray(res.data)) {
-                setCities(res.data);
-            }
-        }).catch(err => console.error("Failed to load cities", err));
+        // Initialize cities for Morocco ('MA')
+        setAvailableCities(City.getCitiesOfCountry('MA') || []);
     }, []);
 
     if (!user) {
@@ -124,6 +125,18 @@ export default function HostOnboardingPage() {
             </div>
         );
     }
+
+    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const code = e.target.value;
+        setSelectedCountryCode(code);
+        
+        const countryData = Country.getCountryByCode(code);
+        updateForm('address_country', countryData?.name || code);
+        
+        const newCities = City.getCitiesOfCountry(code) || [];
+        setAvailableCities(newCities);
+        updateForm('address_city', ''); // Reset city to force re-selection
+    };
 
     const nextStep = () => {
         if (step === 1 && formData.type !== 'rental') {
@@ -307,29 +320,20 @@ export default function HostOnboardingPage() {
                                     <div className="border border-neutral-300 rounded-2xl overflow-hidden focus-within:border-neutral-900 focus-within:ring-1 focus-within:ring-neutral-900 transition-all">
                                         <div className="p-4 border-b border-neutral-300 bg-neutral-50/50">
                                             <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Country / Region</label>
-                                            <select 
-                                                value={formData.address_country}
-                                                onChange={(e) => updateForm('address_country', e.target.value)}
-                                                className="w-full bg-transparent text-lg font-bold text-neutral-900 outline-none appearance-none"
-                                            >
-                                                <option value="Morocco">Morocco</option>
-                                                <option value="Algeria">Algeria</option>
-                                                <option value="Tunisia">Tunisia</option>
-                                                <option value="Egypt">Egypt</option>
-                                                <option value="Libya">Libya</option>
-                                                <option value="Saudi Arabia">Saudi Arabia</option>
-                                                <option value="United Arab Emirates">United Arab Emirates</option>
-                                                <option value="Qatar">Qatar</option>
-                                                <option value="Bahrain">Bahrain</option>
-                                                <option value="Kuwait">Kuwait</option>
-                                                <option value="Oman">Oman</option>
-                                                <option value="Jordan">Jordan</option>
-                                                <option value="Lebanon">Lebanon</option>
-                                                <option value="Palestine">Palestine</option>
-                                                <option value="Syria">Syria</option>
-                                                <option value="Iraq">Iraq</option>
-                                                <option value="Yemen">Yemen</option>
-                                            </select>
+                                            <div className="relative">
+                                                <select 
+                                                    value={selectedCountryCode}
+                                                    onChange={handleCountryChange}
+                                                    className="w-full bg-transparent text-lg font-bold text-neutral-900 outline-none appearance-none cursor-pointer pr-8"
+                                                >
+                                                    {MENA_COUNTRIES.map((c) => (
+                                                        <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
+                                                    <ChevronRight size={20} className="rotate-90" />
+                                                </div>
+                                            </div>
                                         </div>
                                         <div className="p-4 border-b border-neutral-300 relative group">
                                             <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Street address</label>
@@ -356,8 +360,8 @@ export default function HostOnboardingPage() {
                                                     className="w-full text-lg font-medium text-neutral-900 bg-transparent outline-none appearance-none cursor-pointer pr-8"
                                                 >
                                                     <option value="" disabled>Select a city</option>
-                                                    {cities.map((city) => (
-                                                        <option key={city.id} value={city.slug}>{city.name?.en || city.name?.fr || city.name?.ar || city.name}</option>
+                                                    {availableCities.map((city, idx) => (
+                                                        <option key={`${city.name}-${idx}`} value={city.name}>{city.name}</option>
                                                     ))}
                                                 </select>
                                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
