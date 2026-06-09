@@ -362,21 +362,15 @@ export default function HostOnboardingPage() {
                                 </div>
                                 
                                 <div ref={mapRef} className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
-                                    {/* Real OpenStreetMap Background */}
+                                    {/* Real OpenStreetMap Background - NOW INTERACTIVE */}
                                     <iframe 
-                                        className="absolute inset-0 w-full h-full border-0 pointer-events-none opacity-80 mix-blend-multiply" 
+                                        className="absolute inset-0 w-full h-full border-0 opacity-90 mix-blend-multiply" 
                                         src="https://www.openstreetmap.org/export/embed.html?bbox=-7.65,33.55,-7.55,33.60&layer=mapnik"
                                         title="Map"
                                     />
                                     
-                                    {/* UI Match of Screenshot: Drag the map pill + pin */}
-                                    <motion.div 
-                                        drag 
-                                        dragConstraints={mapRef}
-                                        dragElastic={0.2}
-                                        dragMomentum={false}
-                                        className="relative z-10 flex flex-col items-center cursor-move"
-                                    >
+                                    {/* UI Match of Screenshot: Fixed pin, drag the map beneath it */}
+                                    <div className="relative z-10 flex flex-col items-center pointer-events-none mb-14">
                                         <div className="bg-white/95 backdrop-blur rounded-full px-6 py-3 shadow-lg flex items-center gap-3 relative border border-neutral-100">
                                             <span className="font-bold text-neutral-900 text-[15px] pl-2 pr-10">Drag the map to reposition the pin</span>
                                             
@@ -389,7 +383,7 @@ export default function HostOnboardingPage() {
                                         </div>
                                         {/* The small black dot below */}
                                         <div className="w-2 h-2 bg-neutral-900 rounded-full mt-4 shadow-sm translate-x-14"></div>
-                                    </motion.div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
