@@ -6,8 +6,9 @@ import {
     ChevronLeft, ChevronRight, Home, MapPin, 
     Loader2, Sparkles, Map as MapIcon, Ticket, 
     Wifi, Tv, Car, Coffee, Wind, UploadCloud, X, CheckCircle2,
-    Building2, Tent, Caravan, Castle, Anchor, Flame, ShieldAlert,
-    Plus, Minus, Droplets, Waves, Mountain, Sun
+    Building2, Flame, ShieldAlert, Plus, Minus, Droplets, Waves, 
+    Sun, Monitor, CircleDollarSign, Shirt, Utensils, LayoutGrid, Music, 
+    Dumbbell, Umbrella, Snowflake, ShowerHead
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -24,14 +25,6 @@ const TYPES = [
 const PROPERTY_TYPES = [
     { id: 'house', label: 'House', icon: Home },
     { id: 'apartment', label: 'Apartment', icon: Building2 },
-    { id: 'barn', label: 'Barn', icon: Home },
-    { id: 'bed_and_breakfast', label: 'Bed & breakfast', icon: Coffee },
-    { id: 'boat', label: 'Boat', icon: Anchor },
-    { id: 'cabin', label: 'Cabin', icon: Home },
-    { id: 'camper', label: 'Camper/RV', icon: Caravan },
-    { id: 'castle', label: 'Castle', icon: Castle },
-    { id: 'cave', label: 'Cave', icon: Mountain },
-    { id: 'tent', label: 'Tent', icon: Tent },
 ];
 
 const PRIVACY_TYPES = [
@@ -40,15 +33,32 @@ const PRIVACY_TYPES = [
     { id: 'shared_room', label: 'A shared room', desc: 'Guests sleep in a room or common area that may be shared.' },
 ];
 
-const AMENITIES_LIST = [
-    { id: 'wifi', name: 'Fast WiFi', icon: Wifi },
-    { id: 'tv', name: 'Smart TV', icon: Tv },
+const GUEST_FAVORITES = [
+    { id: 'wifi', name: 'Wifi', icon: Wifi },
+    { id: 'tv', name: 'TV', icon: Tv },
     { id: 'kitchen', name: 'Kitchen', icon: Coffee },
-    { id: 'ac', name: 'Air Conditioning', icon: Wind },
-    { id: 'parking', name: 'Free Parking', icon: Car },
+    { id: 'washer', name: 'Washer', icon: Shirt },
+    { id: 'free_parking', name: 'Free parking on premises', icon: Car },
+    { id: 'paid_parking', name: 'Paid parking on premises', icon: CircleDollarSign },
+    { id: 'ac', name: 'Air conditioning', icon: Wind },
+    { id: 'workspace', name: 'Dedicated workspace', icon: Monitor },
+];
+
+const STANDOUT_AMENITIES = [
     { id: 'pool', name: 'Pool', icon: Waves },
     { id: 'hot_tub', name: 'Hot tub', icon: Droplets },
-    { id: 'patio', name: 'Patio or balcony', icon: Sun },
+    { id: 'patio', name: 'Patio', icon: Sun },
+    { id: 'bbq', name: 'BBQ grill', icon: Flame },
+    { id: 'outdoor_dining', name: 'Outdoor dining area', icon: Utensils },
+    { id: 'fire_pit', name: 'Fire pit', icon: Flame },
+    { id: 'pool_table', name: 'Pool table', icon: LayoutGrid },
+    { id: 'indoor_fireplace', name: 'Indoor fireplace', icon: Flame },
+    { id: 'piano', name: 'Piano', icon: Music },
+    { id: 'exercise_equipment', name: 'Exercise equipment', icon: Dumbbell },
+    { id: 'lake_access', name: 'Lake access', icon: Waves },
+    { id: 'beach_access', name: 'Beach access', icon: Umbrella },
+    { id: 'ski', name: 'Ski-in/Ski-out', icon: Snowflake },
+    { id: 'outdoor_shower', name: 'Outdoor shower', icon: ShowerHead },
 ];
 
 const SAFETY_ITEMS = [
@@ -104,7 +114,6 @@ export default function HostOnboardingPage() {
     }
 
     const nextStep = () => {
-        // Skip straight to end for tours/events (MVP)
         if (step === 1 && formData.type !== 'rental') {
             alert('Tour and Event creation is coming soon! Please select Rental for now.');
             return;
@@ -176,10 +185,7 @@ export default function HostOnboardingPage() {
         if (step === 2 && !formData.property_type) return true;
         if (step === 3 && !formData.privacy_type) return true;
         if (step === 4 && (!formData.address_street || !formData.address_city)) return true;
-        // Step 5 is Map
-        // Step 6 is Floor Plan
-        // Step 7 is Amenities
-        if (step === 8 && previewUrls.length < 5) return true; // MINIMUM 5 PHOTOS REQUIRED
+        if (step === 8 && previewUrls.length < 5) return true; 
         if (step === 9 && !formData.title) return true;
         if (step === 10 && !formData.description) return true;
         if (step === 11 && !formData.price) return true;
@@ -239,7 +245,7 @@ export default function HostOnboardingPage() {
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight text-center sm:text-left">
                                     Which of these best describes your place?
                                 </h1>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {PROPERTY_TYPES.map((item) => (
                                         <div 
                                             key={item.id}
@@ -346,27 +352,32 @@ export default function HostOnboardingPage() {
 
                         {/* STEP 5: Map Pin */}
                         {step === 5 && (
-                            <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 h-full flex flex-col">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight text-center">
-                                    Is the pin in the right spot?
-                                </h1>
-                                <p className="text-lg text-neutral-500 text-center">Your address is only shared with guests after they've made a reservation.</p>
+                            <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 h-full flex flex-col max-w-2xl mx-auto">
+                                <div className="text-center">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                        Is the pin in the right spot?
+                                    </h1>
+                                    <p className="text-lg text-neutral-500 mt-2">Your address is only shared with guests after they've made a reservation.</p>
+                                </div>
                                 
-                                <div className="flex-1 w-full h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center border-2 border-neutral-200">
+                                <div className="flex-1 w-full h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
                                     {/* Clean Map Mockup Background */}
                                     <div className="absolute inset-0 opacity-60 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=33.5731,-7.5898&zoom=15&size=800x600&sensor=false&style=feature:all|element:labels|visibility:off')] bg-cover bg-center mix-blend-multiply"></div>
                                     
-                                    {/* Beautiful Draggable Pin Mockup */}
-                                    <div className="relative z-10 flex flex-col items-center cursor-move hover:scale-110 transition-transform group">
-                                        <div className="w-16 h-16 bg-neutral-900 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-                                            <Home size={28} />
+                                    {/* UI Match of Screenshot: Drag the map pill + pin */}
+                                    <div className="relative z-10 flex flex-col items-center">
+                                        <div className="bg-white/95 backdrop-blur rounded-full px-6 py-3 shadow-lg flex items-center gap-3 relative border border-neutral-100">
+                                            <span className="font-bold text-neutral-900 text-[15px] pl-2 pr-10">Drag the map to reposition the pin</span>
+                                            
+                                            {/* The Black Circle Pin overlapping the pill */}
+                                            <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 flex flex-col items-center cursor-move hover:scale-105 transition-transform">
+                                                <div className="w-14 h-14 bg-neutral-900 rounded-full flex items-center justify-center shadow-xl border-4 border-white">
+                                                    <Home size={20} className="text-white" />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="w-2 h-2 bg-neutral-900 rounded-full mt-2 shadow-lg"></div>
-                                    </div>
-
-                                    {/* Subtitle tooltip */}
-                                    <div className="absolute top-6 bg-white/90 backdrop-blur px-6 py-3 rounded-full shadow-md border border-neutral-100 font-bold text-neutral-900">
-                                        Drag the map to reposition the pin
+                                        {/* The small black dot below */}
+                                        <div className="w-2 h-2 bg-neutral-900 rounded-full mt-4 shadow-sm translate-x-14"></div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -428,22 +439,23 @@ export default function HostOnboardingPage() {
                         {step === 7 && (
                             <motion.div key="step7" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
                                 <div>
-                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-4">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
                                         Tell guests what your place has to offer
                                     </h1>
-                                    <p className="text-lg text-neutral-500 mb-6">Do you have any standout amenities?</p>
+                                    <p className="text-lg text-neutral-500 mb-8">You can add more amenities after you publish your listing.</p>
                                     
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                        {AMENITIES_LIST.map((amenity) => {
+                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">What about these guest favorites?</h2>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {GUEST_FAVORITES.map((amenity) => {
                                             const isSelected = formData.amenities.includes(amenity.id);
                                             return (
                                                 <div 
                                                     key={amenity.id}
                                                     onClick={() => toggleArrayItem('amenities', amenity.id)}
-                                                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
                                                 >
-                                                    <amenity.icon size={32} className={`mb-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-600'}`} />
-                                                    <h3 className="text-lg font-bold text-neutral-900">{amenity.name}</h3>
+                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900">{amenity.name}</h3>
                                                 </div>
                                             )
                                         })}
@@ -451,7 +463,26 @@ export default function HostOnboardingPage() {
                                 </div>
 
                                 <div>
-                                    <h2 className="text-2xl font-bold text-neutral-900 mb-4">Do you have any of these safety items?</h2>
+                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">Do you have any standout amenities?</h2>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {STANDOUT_AMENITIES.map((amenity) => {
+                                            const isSelected = formData.amenities.includes(amenity.id);
+                                            return (
+                                                <div 
+                                                    key={amenity.id}
+                                                    onClick={() => toggleArrayItem('amenities', amenity.id)}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                >
+                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900">{amenity.name}</h3>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">Do you have any of these safety items?</h2>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         {SAFETY_ITEMS.map((item) => {
                                             const isSelected = formData.safety_items.includes(item.id);
@@ -459,10 +490,10 @@ export default function HostOnboardingPage() {
                                                 <div 
                                                     key={item.id}
                                                     onClick={() => toggleArrayItem('safety_items', item.id)}
-                                                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
                                                 >
-                                                    <item.icon size={32} className={`mb-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-600'}`} />
-                                                    <h3 className="text-lg font-bold text-neutral-900">{item.name}</h3>
+                                                    <item.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900">{item.name}</h3>
                                                 </div>
                                             )
                                         })}
