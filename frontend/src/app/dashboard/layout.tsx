@@ -2,7 +2,7 @@
 
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter, usePathname } from 'next/navigation';
-import { Compass, User, Settings, LogOut, Menu, X, Plane, ChevronDown } from 'lucide-react';
+import { Compass, User, Settings, LogOut, Menu, X, Plane, ChevronDown, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -150,6 +150,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
                                             <Settings size={18} className="text-neutral-400" /> Settings
                                         </Link>
+                                        
+                                        <div className="h-px bg-neutral-100 my-2"></div>
+
+                                        {user?.role === 'partner' ? (
+                                            <Link href="/host/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50">
+                                                <Home size={18} className="text-amber-500" /> Switch to Hosting
+                                            </Link>
+                                        ) : (
+                                            <Link href="/host" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                                <Home size={18} className="text-neutral-400" /> Become a Host
+                                            </Link>
+                                        )}
                                         
                                         <div className="h-px bg-neutral-100 my-2"></div>
                                         
