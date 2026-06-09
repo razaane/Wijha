@@ -157,6 +157,25 @@ export default function HostOnboardingPage() {
         });
     };
 
+    const getCityBbox = () => {
+        const defaultBbox = "-7.65,33.55,-7.55,33.60"; // Casablanca fallback
+        if (!formData.address_city) return defaultBbox;
+        
+        const city = availableCities.find(c => c.name === formData.address_city);
+        if (!city || !city.latitude || !city.longitude) return defaultBbox;
+        
+        const lat = parseFloat(city.latitude);
+        const lon = parseFloat(city.longitude);
+        
+        // Create a ~10km bounding box around the city center for OpenStreetMap
+        const minLon = (lon - 0.05).toFixed(4);
+        const minLat = (lat - 0.05).toFixed(4);
+        const maxLon = (lon + 0.05).toFixed(4);
+        const maxLat = (lat + 0.05).toFixed(4);
+        
+        return `${minLon},${minLat},${maxLon},${maxLat}`;
+    };
+
     const toggleArrayItem = (key: 'amenities' | 'safety_items', id: string) => {
         setFormData(prev => {
             const arr = prev[key];
@@ -404,7 +423,7 @@ export default function HostOnboardingPage() {
                                     {/* Real OpenStreetMap Background - NOW INTERACTIVE */}
                                     <iframe 
                                         className="absolute inset-0 w-full h-full border-0 opacity-90 mix-blend-multiply" 
-                                        src="https://www.openstreetmap.org/export/embed.html?bbox=-7.65,33.55,-7.55,33.60&layer=mapnik"
+                                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${getCityBbox()}&layer=mapnik`}
                                         title="Map"
                                     />
                                     
