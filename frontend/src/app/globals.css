@@ -25,3 +25,20 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Custom styles for react-phone-number-input */
+.wijha-phone-input input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-weight: 500;
+  color: #171717; /* neutral-900 */
+}
+.wijha-phone-input .PhoneInputCountry {
+  margin-right: 0.75rem;
+  padding-left: 0.25rem;
+}
+.wijha-phone-input .PhoneInputCountrySelectArrow {
+  opacity: 0.5;
+}

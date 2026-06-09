@@ -5,7 +5,7 @@ namespace Modules\Auth\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateProfileRequest extends FormRequest
+class SendPhoneOtpRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,16 +17,18 @@ class UpdateProfileRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         $userId = auth('api')->id();
 
         return [
-            'name' => ['required', 'string', 'min:2', 'max:255'],
-            'locale' => ['nullable', 'string', 'in:en,fr,ar'],
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^\+?[1-9]\d{6,14}$/',
+                Rule::unique('users', 'phone')->ignore($userId)
+            ],
         ];
     }
 }

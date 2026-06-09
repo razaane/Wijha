@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, clearAuth } = useAuthStore();
+    const { user, logout } = useAuthStore();
     const router = useRouter();
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -17,7 +17,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+        
+        // If we have a token but no user object (e.g. after page refresh), fetch the user
+        const fetchUser = async () => {
+            const token = useAuthStore.getState().token;
+            if (!user && token) {
+                try {
+                    const res = await api.get('/auth/me');
+                    useAuthStore.getState().setAuth(res.data.data, token);
+                } catch (err) {
+                    useAuthStore.getState().logout();
+                    router.push('/login');
+                }
+            }
+        };
+
+        fetchUser();
+    }, [user, router]);
 
     const handleLogout = async () => {
         try {
@@ -25,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         } catch (e) {
             console.error('Logout failed', e);
         } finally {
-            clearAuth();
+            useAuthStore.getState().logout();
             router.push('/login');
         }
     };
@@ -37,7 +53,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { name: 'Settings', href: '/dashboard/settings', icon: Settings },
     ];
 
-    if (!mounted || !user) return null; // Avoid hydration mismatch and ensure user is loaded
+    if (!mounted || !user) {
+        return (
+            <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+            </div>
+        );
+    }
 
     const getAvatarUrl = (avatar: string | null) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=fff`;

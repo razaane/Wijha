@@ -48,5 +48,10 @@ Route::prefix('v1/auth')->group(function () {
         // Profile Management
         Route::put('/profile', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateProfile'])->name('auth.profile.update');
         Route::post('/profile/avatar', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('auth.profile.avatar');
+        
+        Route::middleware('throttle:5,1')->group(function () {
+            Route::post('/profile/phone/send-otp', [\Modules\Auth\Http\Controllers\ProfileController::class, 'sendPhoneOtp'])->name('auth.profile.phone.send-otp');
+            Route::post('/profile/phone/verify', [\Modules\Auth\Http\Controllers\ProfileController::class, 'verifyPhoneOtp'])->name('auth.profile.phone.verify');
+        });
     });
 });
