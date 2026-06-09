@@ -6,6 +6,9 @@ interface User {
     name: string;
     email: string;
     role?: string;
+    avatar?: string | null;
+    phone?: string | null;
+    locale?: string;
 }
 
 interface AuthState {

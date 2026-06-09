@@ -81,7 +81,6 @@ export default function HostOnboardingPage() {
     
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         type: '', 
@@ -232,11 +231,13 @@ export default function HostOnboardingPage() {
 
     const handleSubmit = async () => {
         setLoading(true);
-        setError(null);
+        setStepError(null);
         try {
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price) || 0,
+                latitude: mapCenter?.lat || null,
+                longitude: mapCenter?.lng || null,
                 photos: [] // Mocked for MVP
             };
 
@@ -247,8 +248,16 @@ export default function HostOnboardingPage() {
                 router.push('/dashboard?host=true');
             }
         } catch (err: any) {
-            console.error(err);
-            setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+            console.error("Submission Error:", err.response?.data || err);
+            
+            if (err.response?.data?.errors) {
+                // Extract the first Laravel validation error
+                const firstErrorKey = Object.keys(err.response.data.errors)[0];
+                const firstErrorMessage = err.response.data.errors[firstErrorKey][0];
+                setStepError(firstErrorMessage);
+            } else {
+                setStepError(err.response?.data?.message || 'Something went wrong. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -715,12 +724,6 @@ export default function HostOnboardingPage() {
                                         />
                                     </div>
                                 </div>
-
-                                {error && (
-                                    <div className="p-4 bg-red-50 text-red-600 rounded-xl font-medium">
-                                        {error}
-                                    </div>
-                                )}
                             </motion.div>
                         )}
 

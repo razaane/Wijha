@@ -70,7 +70,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         );
     }
 
-    const getAvatarUrl = (avatar: string | null) => {
+    const getAvatarUrl = (avatar: string | null | undefined) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=fff`;
         if (avatar.startsWith('http')) return avatar;
         return `http://localhost:8000/storage/${avatar}`;
