@@ -19,9 +19,34 @@ class ListingController extends Controller
             'type' => 'required|string',
             'title' => 'required|string',
             'description' => 'nullable|string',
-            'location' => 'required|string',
             'price' => 'required|numeric|min:0',
+            
+            // Rental specific
+            'property_type' => 'nullable|string',
+            'privacy_type' => 'nullable|string',
+            
+            // Address
+            'address_country' => 'nullable|string',
+            'address_street' => 'nullable|string',
+            'address_apt' => 'nullable|string',
+            'address_city' => 'nullable|string',
+            'address_province' => 'nullable|string',
+            'address_postal_code' => 'nullable|string',
+            
+            // Map
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+
+            // Floor Plan
+            'guests_count' => 'nullable|integer|min:1',
+            'bedrooms_count' => 'nullable|integer|min:0',
+            'beds_count' => 'nullable|integer|min:0',
+            'bathrooms_count' => 'nullable|integer|min:0',
+            'has_locks' => 'nullable|boolean',
+
+            // JSON arrays
             'amenities' => 'nullable|array',
+            'safety_items' => 'nullable|array',
             'photos' => 'nullable|array',
         ]);
 

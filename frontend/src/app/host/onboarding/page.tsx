@@ -4,13 +4,33 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ChevronLeft, ChevronRight, Home, MapPin, 
-    Loader2, Sparkles, Map, Ticket, 
-    Wifi, Tv, Car, Coffee, Wind, UploadCloud, X, CheckCircle2
+    Loader2, Sparkles, Map as MapIcon, Ticket, 
+    Wifi, Tv, Car, Coffee, Wind, UploadCloud, X, CheckCircle2,
+    Building2, Tent, Caravan, Castle, Anchor, Flame, ShieldAlert,
+    Plus, Minus
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
 import Link from 'next/link';
+
+// --- Constants ---
+const PROPERTY_TYPES = [
+    { id: 'house', label: 'House', icon: Home },
+    { id: 'apartment', label: 'Apartment', icon: Building2 },
+    { id: 'barn', label: 'Barn', icon: Home },
+    { id: 'boat', label: 'Boat', icon: Anchor },
+    { id: 'cabin', label: 'Cabin', icon: Home },
+    { id: 'camper', label: 'Camper/RV', icon: Caravan },
+    { id: 'castle', label: 'Castle', icon: Castle },
+    { id: 'tent', label: 'Tent', icon: Tent },
+];
+
+const PRIVACY_TYPES = [
+    { id: 'entire_place', label: 'An entire place', desc: 'Guests have the whole place to themselves.' },
+    { id: 'private_room', label: 'A room', desc: 'Guests have their own room, plus access to shared spaces.' },
+    { id: 'shared_room', label: 'A shared room', desc: 'Guests sleep in a room or common area that may be shared.' },
+];
 
 const AMENITIES_LIST = [
     { id: 'wifi', name: 'Fast WiFi', icon: Wifi },
@@ -20,7 +40,11 @@ const AMENITIES_LIST = [
     { id: 'ac', name: 'Air Conditioning', icon: Wind },
 ];
 
-const MOCK_CITIES = ['Marrakech', 'Casablanca', 'Rabat', 'Fes', 'Tangier', 'Agadir', 'Essaouira', 'Chefchaouen'];
+const SAFETY_ITEMS = [
+    { id: 'smoke_alarm', name: 'Smoke alarm', icon: Flame },
+    { id: 'first_aid', name: 'First aid kit', icon: ShieldAlert },
+    { id: 'fire_extinguisher', name: 'Fire extinguisher', icon: ShieldAlert },
+];
 
 export default function HostOnboardingPage() {
     const router = useRouter();
@@ -31,18 +55,27 @@ export default function HostOnboardingPage() {
     const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        type: '',
-        location: '',
+        type: 'rental', // Hardcoded for this specific flow
+        property_type: '',
+        privacy_type: '',
+        address_country: 'Morocco',
+        address_street: '',
+        address_apt: '',
+        address_city: '',
+        address_province: '',
+        address_postal_code: '',
+        guests_count: 2,
+        bedrooms_count: 1,
+        beds_count: 1,
+        bathrooms_count: 1,
+        has_locks: false,
         amenities: [] as string[],
+        safety_items: [] as string[],
         photos: [] as string[],
         title: '',
         description: '',
         price: ''
     });
-
-    // Location suggestions state
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
 
     // Photos state
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,37 +95,31 @@ export default function HostOnboardingPage() {
     const nextStep = () => setStep(s => s + 1);
     const prevStep = () => setStep(s => s - 1);
 
-    const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        setFormData({ ...formData, location: val });
-        if (val.length > 0) {
-            setSuggestions(MOCK_CITIES.filter(c => c.toLowerCase().includes(val.toLowerCase())));
-            setShowSuggestions(true);
-        } else {
-            setShowSuggestions(false);
-        }
+    const updateForm = (key: string, value: any) => setFormData(prev => ({ ...prev, [key]: value }));
+
+    const updateCounter = (key: keyof typeof formData, increment: boolean) => {
+        setFormData(prev => {
+            const current = prev[key] as number;
+            if (!increment && current <= (key === 'guests_count' ? 1 : 0)) return prev;
+            return { ...prev, [key]: increment ? current + 1 : current - 1 };
+        });
     };
 
-    const selectLocation = (city: string) => {
-        setFormData({ ...formData, location: city });
-        setShowSuggestions(false);
-    };
-
-    const toggleAmenity = (id: string) => {
-        if (formData.amenities.includes(id)) {
-            setFormData({ ...formData, amenities: formData.amenities.filter(a => a !== id) });
-        } else {
-            setFormData({ ...formData, amenities: [...formData.amenities, id] });
-        }
+    const toggleArrayItem = (key: 'amenities' | 'safety_items', id: string) => {
+        setFormData(prev => {
+            const arr = prev[key];
+            if (arr.includes(id)) {
+                return { ...prev, [key]: arr.filter(a => a !== id) };
+            }
+            return { ...prev, [key]: [...arr, id] };
+        });
     };
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            // For MVP, we will just create object URLs to preview them
             const newFiles = Array.from(e.target.files);
             const newUrls = newFiles.map(file => URL.createObjectURL(file));
             setPreviewUrls([...previewUrls, ...newUrls]);
-            // In a real app, you would upload these files via API and save the returned URLs to formData.photos
         }
     };
 
@@ -106,18 +133,15 @@ export default function HostOnboardingPage() {
         setLoading(true);
         setError(null);
         try {
-            // Submit the full listing to the backend
             const payload = {
                 ...formData,
                 price: parseFloat(formData.price) || 0,
-                // Passing empty photos array since we didn't implement real file upload to S3 yet
-                photos: [] 
+                photos: [] // Mocked for MVP
             };
 
             const res = await api.post('/listings', payload);
             
             if (res.data && res.data.data) {
-                // Update local auth store with new user role
                 setAuth(res.data.data.user, token!);
                 router.push('/dashboard?host=true');
             }
@@ -130,13 +154,20 @@ export default function HostOnboardingPage() {
     };
 
     const isNextDisabled = () => {
-        if (step === 1 && !formData.type) return true;
-        if (step === 2 && !formData.location) return true;
-        if (step === 4 && previewUrls.length === 0) return true;
-        if (step === 5 && (!formData.title || !formData.description)) return true;
-        if (step === 6 && !formData.price) return true;
+        if (step === 1 && !formData.property_type) return true;
+        if (step === 2 && !formData.privacy_type) return true;
+        if (step === 3 && (!formData.address_street || !formData.address_city)) return true;
+        // Step 4 is map, no validation needed
+        // Step 5 is counters, always valid
+        // Step 6 is amenities, optional
+        if (step === 7 && previewUrls.length === 0) return true;
+        if (step === 8 && !formData.title) return true;
+        if (step === 9 && !formData.description) return true;
+        if (step === 10 && !formData.price) return true;
         return false;
     };
+
+    const TOTAL_STEPS = 10;
 
     return (
         <div className="min-h-screen bg-white flex flex-col font-sans text-neutral-900">
@@ -145,7 +176,7 @@ export default function HostOnboardingPage() {
             <header className="h-20 border-b border-neutral-100 flex items-center justify-between px-4 sm:px-8 bg-white sticky top-0 z-50">
                 <Link href="/host" className="text-2xl font-black text-amber-500 tracking-tight">Wijha</Link>
                 <Link href="/host" className="text-sm font-bold text-neutral-500 hover:text-neutral-900 px-4 py-2 rounded-full hover:bg-neutral-50 transition-colors">
-                    Save & Exit
+                    Save & exit
                 </Link>
             </header>
 
@@ -153,40 +184,29 @@ export default function HostOnboardingPage() {
             <div className="w-full bg-neutral-100 h-1.5">
                 <div 
                     className="bg-neutral-900 h-1.5 transition-all duration-500 ease-out" 
-                    style={{ width: `${(step / 6) * 100}%` }}
+                    style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
                 ></div>
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+            <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pb-32">
                 <div className="w-full max-w-2xl">
                     <AnimatePresence mode="wait">
                         
                         {/* STEP 1: Property Type */}
                         {step === 1 && (
-                            <motion.div 
-                                key="step1"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
+                            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    Which of these best describes your listing?
+                                    Which of these best describes your place?
                                 </h1>
-                                
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    {[
-                                        { id: 'rental', icon: Home, label: 'Rental' },
-                                        { id: 'tour', icon: Map, label: 'Tour' },
-                                        { id: 'event', icon: Ticket, label: 'Event' },
-                                    ].map((item) => (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    {PROPERTY_TYPES.map((item) => (
                                         <div 
                                             key={item.id}
-                                            onClick={() => setFormData({ ...formData, type: item.id })}
-                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${formData.type === item.id ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+                                            onClick={() => updateForm('property_type', item.id)}
+                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${formData.property_type === item.id ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-900'}`}
                                         >
-                                            <item.icon size={32} className={`mb-4 ${formData.type === item.id ? 'text-neutral-900' : 'text-neutral-400'}`} />
+                                            <item.icon size={32} className={`mb-4 ${formData.property_type === item.id ? 'text-neutral-900' : 'text-neutral-600'}`} />
                                             <h3 className="text-lg font-bold text-neutral-900">{item.label}</h3>
                                         </div>
                                     ))}
@@ -194,119 +214,236 @@ export default function HostOnboardingPage() {
                             </motion.div>
                         )}
 
-                        {/* STEP 2: Location */}
+                        {/* STEP 2: Privacy Type */}
                         {step === 2 && (
-                            <motion.div 
-                                key="step2"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8 relative"
-                            >
+                            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    Where's your place located?
+                                    What type of place will guests have?
+                                </h1>
+                                <div className="space-y-4">
+                                    {PRIVACY_TYPES.map((item) => (
+                                        <div 
+                                            key={item.id}
+                                            onClick={() => updateForm('privacy_type', item.id)}
+                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex justify-between items-center ${formData.privacy_type === item.id ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                        >
+                                            <div>
+                                                <h3 className="text-xl font-bold text-neutral-900 mb-1">{item.label}</h3>
+                                                <p className="text-neutral-500">{item.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* STEP 3: Address Form */}
+                        {step === 3 && (
+                            <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    Confirm your address
                                 </h1>
                                 <p className="text-lg text-neutral-500">Your exact address won't be shared with guests until they book.</p>
                                 
-                                <div className="relative">
-                                    <MapPin size={24} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" />
-                                    <input 
-                                        type="text" 
-                                        placeholder="Enter your city (e.g., Marrakech)" 
-                                        value={formData.location}
-                                        onChange={handleLocationChange}
-                                        onFocus={() => { if (formData.location) setShowSuggestions(true) }}
-                                        className="w-full pl-12 pr-6 py-5 text-lg rounded-2xl border-2 border-neutral-200 bg-white text-neutral-900 font-bold focus:border-neutral-900 focus:ring-0 outline-none transition-all shadow-sm"
-                                        autoFocus
-                                    />
-                                    
-                                    {/* Location Suggestions Dropdown */}
-                                    {showSuggestions && suggestions.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-neutral-200 rounded-2xl shadow-xl overflow-hidden z-50">
-                                            {suggestions.map((city) => (
-                                                <div 
-                                                    key={city}
-                                                    onClick={() => selectLocation(city)}
-                                                    className="px-6 py-4 hover:bg-neutral-50 cursor-pointer flex items-center gap-3 border-b border-neutral-100 last:border-0"
-                                                >
-                                                    <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                                        <MapPin size={18} className="text-neutral-500" />
-                                                    </div>
-                                                    <span className="font-bold text-neutral-900">{city}, Morocco</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* STEP 3: Amenities */}
-                        {step === 3 && (
-                            <motion.div 
-                                key="step3"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    Tell guests what your place has to offer
-                                </h1>
-                                <p className="text-lg text-neutral-500">You can add more amenities after you publish.</p>
-                                
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                    {AMENITIES_LIST.map((amenity) => {
-                                        const isSelected = formData.amenities.includes(amenity.id);
-                                        return (
-                                            <div 
-                                                key={amenity.id}
-                                                onClick={() => toggleAmenity(amenity.id)}
-                                                className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start ${isSelected ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+                                <div className="space-y-4">
+                                    <div className="border border-neutral-300 rounded-2xl overflow-hidden">
+                                        <div className="p-4 border-b border-neutral-300 bg-neutral-50">
+                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Country / Region</label>
+                                            <select 
+                                                value={formData.address_country}
+                                                onChange={(e) => updateForm('address_country', e.target.value)}
+                                                className="w-full bg-transparent font-bold text-neutral-900 outline-none appearance-none"
                                             >
-                                                <amenity.icon size={32} className={`mb-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} />
-                                                <h3 className="text-lg font-bold text-neutral-900">{amenity.name}</h3>
-                                            </div>
-                                        )
-                                    })}
+                                                <option>Morocco</option>
+                                                <option>France</option>
+                                                <option>Spain</option>
+                                            </select>
+                                        </div>
+                                        <div className="p-4 border-b border-neutral-300">
+                                            <input 
+                                                type="text" placeholder="Street address" 
+                                                value={formData.address_street} onChange={(e) => updateForm('address_street', e.target.value)}
+                                                className="w-full font-medium text-neutral-900 placeholder-neutral-400 outline-none"
+                                            />
+                                        </div>
+                                        <div className="p-4 border-b border-neutral-300">
+                                            <input 
+                                                type="text" placeholder="Apt, floor, bldg (if applicable)" 
+                                                value={formData.address_apt} onChange={(e) => updateForm('address_apt', e.target.value)}
+                                                className="w-full font-medium text-neutral-900 placeholder-neutral-400 outline-none"
+                                            />
+                                        </div>
+                                        <div className="p-4 border-b border-neutral-300">
+                                            <input 
+                                                type="text" placeholder="City / town / village" 
+                                                value={formData.address_city} onChange={(e) => updateForm('address_city', e.target.value)}
+                                                className="w-full font-medium text-neutral-900 placeholder-neutral-400 outline-none"
+                                            />
+                                        </div>
+                                        <div className="p-4 border-b border-neutral-300">
+                                            <input 
+                                                type="text" placeholder="Province / state (if applicable)" 
+                                                value={formData.address_province} onChange={(e) => updateForm('address_province', e.target.value)}
+                                                className="w-full font-medium text-neutral-900 placeholder-neutral-400 outline-none"
+                                            />
+                                        </div>
+                                        <div className="p-4">
+                                            <input 
+                                                type="text" placeholder="Postal code (if applicable)" 
+                                                value={formData.address_postal_code} onChange={(e) => updateForm('address_postal_code', e.target.value)}
+                                                className="w-full font-medium text-neutral-900 placeholder-neutral-400 outline-none"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* STEP 4: Photos */}
+                        {/* STEP 4: Map Pin */}
                         {step === 4 && (
-                            <motion.div 
-                                key="step4"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
+                            <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 h-full flex flex-col">
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    Add some photos of your place
+                                    Is the pin in the right spot?
                                 </h1>
-                                <p className="text-lg text-neutral-500">You'll need 1 photo to get started. You can add more or make changes later.</p>
+                                <p className="text-lg text-neutral-500">Your address is only shared with guests after they've made a reservation.</p>
+                                
+                                <div className="flex-1 w-full h-[400px] bg-neutral-100 rounded-3xl relative overflow-hidden flex items-center justify-center border border-neutral-200">
+                                    {/* Map Mockup Background */}
+                                    <div className="absolute inset-0 opacity-40 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=33.5731,-7.5898&zoom=15&size=800x600&sensor=false')] bg-cover bg-center mix-blend-luminosity"></div>
+                                    
+                                    {/* Draggable Pin Mockup */}
+                                    <div className="relative z-10 flex flex-col items-center cursor-pointer animate-bounce">
+                                        <div className="bg-neutral-900 text-white px-4 py-2 rounded-full font-bold shadow-xl mb-2 flex items-center gap-2">
+                                            <Home size={16} /> <span>Drag map to adjust</span>
+                                        </div>
+                                        <div className="w-10 h-10 bg-neutral-900 text-white rounded-full flex items-center justify-center shadow-2xl">
+                                            <MapPin size={24} />
+                                        </div>
+                                        <div className="w-2 h-2 bg-neutral-900 rounded-full mt-1"></div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* STEP 5: Floor Plan / Basics */}
+                        {step === 5 && (
+                            <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    Let's start with the basics
+                                </h1>
+                                <p className="text-lg text-neutral-500">How many people can stay here?</p>
+
+                                <div className="space-y-6">
+                                    {[
+                                        { id: 'guests_count', label: 'Guests' },
+                                        { id: 'bedrooms_count', label: 'Bedrooms' },
+                                        { id: 'beds_count', label: 'Beds' },
+                                        { id: 'bathrooms_count', label: 'Bathrooms' },
+                                    ].map((item) => (
+                                        <div key={item.id} className="flex items-center justify-between py-4 border-b border-neutral-100">
+                                            <span className="text-xl text-neutral-900">{item.label}</span>
+                                            <div className="flex items-center gap-4">
+                                                <button 
+                                                    onClick={() => updateCounter(item.id as any, false)}
+                                                    className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 transition-colors disabled:opacity-30"
+                                                    disabled={(formData as any)[item.id] <= (item.id === 'guests_count' ? 1 : 0)}
+                                                >
+                                                    <Minus size={18} />
+                                                </button>
+                                                <span className="text-xl w-6 text-center">{formData[item.id as keyof typeof formData]}</span>
+                                                <button 
+                                                    onClick={() => updateCounter(item.id as any, true)}
+                                                    className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                                                >
+                                                    <Plus size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    
+                                    <div className="pt-6">
+                                        <h3 className="text-xl text-neutral-900 mb-4">Does every bedroom have a lock?</h3>
+                                        <div className="flex gap-4">
+                                            <button 
+                                                onClick={() => updateForm('has_locks', true)}
+                                                className={`px-8 py-3 rounded-full border-2 font-bold transition-all ${formData.has_locks === true ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-900 hover:border-neutral-900'}`}
+                                            >Yes</button>
+                                            <button 
+                                                onClick={() => updateForm('has_locks', false)}
+                                                className={`px-8 py-3 rounded-full border-2 font-bold transition-all ${formData.has_locks === false ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-900 hover:border-neutral-900'}`}
+                                            >No</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* STEP 6: Amenities & Safety */}
+                        {step === 6 && (
+                            <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
+                                <div>
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-4">
+                                        Tell guests what your place has to offer
+                                    </h1>
+                                    <p className="text-lg text-neutral-500 mb-6">Do you have any standout amenities?</p>
+                                    
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        {AMENITIES_LIST.map((amenity) => {
+                                            const isSelected = formData.amenities.includes(amenity.id);
+                                            return (
+                                                <div 
+                                                    key={amenity.id}
+                                                    onClick={() => toggleArrayItem('amenities', amenity.id)}
+                                                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start ${isSelected ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                >
+                                                    <amenity.icon size={32} className={`mb-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} />
+                                                    <h3 className="text-lg font-bold text-neutral-900">{amenity.name}</h3>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl font-bold text-neutral-900 mb-4">Do you have any of these safety items?</h2>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                        {SAFETY_ITEMS.map((item) => {
+                                            const isSelected = formData.safety_items.includes(item.id);
+                                            return (
+                                                <div 
+                                                    key={item.id}
+                                                    onClick={() => toggleArrayItem('safety_items', item.id)}
+                                                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start ${isSelected ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                >
+                                                    <item.icon size={32} className={`mb-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} />
+                                                    <h3 className="text-lg font-bold text-neutral-900">{item.name}</h3>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* STEP 7: Photos */}
+                        {step === 7 && (
+                            <motion.div key="step7" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    Add some photos of your house
+                                </h1>
+                                <p className="text-lg text-neutral-500">You'll need 5 photos to get started. You can add more or make changes later.</p>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {/* Upload Button */}
                                     <div 
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="h-64 border-2 border-dashed border-neutral-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-neutral-500 hover:bg-neutral-50 transition-all"
+                                        className="h-64 border-2 border-dashed border-neutral-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-neutral-900 hover:bg-neutral-50 transition-all"
                                     >
                                         <UploadCloud size={48} className="text-neutral-400 mb-4" />
                                         <span className="font-bold text-neutral-900">Upload Photos</span>
                                         <span className="text-sm text-neutral-500 mt-1">Drag and drop or click</span>
                                     </div>
-                                    <input 
-                                        type="file" 
-                                        multiple 
-                                        accept="image/*" 
-                                        ref={fileInputRef} 
-                                        onChange={handlePhotoUpload} 
-                                        className="hidden" 
-                                    />
+                                    <input type="file" multiple accept="image/*" ref={fileInputRef} onChange={handlePhotoUpload} className="hidden" />
 
-                                    {/* Photo Previews */}
                                     {previewUrls.map((url, index) => (
                                         <div key={index} className="h-64 rounded-3xl overflow-hidden relative group border border-neutral-200 shadow-sm">
                                             <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
@@ -322,53 +459,45 @@ export default function HostOnboardingPage() {
                             </motion.div>
                         )}
 
-                        {/* STEP 5: Title & Description */}
-                        {step === 5 && (
-                            <motion.div 
-                                key="step5"
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                className="space-y-8"
-                            >
+                        {/* STEP 8: Title */}
+                        {step === 8 && (
+                            <motion.div key="step8" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    Give your listing a title and description
+                                    Now, let's give your house a title
                                 </h1>
+                                <p className="text-lg text-neutral-500">Short titles work best. Have fun with it—you can always change it later.</p>
                                 
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Title</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder="e.g. Stunning Riad with Pool in Medina" 
-                                            value={formData.title}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            className="w-full px-4 py-4 text-lg rounded-2xl border-2 border-neutral-200 bg-white font-bold text-neutral-900 focus:border-neutral-900 outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Description</label>
-                                        <textarea 
-                                            rows={5}
-                                            placeholder="Tell guests what makes your place special..." 
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full px-4 py-4 text-lg rounded-2xl border-2 border-neutral-200 bg-white font-medium text-neutral-900 focus:border-neutral-900 outline-none transition-all resize-none"
-                                        />
-                                    </div>
-                                </div>
+                                <textarea 
+                                    rows={5}
+                                    placeholder="e.g. Stunning Riad with Pool in Medina" 
+                                    value={formData.title}
+                                    onChange={(e) => updateForm('title', e.target.value)}
+                                    className="w-full p-6 text-2xl rounded-3xl border-2 border-neutral-300 bg-white font-bold text-neutral-900 focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
+                                />
                             </motion.div>
                         )}
 
-                        {/* STEP 6: Pricing */}
-                        {step === 6 && (
-                            <motion.div 
-                                key="step6"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                className="space-y-8 text-center"
-                            >
+                        {/* STEP 9: Description */}
+                        {step === 9 && (
+                            <motion.div key="step9" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    Create your description
+                                </h1>
+                                <p className="text-lg text-neutral-500">Share what makes your place special.</p>
+                                
+                                <textarea 
+                                    rows={8}
+                                    placeholder="Describe your property..." 
+                                    value={formData.description}
+                                    onChange={(e) => updateForm('description', e.target.value)}
+                                    className="w-full p-6 text-xl rounded-3xl border-2 border-neutral-300 bg-white font-medium text-neutral-900 focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
+                                />
+                            </motion.div>
+                        )}
+
+                        {/* STEP 10: Pricing */}
+                        {step === 10 && (
+                            <motion.div key="step10" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8 text-center">
                                 <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
                                     Now, set your price
                                 </h1>
@@ -381,7 +510,7 @@ export default function HostOnboardingPage() {
                                             type="number" 
                                             placeholder="0"
                                             value={formData.price}
-                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                            onChange={(e) => updateForm('price', e.target.value)}
                                             className="w-full pl-[160px] pr-4 py-4 text-7xl font-black text-neutral-900 bg-transparent border-0 focus:ring-0 outline-none w-auto text-center placeholder-neutral-200"
                                             style={{ width: '400px' }}
                                         />
@@ -401,8 +530,8 @@ export default function HostOnboardingPage() {
             </main>
 
             {/* Footer Navigation */}
-            <footer className="h-24 border-t border-neutral-200 bg-white flex items-center justify-between px-4 sm:px-8 max-w-[1440px] mx-auto w-full sticky bottom-0 z-50">
-                <div>
+            <footer className="h-24 border-t border-neutral-200 bg-white flex items-center justify-between px-4 sm:px-8 max-w-[1440px] mx-auto w-full fixed bottom-0 z-50">
+                <div className="flex-1">
                     {step > 1 && (
                         <button 
                             onClick={prevStep}
@@ -412,12 +541,12 @@ export default function HostOnboardingPage() {
                         </button>
                     )}
                 </div>
-                <div>
-                    {step < 6 ? (
+                <div className="flex-1 flex justify-end">
+                    {step < TOTAL_STEPS ? (
                         <button 
                             onClick={nextStep}
                             disabled={isNextDisabled()}
-                            className="px-8 py-3.5 rounded-xl bg-neutral-900 text-white font-bold hover:bg-black disabled:opacity-50 transition-all flex items-center gap-2"
+                            className="px-10 py-4 rounded-xl bg-neutral-900 text-white font-bold hover:bg-black disabled:opacity-50 transition-all flex items-center gap-2"
                         >
                             Next <ChevronRight size={20} />
                         </button>
@@ -425,7 +554,7 @@ export default function HostOnboardingPage() {
                         <button 
                             onClick={handleSubmit}
                             disabled={loading || isNextDisabled()}
-                            className="px-8 py-3.5 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 text-white font-bold hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-70"
+                            className="px-10 py-4 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 text-white font-bold hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-70"
                         >
                             {loading ? <Loader2 size={20} className="animate-spin" /> : (
                                 <>Publish Listing <CheckCircle2 size={20} /></>
