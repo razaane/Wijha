@@ -1,4 +1,5 @@
 {
     "Auth": true,
-    "Core": true
+    "Core": true,
+    "Listing": true
 }
