@@ -360,7 +360,7 @@ export default function HostOnboardingPage() {
                                     <p className="text-lg text-neutral-500 mt-2">Your address is only shared with guests after they've made a reservation.</p>
                                 </div>
                                 
-                                <div className="flex-1 w-full h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
+                                <div className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
                                     {/* Clean Map Mockup Background */}
                                     <div className="absolute inset-0 opacity-60 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=33.5731,-7.5898&zoom=15&size=800x600&sensor=false&style=feature:all|element:labels|visibility:off')] bg-cover bg-center mix-blend-multiply"></div>
                                     
