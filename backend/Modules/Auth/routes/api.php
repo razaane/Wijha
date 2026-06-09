@@ -44,5 +44,9 @@ Route::prefix('v1/auth')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
         Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+        
+        // Profile Management
+        Route::put('/profile', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateProfile'])->name('auth.profile.update');
+        Route::post('/profile/avatar', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('auth.profile.avatar');
     });
 });
