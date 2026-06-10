@@ -23,6 +23,24 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     
+    // Password Strength Logic
+    const calculateStrength = (pass: string) => {
+        let score = 0;
+        if (!pass) return { score: 0, label: '', bg: 'bg-neutral-200', text: 'text-neutral-400' };
+        
+        if (pass.length >= 8) score += 25;
+        if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score += 25;
+        if (/[0-9]/.test(pass)) score += 25;
+        if (/[^A-Za-z0-9]/.test(pass)) score += 25;
+
+        if (score <= 25) return { score, label: 'Weak', bg: 'bg-red-500', text: 'text-red-500' };
+        if (score <= 50) return { score, label: 'Fair', bg: 'bg-amber-500', text: 'text-amber-500' };
+        if (score <= 75) return { score, label: 'Good', bg: 'bg-emerald-400', text: 'text-emerald-500' };
+        return { score, label: 'Strong', bg: 'bg-emerald-600', text: 'text-emerald-600' };
+    };
+
+    const strength = calculateStrength(password);
+    
     const setAuth = useAuthStore((state) => state.setAuth);
     const router = useRouter();
 
@@ -46,8 +64,16 @@ export default function RegisterPage() {
             });
             setStep(2);
         } catch (err: unknown) {
-            const error = err as { response?: { data?: { message?: string } } };
-            setError(error.response?.data?.message || 'Failed to send verification code. Please check your details.');
+            const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
+            
+            // Extract the first validation error if it exists, otherwise fall back to the general message
+            let errorMessage = error.response?.data?.message || 'Failed to send verification code. Please check your details.';
+            if (error.response?.data?.errors) {
+                const firstErrorKey = Object.keys(error.response.data.errors)[0];
+                errorMessage = error.response.data.errors[firstErrorKey][0];
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -76,8 +102,15 @@ export default function RegisterPage() {
             setAuth(user, access_token);
             router.push('/dashboard');
         } catch (err: unknown) {
-            const error = err as { response?: { data?: { message?: string, errors?: { otp?: string[] } } } };
-            setError(error.response?.data?.errors?.otp?.[0] || error.response?.data?.message || 'Invalid verification code.');
+            const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
+            
+            let errorMessage = error.response?.data?.message || 'Invalid verification code.';
+            if (error.response?.data?.errors) {
+                const firstErrorKey = Object.keys(error.response.data.errors)[0];
+                errorMessage = error.response.data.errors[firstErrorKey][0];
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -219,6 +252,24 @@ export default function RegisterPage() {
                                                     minLength={8}
                                                 />
                                             </div>
+                                            
+                                            {/* Password Strength Meter */}
+                                            <div className="pt-2 px-1">
+                                                <div className="flex justify-between items-center mb-1.5">
+                                                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Strength</span>
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${strength.text}`}>
+                                                        {strength.label || 'None'}
+                                                    </span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden flex gap-1">
+                                                    {[25, 50, 75, 100].map((threshold) => (
+                                                        <div 
+                                                            key={threshold}
+                                                            className={`h-full w-1/4 rounded-full transition-colors duration-300 ${strength.score >= threshold ? strength.bg : 'bg-neutral-200'}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                         
                                         <div className="space-y-1">
@@ -231,18 +282,32 @@ export default function RegisterPage() {
                                                     type="password"
                                                     value={passwordConfirmation}
                                                     onChange={(e) => setPasswordConfirmation(e.target.value)}
-                                                    className="w-full bg-neutral-50 border border-neutral-200 text-neutral-900 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all placeholder:text-neutral-400 font-medium"
+                                                    className={`w-full bg-neutral-50 border text-neutral-900 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 transition-all placeholder:text-neutral-400 font-medium ${
+                                                        passwordConfirmation.length > 0 && password !== passwordConfirmation 
+                                                            ? 'border-red-300 focus:ring-red-500/50 focus:border-red-500' 
+                                                            : passwordConfirmation.length > 0 && password === passwordConfirmation
+                                                                ? 'border-emerald-300 focus:ring-emerald-500/50 focus:border-emerald-500'
+                                                                : 'border-neutral-200 focus:ring-amber-500/50 focus:border-amber-500'
+                                                    }`}
                                                     placeholder="••••••••"
                                                     required
                                                     minLength={8}
                                                 />
                                             </div>
+                                            {/* Real-time match text */}
+                                            {passwordConfirmation.length > 0 && (
+                                                <div className="pt-2 px-1">
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider ${password === passwordConfirmation ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                        {password === passwordConfirmation ? 'Passwords Match ✓' : 'Passwords do not match ✗'}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
                                     <button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || strength.score < 50 || (passwordConfirmation.length > 0 && password !== passwordConfirmation)}
                                         className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
                                         {loading ? <Loader2 size={20} className="animate-spin" /> : 'Continue'}

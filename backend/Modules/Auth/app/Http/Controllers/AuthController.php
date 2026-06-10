@@ -81,7 +81,7 @@ class AuthController extends Controller
         if (!$result) {
             return $this->errorResponse(
                 'INVALID_CREDENTIALS',
-                'The provided credentials are incorrect.',
+                'The email or password you entered is incorrect. Please double-check and try again.',
                 401
             );
         }
@@ -102,9 +102,13 @@ class AuthController extends Controller
     {
         $this->authService->logout();
 
-        return $this->successResponse(
+        $response = $this->successResponse(
             message: 'Successfully logged out.'
         );
+
+        return $response->withoutCookie('wijha_token')
+                        ->withoutCookie('wijha_refresh_token')
+                        ->withoutCookie('is_logged_in');
     }
 
     /**
@@ -114,12 +118,18 @@ class AuthController extends Controller
      */
     public function refresh(Request $request): JsonResponse
     {
-        $request->validate([
-            'refresh_token' => ['required', 'string'],
-        ]);
+        $refreshToken = $request->input('refresh_token') ?? $request->cookie('wijha_refresh_token');
+
+        if (!$refreshToken) {
+            return $this->errorResponse(
+                'TOKEN_ABSENT',
+                'Refresh token is required.',
+                400
+            );
+        }
 
         $result = $this->authService->refresh(
-            $request->input('refresh_token'),
+            $refreshToken,
             [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),

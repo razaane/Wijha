@@ -28,8 +28,15 @@ export default function LoginPage() {
             setAuth(user, access_token);
             router.push('/dashboard');
         } catch (err: unknown) {
-            const error = err as { response?: { data?: { message?: string } } };
-            setError(error.response?.data?.message || 'Invalid credentials. Please try again.');
+            const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
+            
+            let errorMessage = error.response?.data?.message || 'Invalid credentials. Please try again.';
+            if (error.response?.data?.errors) {
+                const firstErrorKey = Object.keys(error.response.data.errors)[0];
+                errorMessage = error.response.data.errors[firstErrorKey][0];
+            }
+            
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
