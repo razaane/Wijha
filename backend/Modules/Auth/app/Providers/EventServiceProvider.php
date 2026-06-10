@@ -11,7 +11,11 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<string, array<int, string>>
      */
-    protected $listen = [];
+    protected $listen = [
+        \Modules\Listing\Events\ListingCreated::class => [
+            \Modules\Auth\Listeners\UpgradeUserToPartner::class,
+        ],
+    ];
 
     /**
      * Indicates if events should be discovered.
