@@ -99,7 +99,6 @@ export default function HostOnboardingPage() {
         has_locks: false,
         amenities: [] as string[],
         safety_items: [] as string[],
-        photos: [] as string[],
         title: '',
         description: '',
         price: ''
@@ -108,6 +107,7 @@ export default function HostOnboardingPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mapRef = useRef<HTMLDivElement>(null);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [photoFiles, setPhotoFiles] = useState<File[]>([]);
     
     const [selectedCountryCode, setSelectedCountryCode] = useState('MA');
     const [availableCities, setAvailableCities] = useState<any[]>([]);
@@ -219,29 +219,60 @@ export default function HostOnboardingPage() {
         if (e.target.files && e.target.files.length > 0) {
             const newFiles = Array.from(e.target.files);
             const newUrls = newFiles.map(file => URL.createObjectURL(file));
-            setPreviewUrls([...previewUrls, ...newUrls]);
+            setPreviewUrls(prev => [...prev, ...newUrls]);
+            setPhotoFiles(prev => [...prev, ...newFiles]);
         }
     };
 
     const removePhoto = (index: number) => {
-        const newUrls = [...previewUrls];
-        newUrls.splice(index, 1);
-        setPreviewUrls(newUrls);
+        // Revoke the blob URL to free memory
+        URL.revokeObjectURL(previewUrls[index]);
+        setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+        setPhotoFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         setStepError(null);
         try {
-            const payload = {
-                ...formData,
-                price: parseFloat(formData.price) || 0,
-                latitude: mapCenter?.lat || null,
-                longitude: mapCenter?.lng || null,
-                photos: [] // Mocked for MVP
-            };
+            const fd = new FormData();
 
-            const res = await api.post('/listings', payload);
+            // Append all text/number fields
+            fd.append('type', formData.type);
+            fd.append('property_type', formData.property_type);
+            fd.append('privacy_type', formData.privacy_type);
+            fd.append('address_country', formData.address_country);
+            fd.append('address_street', formData.address_street);
+            fd.append('address_apt', formData.address_apt);
+            fd.append('address_city', formData.address_city);
+            fd.append('address_province', formData.address_province);
+            fd.append('address_postal_code', formData.address_postal_code);
+            fd.append('guests_count', String(formData.guests_count));
+            fd.append('bedrooms_count', String(formData.bedrooms_count));
+            fd.append('beds_count', String(formData.beds_count));
+            fd.append('bathrooms_count', String(formData.bathrooms_count));
+            fd.append('has_locks', formData.has_locks ? '1' : '0');
+            fd.append('title', formData.title);
+            fd.append('description', formData.description);
+            fd.append('price', String(parseFloat(formData.price) || 0));
+
+            if (mapCenter) {
+                fd.append('latitude', String(mapCenter.lat));
+                fd.append('longitude', String(mapCenter.lng));
+            }
+
+            // Arrays must be sent as JSON strings (FormData limitation)
+            fd.append('amenities', JSON.stringify(formData.amenities));
+            fd.append('safety_items', JSON.stringify(formData.safety_items));
+
+            // Append actual photo files
+            photoFiles.forEach((file) => {
+                fd.append('photos[]', file);
+            });
+
+            const res = await api.post('/listings', fd, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
             
             if (res.data && res.data.data) {
                 setAuth(res.data.data.user, token!);
