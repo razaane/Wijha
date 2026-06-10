@@ -10,18 +10,11 @@ export const api = axios.create({
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
+    withCredentials: true,
 });
 
-// Intercept requests to attach the JWT token if it exists
-api.interceptors.request.use((config) => {
-    if (typeof window !== 'undefined') {
-        const token = Cookies.get('wijha_token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-    }
-    return config;
-});
+// We no longer need to manually attach the token because it's stored securely
+// in an HttpOnly cookie that the browser attaches automatically due to withCredentials: true
 
 // Intercept responses to handle global errors like 401 Unauthorized
 api.interceptors.response.use(
@@ -29,7 +22,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             if (typeof window !== 'undefined') {
-                Cookies.remove('wijha_token');
+                Cookies.remove('is_logged_in');
                 // Optional: redirect to login
             }
         }

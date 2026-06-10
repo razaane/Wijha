@@ -18,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Ensure API requests always get JSON responses
+        // Ensure API requests always get JSON responses and process JWT from cookies
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\AddJwtFromCookie::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

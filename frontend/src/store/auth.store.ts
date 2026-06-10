@@ -21,19 +21,18 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
-    token: typeof window !== 'undefined' ? Cookies.get('wijha_token') || null : null,
-    isAuthenticated: typeof window !== 'undefined' ? !!Cookies.get('wijha_token') : false,
+    token: null, // Token is now securely stored in an HttpOnly cookie and managed by the backend
+    isAuthenticated: typeof window !== 'undefined' ? !!Cookies.get('is_logged_in') : false,
 
     setAuth: (user, token) => {
-        if (typeof window !== 'undefined') {
-            Cookies.set('wijha_token', token, { expires: 7, secure: true, sameSite: 'lax' });
-        }
+        // The token is now set automatically by the backend via HttpOnly cookies
+        // We only keep the token parameter here for legacy compatibility in memory if needed
         set({ user, token, isAuthenticated: true });
     },
 
     logout: () => {
         if (typeof window !== 'undefined') {
-            Cookies.remove('wijha_token');
+            Cookies.remove('is_logged_in');
         }
         set({ user: null, token: null, isAuthenticated: false });
     },
