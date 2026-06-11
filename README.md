@@ -20,7 +20,7 @@ Wijha is structured as a **Monorepo** consisting of a modern, SEO-optimized fron
 - **Data Fetching:** React Query (TanStack Query)
 
 ### ⚙️ Backend (`/backend`)
-- **Framework:** [Laravel 11](https://laravel.com/)
+- **Framework:** [Laravel 13](https://laravel.com/)
 - **Architecture:** Domain-Driven Design (DDD) via `nwidart/laravel-modules`
 - **Database:** PostgreSQL 16
 - **Authentication:** JWT (JSON Web Tokens) via `tymon/jwt-auth`
@@ -107,7 +107,7 @@ The backend is strictly modularized to maintain separation of concerns:
 
 1. **Auth Module:** Handles user registration, login, JWT token rotation, and Role-Based Access Control (RBAC).
 2. **Core Module:** The foundation layer. Contains shared geographic dictionaries (Countries, Regions, Cities with coordinates) and global API response traits. Fully supports `ar`, `fr`, and `en` translations.
-3. *(Upcoming)* **Places Module:** Management of Points of Interest (Monuments, Medinas, Parks).
+3. **Listing Module:** Management of Points of Interest, Rentals, Events, Tours.
 4. *(Upcoming)* **Events Module:** Ticketing and local event management.
 5. *(Upcoming)* **Accommodations Module:** Hotel and riad bookings.
 
