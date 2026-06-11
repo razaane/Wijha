@@ -18,10 +18,10 @@ export default function LandingPage() {
         </div>
         
         <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/destinations" className="hover:text-amber-400 transition-colors">Destinations</Link>
-          <Link href="/stays" className="hover:text-amber-400 transition-colors">Stays</Link>
-          <Link href="/experiences" className="hover:text-amber-400 transition-colors">Experiences</Link>
-          <Link href="/events" className="hover:text-amber-400 transition-colors">Events</Link>
+          <Link href="#" className="hover:text-amber-400 transition-colors" title="Coming soon">Destinations</Link>
+          <Link href="#" className="hover:text-amber-400 transition-colors" title="Coming soon">Stays</Link>
+          <Link href="#" className="hover:text-amber-400 transition-colors opacity-50 cursor-not-allowed" title="Coming soon">Experiences</Link>
+          <Link href="#" className="hover:text-amber-400 transition-colors opacity-50 cursor-not-allowed" title="Coming soon">Events</Link>
         </div>
 
         <div className="flex items-center gap-4">
@@ -87,7 +87,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <button className="bg-amber-500 hover:bg-amber-400 text-white p-4 rounded-full flex items-center justify-center transition-transform hover:scale-105 shadow-lg w-full md:w-auto mt-2 md:mt-0">
+            <button disabled title="Search is coming soon" className="bg-amber-500/50 cursor-not-allowed text-white p-4 rounded-full flex items-center justify-center transition-transform shadow-lg w-full md:w-auto mt-2 md:mt-0">
               <Search size={24} />
             </button>
             

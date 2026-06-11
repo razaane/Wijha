@@ -79,11 +79,11 @@ export default function HostOnboardingPage() {
     const router = useRouter();
     const { user, token, setAuth } = useAuthStore();
     
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(2);
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
-        type: '', 
+        type: 'rental', 
         property_type: '',
         privacy_type: '',
         address_country: 'Morocco',
@@ -158,11 +158,6 @@ export default function HostOnboardingPage() {
     const nextStep = () => {
         setStepError(null);
 
-        if (step === 1 && formData.type !== 'rental') {
-            setStepError('Tour and Event creation is coming soon! Please select Rental for now.');
-            return;
-        }
-
         if (step === 5) {
             // Validate distance
             const city = availableCities.find(c => c.name === formData.address_city);
@@ -181,8 +176,13 @@ export default function HostOnboardingPage() {
 
         setStep(s => s + 1);
     };
+    
     const prevStep = () => {
         setStepError(null);
+        if (step === 2) {
+            router.push('/host/dashboard');
+            return;
+        }
         setStep(s => s - 1);
     };
 
@@ -231,6 +231,63 @@ export default function HostOnboardingPage() {
         setPhotoFiles(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleSaveDraft = async () => {
+        // Don't save draft if they haven't even picked a property type
+        if (step <= 1) {
+            router.push('/host/dashboard');
+            return;
+        }
+        
+        setLoading(true);
+        try {
+            const fd = new FormData();
+            fd.append('is_draft', '1');
+            fd.append('type', formData.type);
+            
+            if (formData.property_type) fd.append('property_type', formData.property_type);
+            if (formData.privacy_type) fd.append('privacy_type', formData.privacy_type);
+            if (formData.address_country) fd.append('address_country', formData.address_country);
+            if (formData.address_street) fd.append('address_street', formData.address_street);
+            if (formData.address_apt) fd.append('address_apt', formData.address_apt);
+            if (formData.address_city) fd.append('address_city', formData.address_city);
+            if (formData.address_province) fd.append('address_province', formData.address_province);
+            if (formData.address_postal_code) fd.append('address_postal_code', formData.address_postal_code);
+            
+            fd.append('guests_count', String(formData.guests_count));
+            fd.append('bedrooms_count', String(formData.bedrooms_count));
+            fd.append('beds_count', String(formData.beds_count));
+            fd.append('bathrooms_count', String(formData.bathrooms_count));
+            fd.append('has_locks', formData.has_locks ? '1' : '0');
+            
+            if (formData.title) fd.append('title', formData.title);
+            if (formData.description) fd.append('description', formData.description);
+            if (formData.price) fd.append('price', String(parseFloat(formData.price) || 0));
+
+            if (mapCenter) {
+                fd.append('latitude', String(mapCenter.lat));
+                fd.append('longitude', String(mapCenter.lng));
+            }
+
+            fd.append('amenities', JSON.stringify(formData.amenities));
+            fd.append('safety_items', JSON.stringify(formData.safety_items));
+
+            photoFiles.forEach((file) => {
+                fd.append('photos[]', file);
+            });
+
+            await api.post('/listings', fd, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            
+            router.push('/host/dashboard');
+        } catch (err: any) {
+            console.error("Draft Save Error:", err.response?.data || err);
+            setStepError(err.response?.data?.message || "Failed to save draft. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async () => {
         setLoading(true);
         setStepError(null);
@@ -276,12 +333,14 @@ export default function HostOnboardingPage() {
             
             if (res.data && res.data.data) {
                 setAuth(res.data.data.user, token!);
-                router.push('/dashboard?host=true');
+                router.push('/host/dashboard');
             }
         } catch (err: any) {
             console.error("Submission Error:", err.response?.data || err);
             
-            if (err.response?.data?.errors) {
+            if (err.response?.status >= 500) {
+                setStepError("An unexpected server error occurred. Our technical team has been notified.");
+            } else if (err.response?.data?.errors) {
                 // Extract the first Laravel validation error
                 const firstErrorKey = Object.keys(err.response.data.errors)[0];
                 const firstErrorMessage = err.response.data.errors[firstErrorKey][0];
@@ -295,7 +354,6 @@ export default function HostOnboardingPage() {
     };
 
     const isNextDisabled = () => {
-        if (step === 1 && !formData.type) return true;
         if (step === 2 && !formData.property_type) return true;
         if (step === 3 && !formData.privacy_type) return true;
         if (step === 4 && (!formData.address_street || !formData.address_city)) return true;
@@ -313,10 +371,14 @@ export default function HostOnboardingPage() {
             
             {/* Header */}
             <header className="h-20 border-b border-neutral-100 flex items-center justify-between px-4 sm:px-8 bg-white sticky top-0 z-50">
-                <Link href="/host" className="text-2xl font-black text-amber-500 tracking-tight">Wijha</Link>
-                <Link href="/host" className="text-sm font-bold text-neutral-500 hover:text-neutral-900 px-4 py-2 rounded-full hover:bg-neutral-50 transition-colors">
-                    Save & exit
-                </Link>
+                <Link href="/host/dashboard" className="text-2xl font-black text-amber-500 tracking-tight">Wijha</Link>
+                <button 
+                    onClick={handleSaveDraft}
+                    disabled={loading}
+                    className="text-sm font-bold text-neutral-500 hover:text-neutral-900 px-4 py-2 rounded-full hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                >
+                    {loading ? 'Saving...' : 'Save & exit'}
+                </button>
             </header>
 
             {/* Progress Bar */}
@@ -346,27 +408,7 @@ export default function HostOnboardingPage() {
                     </AnimatePresence>
 
                     <AnimatePresence mode="wait">
-                        
-                        {/* STEP 1: Main Type */}
-                        {step === 1 && (
-                            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
-                                    What would you like to host?
-                                </h1>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    {TYPES.map((item) => (
-                                        <div 
-                                            key={item.id}
-                                            onClick={() => updateForm('type', item.id)}
-                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all ${formData.type === item.id ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-900'}`}
-                                        >
-                                            <item.icon size={32} className={`mb-4 ${formData.type === item.id ? 'text-neutral-900' : 'text-neutral-600'}`} />
-                                            <h3 className="text-lg font-bold text-neutral-900">{item.label}</h3>
-                                        </div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
+                        {/* STEP 1 REMOVED: Handled by Dashboard Modal */}
 
                         {/* STEP 2: Property Type */}
                         {step === 2 && (

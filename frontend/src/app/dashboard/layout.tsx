@@ -7,33 +7,25 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
+import { getStorageUrl } from '@/lib/url';
+import HostSelectionModal from '@/components/HostSelectionModal';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, logout } = useAuthStore();
+    const { user, isAuthenticated, logout, fetchUser } = useAuthStore();
     const router = useRouter();
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [isHostModalOpen, setIsHostModalOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setMounted(true);
         
-        const fetchUser = async () => {
-            const token = useAuthStore.getState().token;
-            if (!user && token) {
-                try {
-                    const res = await api.get('/auth/me');
-                    useAuthStore.getState().setAuth(res.data.data, token);
-                } catch (err) {
-                    useAuthStore.getState().logout();
-                    router.push('/login');
-                }
-            }
-        };
-
-        fetchUser();
+        if (!isAuthenticated) {
+            window.location.href = '/login';
+        }
 
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -42,8 +34,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         };
 
         document.addEventListener('mousedown', handleClickOutside);
+
+        // Check if user just finished onboarding and needs a role refresh
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('host') === 'true') {
+                fetchUser().then(() => {
+                    router.replace('/dashboard'); // Clean the URL
+                });
+            }
+        }
+
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [user, router]);
+    }, [isAuthenticated, router, fetchUser]);
 
     const handleLogout = async () => {
         try {
@@ -62,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { name: 'My Bookings', href: '/dashboard/bookings' },
     ];
 
-    if (!mounted || !user) {
+    if (!mounted || !isAuthenticated || !user) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
@@ -72,8 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const getAvatarUrl = (avatar: string | null | undefined) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=fff`;
-        if (avatar.startsWith('http')) return avatar;
-        return `http://localhost:8000/storage/${avatar}`;
+        return getStorageUrl(avatar);
     };
 
     return (
@@ -110,8 +112,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         })}
                     </nav>
 
-                    {/* Profile & Mobile Menu (Right) */}
+                    {/* Profile & Action Buttons (Right) */}
                     <div className="flex items-center gap-4">
+                        
+                        {/* Host Button (Desktop) */}
+                        {user?.role !== 'partner' && (
+                            <button 
+                                onClick={() => setIsHostModalOpen(true)}
+                                className="hidden md:block px-5 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-bold hover:bg-neutral-800 transition-colors"
+                            >
+                                Become a Host
+                            </button>
+                        )}
                         
                         {/* Profile Dropdown (Desktop) */}
                         <div className="hidden md:block relative" ref={dropdownRef}>
@@ -158,9 +170,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 <Home size={18} className="text-amber-500" /> Switch to Hosting
                                             </Link>
                                         ) : (
-                                            <Link href="/host" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                            <button 
+                                                onClick={() => {
+                                                    setIsProfileDropdownOpen(false);
+                                                    setIsHostModalOpen(true);
+                                                }}
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                                            >
                                                 <Home size={18} className="text-neutral-400" /> Become a Host
-                                            </Link>
+                                            </button>
                                         )}
                                         
                                         <div className="h-px bg-neutral-100 my-2"></div>
@@ -255,6 +273,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
                                         <Settings size={20} /> Settings
                                     </Link>
+                                    {user?.role !== 'partner' && (
+                                        <button 
+                                            onClick={() => {
+                                                setIsMobileMenuOpen(false);
+                                                setIsHostModalOpen(true);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50"
+                                        >
+                                            <Home size={20} /> Become a Host
+                                        </button>
+                                    )}
                                 </nav>
                             </div>
 
@@ -275,6 +304,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <main>
                 {children}
             </main>
+
+            {/* Host Selection Modal */}
+            <HostSelectionModal 
+                isOpen={isHostModalOpen} 
+                onClose={() => setIsHostModalOpen(false)} 
+            />
         </div>
     );
 }

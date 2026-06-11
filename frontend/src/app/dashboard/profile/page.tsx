@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import { api } from '@/lib/api';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { getStorageUrl } from '@/lib/url';
 
 export default function ProfilePage() {
     const { user, setAuth, token } = useAuthStore();
@@ -47,8 +48,7 @@ export default function ProfilePage() {
 
     const getAvatarUrl = (avatar: string | null | undefined) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=f59e0b&color=fff&size=200`;
-        if (avatar.startsWith('http')) return avatar;
-        return `http://localhost:8000/storage/${avatar}`;
+        return getStorageUrl(avatar);
     };
 
     const handleSaveProfile = async (e: React.FormEvent) => {
