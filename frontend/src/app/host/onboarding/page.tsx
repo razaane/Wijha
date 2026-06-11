@@ -117,6 +117,21 @@ export default function HostOnboardingPage() {
     useEffect(() => {
         // Initialize cities for Morocco ('MA')
         setAvailableCities(City.getCitiesOfCountry('MA') || []);
+        
+        // Read type from URL
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const typeParam = params.get('type');
+            if (typeParam === 'experience') {
+                setFormData(prev => ({ ...prev, type: 'tour' }));
+                // skip step 2,3 for tours
+                setStep(4);
+            } else if (typeParam === 'event') {
+                setFormData(prev => ({ ...prev, type: 'event' }));
+                // skip step 2,3 for events
+                setStep(4);
+            }
+        }
     }, []);
 
     if (!user) {
@@ -174,16 +189,35 @@ export default function HostOnboardingPage() {
             }
         }
 
-        setStep(s => s + 1);
+        setStep(s => {
+            let next = s + 1;
+            if (formData.type !== 'rental') {
+                if (next === 2 || next === 3 || next === 6 || next === 7) {
+                    // Skip steps 2, 3, 6, 7 for non-rentals
+                    if (s === 1) return 4;
+                    if (s === 5) return 8;
+                }
+            }
+            return next;
+        });
     };
     
     const prevStep = () => {
         setStepError(null);
-        if (step === 2) {
-            router.push('/host/dashboard');
+        if (step === 2 || (step === 4 && formData.type !== 'rental')) {
+            router.back();
             return;
         }
-        setStep(s => s - 1);
+        setStep(s => {
+            let prev = s - 1;
+            if (formData.type !== 'rental') {
+                if (prev === 2 || prev === 3 || prev === 6 || prev === 7) {
+                    if (s === 8) return 5;
+                    if (s === 4) return 1;
+                }
+            }
+            return prev;
+        });
     };
 
     const updateForm = (key: string, value: any) => setFormData(prev => ({ ...prev, [key]: value }));
@@ -234,7 +268,7 @@ export default function HostOnboardingPage() {
     const handleSaveDraft = async () => {
         // Don't save draft if they haven't even picked a property type
         if (step <= 1) {
-            router.push('/host/dashboard');
+            router.back();
             return;
         }
         
@@ -279,7 +313,7 @@ export default function HostOnboardingPage() {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             
-            router.push('/host/dashboard');
+            router.push('/host/listings');
         } catch (err: any) {
             console.error("Draft Save Error:", err.response?.data || err);
             setStepError(err.response?.data?.message || "Failed to save draft. Please try again.");
@@ -333,7 +367,7 @@ export default function HostOnboardingPage() {
             
             if (res.data && res.data.data) {
                 setAuth(res.data.data.user, token!);
-                router.push('/host/dashboard');
+                router.push('/host/listings');
             }
         } catch (err: any) {
             console.error("Submission Error:", err.response?.data || err);

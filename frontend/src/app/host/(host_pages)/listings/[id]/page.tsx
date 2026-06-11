@@ -61,6 +61,7 @@ export default function ListingManagementPage() {
     const [description, setDescription] = useState('');
     const [propertyType, setPropertyType] = useState('apartment');
     const [privacyType, setPrivacyType] = useState('entire_place');
+    const [type, setType] = useState('rental');
     
     // Capacity State
     const [guests, setGuests] = useState(1);
@@ -91,7 +92,7 @@ export default function ListingManagementPage() {
         const fetchListing = async () => {
             try {
                 const res = await api.get(`/listings/${listingId}`);
-                if (res.data?.success) {
+                if (res.data?.status === 'success') {
                     const data = res.data.data;
                     setListing(data);
                     
@@ -102,6 +103,7 @@ export default function ListingManagementPage() {
                     setDescription(data.description || '');
                     setPropertyType(data.property_type || 'apartment');
                     setPrivacyType(data.privacy_type || 'entire_place');
+                    setType(data.type || 'rental');
                     
                     setGuests(data.guests_count || 1);
                     setBedrooms(data.bedrooms_count || 1);
@@ -166,7 +168,7 @@ export default function ListingManagementPage() {
 
             const res = await api.put(`/listings/${listingId}`, payload);
             
-            if (res.data?.success) {
+            if (res.data?.status === 'success') {
                 setListing(res.data.data);
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 3000);
@@ -297,8 +299,10 @@ export default function ListingManagementPage() {
                     <nav className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 sticky top-28">
                         {[
                             { id: 'details', icon: Settings2, label: 'Overview & Details' },
-                            { id: 'capacity', icon: Users, label: 'Capacity & Rooms' },
-                            { id: 'amenities', icon: Shield, label: 'Amenities & Safety' },
+                            ...(type === 'rental' ? [
+                                { id: 'capacity', icon: Users, label: 'Capacity & Rooms' },
+                                { id: 'amenities', icon: Shield, label: 'Amenities & Safety' }
+                            ] : []),
                             { id: 'location', icon: Map, label: 'Location Details' },
                             { id: 'pricing', icon: DollarSign, label: 'Pricing Strategy' },
                             { id: 'photos', icon: ImageIcon, label: 'Photos & Media' },
@@ -340,34 +344,36 @@ export default function ListingManagementPage() {
                                         className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900 resize-none"
                                     />
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
-                                    <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Property Type</label>
-                                        <select 
-                                            value={propertyType}
-                                            onChange={(e) => setPropertyType(e.target.value)}
-                                            className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
-                                        >
-                                            <option value="apartment">Apartment</option>
-                                            <option value="house">House</option>
-                                            <option value="villa">Villa</option>
-                                            <option value="riad">Riad</option>
-                                            <option value="cabin">Cabin</option>
-                                        </select>
+                                {type === 'rental' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
+                                        <div>
+                                            <label className="block text-sm font-bold text-neutral-900 mb-2">Property Type</label>
+                                            <select 
+                                                value={propertyType}
+                                                onChange={(e) => setPropertyType(e.target.value)}
+                                                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
+                                            >
+                                                <option value="apartment">Apartment</option>
+                                                <option value="house">House</option>
+                                                <option value="villa">Villa</option>
+                                                <option value="riad">Riad</option>
+                                                <option value="cabin">Cabin</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-neutral-900 mb-2">Privacy Type</label>
+                                            <select 
+                                                value={privacyType}
+                                                onChange={(e) => setPrivacyType(e.target.value)}
+                                                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
+                                            >
+                                                <option value="entire_place">Entire Place</option>
+                                                <option value="private_room">Private Room</option>
+                                                <option value="shared_room">Shared Room</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Privacy Type</label>
-                                        <select 
-                                            value={privacyType}
-                                            onChange={(e) => setPrivacyType(e.target.value)}
-                                            className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
-                                        >
-                                            <option value="entire_place">Entire Place</option>
-                                            <option value="private_room">Private Room</option>
-                                            <option value="shared_room">Shared Room</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </motion.div>
                     )}
