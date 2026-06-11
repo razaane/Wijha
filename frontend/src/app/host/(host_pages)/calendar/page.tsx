@@ -33,7 +33,7 @@ export default function HostCalendarPage() {
             try {
                 const res = await api.get('/listings/me');
                 if (res.data?.status === 'success') {
-                    const listingsArray = res.data.data.data || [];
+                    const listingsArray = (res.data.data.data || []).filter((l: any) => !l.is_draft);
                     setListings(listingsArray);
                     if (listingsArray.length > 0) {
                         setSelectedListingId(listingsArray[0].id);
