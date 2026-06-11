@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { getStorageUrl } from '@/lib/url';
+import HostSelectionModal from '@/components/HostSelectionModal';
 
 export default function HostDashboardPage() {
     const { user } = useAuthStore();
@@ -296,49 +297,7 @@ export default function HostDashboardPage() {
             </div>
 
             {/* Create Selection Modal */}
-            <AnimatePresence>
-                {isCreateModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={() => setIsCreateModalOpen(false)}></div>
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden"
-                        >
-                            <div className="p-8 pb-6 border-b border-neutral-100 flex items-center justify-between">
-                                <h2 className="text-3xl font-black text-neutral-900 tracking-tight">What are you creating?</h2>
-                                <button onClick={() => setIsCreateModalOpen(false)} className="w-10 h-10 bg-neutral-100 text-neutral-500 rounded-full flex items-center justify-center hover:bg-neutral-200 hover:text-neutral-900 transition-colors">
-                                    ✕
-                                </button>
-                            </div>
-                            <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <Link href="/host/onboarding" className="p-6 border-2 border-neutral-200 rounded-2xl hover:border-neutral-900 hover:bg-neutral-50 transition-all flex flex-col items-start group">
-                                    <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <MapPin size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-neutral-900 mb-1">Host a Stay</h3>
-                                    <p className="text-sm text-neutral-500">Rent out an apartment, riad, or room.</p>
-                                </Link>
-                                <button onClick={() => alert("Experiences coming soon!")} className="p-6 border-2 border-neutral-200 rounded-2xl hover:border-neutral-900 hover:bg-neutral-50 transition-all flex flex-col items-start group text-left opacity-70 cursor-not-allowed">
-                                    <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <Compass size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-neutral-900 mb-1">Host an Experience</h3>
-                                    <p className="text-sm text-neutral-500">Guide a tour, workshop, or class.</p>
-                                </button>
-                                <button onClick={() => alert("Events coming soon!")} className="p-6 border-2 border-neutral-200 rounded-2xl hover:border-neutral-900 hover:bg-neutral-50 transition-all flex flex-col items-start group text-left opacity-70 cursor-not-allowed">
-                                    <div className="w-12 h-12 bg-neutral-100 text-neutral-900 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <Calendar size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-neutral-900 mb-1">Organize an Event</h3>
-                                    <p className="text-sm text-neutral-500">Manage tickets for festivals or shows.</p>
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <HostSelectionModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
         </div>
     );
 }
