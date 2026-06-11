@@ -198,7 +198,7 @@ export default function ResetPasswordPage() {
                     >
                         <h2 className="text-4xl font-bold mb-3 tracking-tight drop-shadow-md">Peace of Mind</h2>
                         <p className="text-lg text-white/90 drop-shadow-sm max-w-md">
-                            Lost your way? We'll help you get back on track to your next great adventure.
+                            Lost your way? We&apos;ll help you get back on track to your next great adventure.
                         </p>
                     </motion.div>
                 </div>

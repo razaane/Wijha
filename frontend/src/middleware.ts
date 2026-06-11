@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Array of paths that require authentication
 const protectedPaths = [
   '/dashboard',
   '/settings',
+  '/host',
   // add other protected routes here
 ];
 
@@ -18,6 +18,11 @@ const authPaths = [
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('wijha_token')?.value;
+  const isLoggedIn = request.cookies.get('is_logged_in')?.value;
+  
+  // A user is only truly authenticated if BOTH the HttpOnly token and the client indicator exist
+  const isAuthenticated = token && isLoggedIn;
+
   const path = request.nextUrl.pathname;
 
   // Check if the path is protected
@@ -26,15 +31,21 @@ export function middleware(request: NextRequest) {
   // Check if the path is an auth path
   const isAuthPath = authPaths.some((p) => path.startsWith(p));
 
-  // 1. If trying to access a protected route without a token -> Redirect to login
-  if (isProtectedPath && !token) {
+  // 1. If trying to access a protected route without valid authentication -> Redirect to login
+  if (isProtectedPath && !isAuthenticated) {
     const url = new URL('/login', request.url);
-    url.searchParams.set('redirect', path); // Optional: redirect back after login
-    return NextResponse.redirect(url);
+    url.searchParams.set('redirect', path);
+    
+    const response = NextResponse.redirect(url);
+    // If the frontend deleted 'is_logged_in', but 'wijha_token' is still stuck, aggressively delete it
+    if (token && !isLoggedIn) {
+      response.cookies.delete('wijha_token');
+    }
+    return response;
   }
 
   // 2. If trying to access login/register while ALREADY logged in -> Redirect to dashboard
-  if (isAuthPath && token) {
+  if (isAuthPath && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -46,6 +57,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/settings/:path*',
+    '/host/:path*',
     '/login',
     '/register',
     '/forgot-password',

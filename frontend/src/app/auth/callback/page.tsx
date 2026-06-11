@@ -1,37 +1,30 @@
 "use client";
 
 import { useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 import { api } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 
 function AuthCallbackContent() {
     const router = useRouter();
-    const searchParams = useSearchParams();
     const setAuth = useAuthStore((state) => state.setAuth);
 
     useEffect(() => {
-        const token = searchParams.get('token');
-        
-        if (token) {
-            localStorage.setItem('auth_token', token);
-            
-            api.get('/auth/me', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+        // The backend now sets JWT via HttpOnly cookies on the redirect.
+        // We just need to call /auth/me with withCredentials: true (already configured in api.ts)
+        // to fetch the user profile using the cookie the browser automatically sends.
+        api.get('/auth/me')
             .then(response => {
-                setAuth(response.data, token);
+                const user = response.data.data;
+                setAuth(user, ''); // Token is managed via HttpOnly cookie, no need to store it
                 router.push('/dashboard');
             })
             .catch(error => {
                 console.error("Failed to fetch user profile", error);
                 router.push('/login?error=auth_failed');
             });
-        } else {
-            router.push('/login?error=no_token');
-        }
-    }, [router, searchParams, setAuth]);
+    }, [router, setAuth]);
 
     return null;
 }
