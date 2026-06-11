@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Illuminate\Auth\AuthenticationException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,17 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
+        // Handle Laravel AuthenticationException for APIs (prevents redirect to 'login' route)
+        $exceptions->renderable(function (AuthenticationException $e, Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'UNAUTHENTICATED',
+                    'message' => 'Unauthenticated.',
+                ], 401)->withoutCookie('wijha_token')->withoutCookie('is_logged_in');
+            }
+        });
+
         // Handle JWT Token Expired
         $exceptions->renderable(function (TokenExpiredException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
@@ -34,7 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => 'TOKEN_EXPIRED',
                     'message' => 'Your session has expired. Please refresh your token.',
                     'trace_id' => (string) Str::uuid(),
-                ], 401);
+                ], 401)->withoutCookie('wijha_token')->withoutCookie('is_logged_in');
             }
         });
 
@@ -46,7 +58,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => 'TOKEN_INVALID',
                     'message' => 'The provided token is invalid.',
                     'trace_id' => (string) Str::uuid(),
-                ], 401);
+                ], 401)->withoutCookie('wijha_token')->withoutCookie('is_logged_in');
             }
         });
 
@@ -58,7 +70,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'error' => 'TOKEN_ABSENT',
                     'message' => 'Authorization token not provided.',
                     'trace_id' => (string) Str::uuid(),
-                ], 401);
+                ], 401)->withoutCookie('wijha_token')->withoutCookie('is_logged_in');
             }
         });
 

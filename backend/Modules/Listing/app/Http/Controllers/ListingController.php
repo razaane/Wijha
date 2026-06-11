@@ -8,20 +8,26 @@ use Modules\Listing\Models\Listing;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Modules\Listing\Events\ListingCreated;
+use Modules\Core\Traits\ApiResponse;
 
 class ListingController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Store a newly created listing in storage.
      * Accepts multipart/form-data with photo files.
      */
     public function store(Request $request)
     {
+        $isDraft = filter_var($request->input('is_draft', false), FILTER_VALIDATE_BOOLEAN);
+
         $validated = $request->validate([
+            'is_draft' => 'nullable|boolean',
             'type' => 'required|string',
-            'title' => 'required|string',
+            'title' => $isDraft ? 'nullable|string' : 'required|string',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'price' => $isDraft ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             
             // Rental specific
             'property_type' => 'nullable|string',
@@ -51,7 +57,7 @@ class ListingController extends Controller
             'safety_items' => 'nullable',
 
             // Photo files
-            'photos' => 'required|array|min:5',
+            'photos' => $isDraft ? 'nullable|array' : 'required|array|min:5',
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048', // 2MB max per photo
         ]);
 
@@ -76,6 +82,8 @@ class ListingController extends Controller
 
         $listing = new Listing($validated);
         $listing->user_id = $user->id;
+        $listing->is_draft = $isDraft;
+        $listing->is_active = !$isDraft; // Drafts are not active
         $listing->save();
 
         // Attach uploaded photos via Spatie MediaLibrary
@@ -90,15 +98,106 @@ class ListingController extends Controller
         // to handle role upgrades (e.g., User -> Partner).
         ListingCreated::dispatch($listing);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Listing created successfully.',
-            'data' => [
-                'listing' => array_merge($listing->toArray(), [
-                    'photos' => $listing->photo_urls,
-                ]),
-                'user' => $user,
-            ]
-        ], 201);
+        return $this->successResponse([
+            'listing' => array_merge($listing->toArray(), [
+                'photos' => $listing->photo_urls,
+            ]),
+            'user' => $user,
+        ], 'Listing created successfully.', 201);
+    }
+
+    /**
+     * Get all listings for the authenticated user.
+     * GET /api/v1/listings/me
+     */
+    public function myListings(Request $request)
+    {
+        $listings = Listing::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(15);
+            
+        // Append photo_urls to each item in the collection
+        $listings->getCollection()->transform(function ($listing) {
+            return $listing->append('photo_urls');
+        });
+
+        return $this->successResponse($listings);
+    }
+
+    /**
+     * Get a specific listing by ID.
+     */
+    public function show($id)
+    {
+        $listing = Listing::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$listing) {
+            return $this->errorResponse('not_found', 'Listing not found.', 404);
+        }
+
+        $listing->append('photo_urls');
+
+        return $this->successResponse($listing);
+    }
+
+    /**
+     * Update a specific listing.
+     */
+    public function update(Request $request, $id)
+    {
+        $listing = Listing::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$listing) {
+            return $this->errorResponse('not_found', 'Listing not found.', 404);
+        }
+
+        $validated = $request->validate([
+            'is_draft' => 'sometimes|boolean',
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:1',
+            'guests_count' => 'sometimes|integer|min:1',
+            'bedrooms_count' => 'sometimes|integer|min:0',
+            'beds_count' => 'sometimes|integer|min:1',
+            'bathrooms_count' => 'sometimes|numeric|min:0',
+            'property_type' => 'sometimes|string',
+            'privacy_type' => 'sometimes|string',
+            'amenities' => 'sometimes|array',
+            'safety_items' => 'sometimes|array',
+            'address_country' => 'sometimes|string',
+            'address_city' => 'sometimes|string',
+            'address_street' => 'sometimes|string',
+            'latitude' => 'sometimes|numeric',
+            'longitude' => 'sometimes|numeric',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $listing->update($validated);
+
+        $listing->append('photo_urls');
+
+        return $this->successResponse($listing, 'Listing updated successfully.');
+    }
+
+    /**
+     * Delete a specific listing.
+     */
+    public function destroy($id)
+    {
+        $listing = Listing::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$listing) {
+            return $this->errorResponse('not_found', 'Listing not found.', 404);
+        }
+
+        $listing->delete();
+
+        return $this->successResponse(null, 'Listing deleted successfully.');
     }
 }

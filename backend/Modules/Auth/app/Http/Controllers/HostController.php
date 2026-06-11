@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Modules\Core\Traits\ApiResponse;
 
 class HostController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Apply to become a host/partner.
      * Upgrades the user's role to 'partner'.
@@ -25,11 +28,7 @@ class HostController extends Controller
 
         // If already a partner or admin, just return success
         if (in_array($user->role, [User::ROLE_PARTNER, User::ROLE_ADMIN])) {
-            return response()->json([
-                'success' => true,
-                'message' => 'You are already a host.',
-                'data' => $user
-            ]);
+            return $this->successResponse($user, 'You are already a host.');
         }
 
         // Upgrade role to partner
@@ -38,10 +37,6 @@ class HostController extends Controller
 
         // In a real app, we might also save the propertyType and city to a HostProfile table here.
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Congratulations! You are now a host.',
-            'data' => $user
-        ]);
+        return $this->successResponse($user, 'Congratulations! You are now a host.');
     }
 }

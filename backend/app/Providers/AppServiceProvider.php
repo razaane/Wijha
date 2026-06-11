@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(function (object $notifiable, string $token) {
-            $frontendUrl = config('services.frontend.url', env('FRONTEND_URL', 'http://localhost:3000'));
+            $frontendUrl = config('services.frontend.url', 'http://localhost:3000');
             $url = $frontendUrl . '/reset-password?token=' . $token . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
 
             return (new \Illuminate\Notifications\Messages\MailMessage)

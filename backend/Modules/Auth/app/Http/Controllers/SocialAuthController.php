@@ -7,11 +7,16 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Modules\Auth\Services\AuthService;
+use Modules\Core\Traits\ApiResponse;
 use Exception;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cookie;
 
 class SocialAuthController extends Controller
 {
+    use ApiResponse;
+
     protected AuthService $authService;
 
     public function __construct(AuthService $authService)
@@ -29,6 +34,8 @@ class SocialAuthController extends Controller
 
     /**
      * Obtain the user information from Google.
+     * Sets JWT via HttpOnly cookie (consistent with the rest of the auth system)
+     * instead of passing the token in the URL query string.
      */
     public function handleGoogleCallback()
     {
@@ -66,16 +73,26 @@ class SocialAuthController extends Controller
                 throw new Exception("Failed to generate token");
             }
 
-            // Redirect to frontend with token
-            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
-            return redirect()->away($frontendUrl . '/auth/callback?token=' . $token);
+            // Generate refresh token
+            $refreshToken = $this->authService->createRefreshToken($user);
+
+            // Build redirect with HttpOnly cookies (matching the tokenResponse pattern)
+            $frontendUrl = config('services.frontend.url', 'http://localhost:3000');
+            
+            $ttlMinutes = config('jwt.ttl');
+            $refreshTtlMinutes = config('jwt.refresh_ttl');
+            $secure = app()->environment('production');
+
+            return redirect()->away($frontendUrl . '/auth/callback')
+                ->cookie('wijha_token', $token, $ttlMinutes, '/', null, $secure, true, false, 'Lax')
+                ->cookie('wijha_refresh_token', $refreshToken, $refreshTtlMinutes, '/', null, $secure, true, false, 'Lax')
+                ->cookie('is_logged_in', '1', $refreshTtlMinutes, '/', null, $secure, false, false, 'Lax');
 
         } catch (Exception $e) {
-            // Log the error
-            \Log::error('Google Auth Error: ' . $e->getMessage());
+            Log::error('Google Auth Error: ' . $e->getMessage());
             
             // Redirect back to frontend login with error
-            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+            $frontendUrl = config('services.frontend.url', 'http://localhost:3000');
             return redirect()->away($frontendUrl . '/login?error=auth_failed');
         }
     }
