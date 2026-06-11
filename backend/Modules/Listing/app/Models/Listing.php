@@ -40,6 +40,8 @@ class Listing extends Model implements HasMedia
         'has_locks',
         'amenities',
         'safety_items',
+        'is_active',
+        'is_draft',
     ];
 
     protected $casts = [
@@ -53,6 +55,8 @@ class Listing extends Model implements HasMedia
         'beds_count' => 'integer',
         'bathrooms_count' => 'integer',
         'has_locks' => 'boolean',
+        'is_active' => 'boolean',
+        'is_draft' => 'boolean',
     ];
 
     /**
@@ -100,5 +104,10 @@ class Listing extends Model implements HasMedia
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function availabilities()
+    {
+        return $this->hasMany(ListingAvailability::class);
     }
 }
