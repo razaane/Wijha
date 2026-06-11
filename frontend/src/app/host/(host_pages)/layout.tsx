@@ -6,6 +6,7 @@ import { Compass, User, Settings, LogOut, Menu, X, Home, Bell } from 'lucide-rea
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getStorageUrl } from '@/lib/url';
 
 export default function HostDashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isAuthenticated, logout } = useAuthStore();
@@ -44,8 +45,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
 
     const getAvatarUrl = (avatar: string | null) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${user?.name}&background=f59e0b&color=fff`;
-        if (avatar.startsWith('http')) return avatar;
-        return `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '')}/storage/${avatar}`;
+        return getStorageUrl(avatar);
     };
 
     if (!mounted || !isAuthenticated || !user) {
