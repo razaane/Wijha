@@ -78,6 +78,7 @@ const MENA_COUNTRIES = Country.getAllCountries().filter(c => MENA_ISO_CODES.incl
 export default function HostOnboardingPage() {
     const router = useRouter();
     const { user, token, setAuth } = useAuthStore();
+    const currency = user?.preferred_currency || 'USD';
     
     const [step, setStep] = useState(2);
     const [loading, setLoading] = useState(false);
@@ -101,7 +102,15 @@ export default function HostOnboardingPage() {
         safety_items: [] as string[],
         title: '',
         description: '',
-        price: ''
+        price: '',
+        
+        // Event specific
+        start_datetime: '',
+        end_datetime: '',
+        venue_name: '',
+        age_restriction: 'Family Friendly',
+        is_waitlist_enabled: false,
+        tickets: [{ name: '', price: '', quantity_available: 100, description: '' }]
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -124,12 +133,12 @@ export default function HostOnboardingPage() {
             const typeParam = params.get('type');
             if (typeParam === 'experience') {
                 setFormData(prev => ({ ...prev, type: 'tour' }));
-                // skip step 2,3 for tours
+                // Experiences logic (to be built later)
                 setStep(4);
             } else if (typeParam === 'event') {
                 setFormData(prev => ({ ...prev, type: 'event' }));
-                // skip step 2,3 for events
-                setStep(4);
+                // Event steps start at 101 to keep them completely separate from Rental logic
+                setStep(101);
             }
         }
     }, []);
@@ -173,7 +182,7 @@ export default function HostOnboardingPage() {
     const nextStep = () => {
         setStepError(null);
 
-        if (step === 5) {
+        if (step === 5 || step === 103) {
             // Validate distance
             const city = availableCities.find(c => c.name === formData.address_city);
             if (city && city.latitude && city.longitude && mapCenter) {
@@ -190,10 +199,13 @@ export default function HostOnboardingPage() {
         }
 
         setStep(s => {
-            let next = s + 1;
-            if (formData.type !== 'rental') {
+            if (formData.type === 'event') {
+                return s + 1; // 101 -> 106
+            }
+            
+            const next = s + 1;
+            if (formData.type !== 'rental' && formData.type !== 'event') {
                 if (next === 2 || next === 3 || next === 6 || next === 7) {
-                    // Skip steps 2, 3, 6, 7 for non-rentals
                     if (s === 1) return 4;
                     if (s === 5) return 8;
                 }
@@ -204,13 +216,17 @@ export default function HostOnboardingPage() {
     
     const prevStep = () => {
         setStepError(null);
-        if (step === 2 || (step === 4 && formData.type !== 'rental')) {
+        if (step === 2 || step === 101 || (step === 4 && formData.type !== 'rental')) {
             router.back();
             return;
         }
         setStep(s => {
-            let prev = s - 1;
-            if (formData.type !== 'rental') {
+            if (formData.type === 'event') {
+                return s - 1;
+            }
+
+            const prev = s - 1;
+            if (formData.type !== 'rental' && formData.type !== 'event') {
                 if (prev === 2 || prev === 3 || prev === 6 || prev === 7) {
                     if (s === 8) return 5;
                     if (s === 4) return 1;
@@ -287,7 +303,17 @@ export default function HostOnboardingPage() {
             if (formData.address_province) fd.append('address_province', formData.address_province);
             if (formData.address_postal_code) fd.append('address_postal_code', formData.address_postal_code);
             
-            fd.append('guests_count', String(formData.guests_count));
+            let totalCapacity = formData.guests_count;
+            let basePrice = String(parseFloat(formData.price) || 0);
+
+            if (formData.type === 'event') {
+                const ticketPrices = formData.tickets.map(t => Number(t.price) || 0);
+                basePrice = ticketPrices.length > 0 ? String(Math.min(...ticketPrices)) : '0';
+                totalCapacity = formData.tickets.reduce((sum, t) => sum + (Number(t.quantity_available) || 0), 0);
+            }
+
+            fd.append('currency', currency);
+            fd.append('guests_count', String(totalCapacity));
             fd.append('bedrooms_count', String(formData.bedrooms_count));
             fd.append('beds_count', String(formData.beds_count));
             fd.append('bathrooms_count', String(formData.bathrooms_count));
@@ -295,11 +321,20 @@ export default function HostOnboardingPage() {
             
             if (formData.title) fd.append('title', formData.title);
             if (formData.description) fd.append('description', formData.description);
-            if (formData.price) fd.append('price', String(parseFloat(formData.price) || 0));
+            if (basePrice) fd.append('price', basePrice);
 
             if (mapCenter) {
                 fd.append('latitude', String(mapCenter.lat));
                 fd.append('longitude', String(mapCenter.lng));
+            }
+
+            if (formData.type === 'event') {
+                if (formData.venue_name) fd.append('venue_name', formData.venue_name);
+                if (formData.age_restriction) fd.append('age_restriction', formData.age_restriction);
+                if (formData.start_datetime) fd.append('start_datetime', formData.start_datetime);
+                if (formData.end_datetime) fd.append('end_datetime', formData.end_datetime);
+                fd.append('is_waitlist_enabled', formData.is_waitlist_enabled ? '1' : '0');
+                fd.append('tickets', JSON.stringify(formData.tickets));
             }
 
             fd.append('amenities', JSON.stringify(formData.amenities));
@@ -338,18 +373,37 @@ export default function HostOnboardingPage() {
             fd.append('address_city', formData.address_city);
             fd.append('address_province', formData.address_province);
             fd.append('address_postal_code', formData.address_postal_code);
-            fd.append('guests_count', String(formData.guests_count));
+
+            let totalCapacity = formData.guests_count;
+            let basePrice = String(parseFloat(formData.price) || 0);
+
+            if (formData.type === 'event') {
+                const ticketPrices = formData.tickets.map(t => Number(t.price) || 0);
+                basePrice = ticketPrices.length > 0 ? String(Math.min(...ticketPrices)) : '0';
+                totalCapacity = formData.tickets.reduce((sum, t) => sum + (Number(t.quantity_available) || 0), 0);
+            }
+
+            fd.append('currency', currency);
+            fd.append('guests_count', String(totalCapacity));
             fd.append('bedrooms_count', String(formData.bedrooms_count));
             fd.append('beds_count', String(formData.beds_count));
             fd.append('bathrooms_count', String(formData.bathrooms_count));
             fd.append('has_locks', formData.has_locks ? '1' : '0');
             fd.append('title', formData.title);
             fd.append('description', formData.description);
-            fd.append('price', String(parseFloat(formData.price) || 0));
+            fd.append('price', basePrice);
 
-            if (mapCenter) {
-                fd.append('latitude', String(mapCenter.lat));
-                fd.append('longitude', String(mapCenter.lng));
+            const center = getCityCenter();
+            fd.append('latitude', String(center[0]));
+            fd.append('longitude', String(center[1]));
+
+            if (formData.type === 'event') {
+                fd.append('venue_name', formData.venue_name);
+                fd.append('age_restriction', formData.age_restriction);
+                fd.append('start_datetime', formData.start_datetime);
+                fd.append('end_datetime', formData.end_datetime);
+                fd.append('is_waitlist_enabled', formData.is_waitlist_enabled ? '1' : '0');
+                fd.append('tickets', JSON.stringify(formData.tickets));
             }
 
             // Arrays must be sent as JSON strings (FormData limitation)
@@ -388,6 +442,22 @@ export default function HostOnboardingPage() {
     };
 
     const isNextDisabled = () => {
+        if (formData.type === 'event') {
+            if (step === 101 && (!formData.title || !formData.property_type || !formData.description)) return true;
+            if (step === 102 && (!formData.venue_name || !formData.address_city)) return true;
+            if (step === 104) {
+                if (!formData.start_datetime || !formData.end_datetime) return true;
+                const start = new Date(formData.start_datetime).getTime();
+                const end = new Date(formData.end_datetime).getTime();
+                const now = new Date().getTime();
+                // Prevent past dates and end dates before start dates
+                if (start < now || end <= start) return true;
+            }
+            if (step === 105 && formData.tickets.some(t => !t.name || !t.price)) return true;
+            if (step === 106 && previewUrls.length === 0) return true;
+            return false;
+        }
+
         if (step === 2 && !formData.property_type) return true;
         if (step === 3 && !formData.privacy_type) return true;
         if (step === 4 && (!formData.address_street || !formData.address_city)) return true;
@@ -398,7 +468,9 @@ export default function HostOnboardingPage() {
         return false;
     };
 
-    const TOTAL_STEPS = 11;
+    const isEvent = formData.type === 'event';
+    const TOTAL_STEPS = isEvent ? 6 : 11;
+    const currentStepIndex = isEvent ? step - 100 : step;
 
     return (
         <div className="min-h-screen bg-white flex flex-col font-sans text-neutral-900">
@@ -419,7 +491,7 @@ export default function HostOnboardingPage() {
             <div className="w-full bg-neutral-100 h-1.5 relative z-40">
                 <div 
                     className="bg-neutral-900 h-1.5 transition-all duration-500 ease-out" 
-                    style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+                    style={{ width: `${(currentStepIndex / TOTAL_STEPS) * 100}%` }}
                 ></div>
             </div>
 
@@ -634,7 +706,7 @@ export default function HostOnboardingPage() {
                                                 >
                                                     <Minus size={18} />
                                                 </button>
-                                                <span className="text-xl w-6 text-center">{formData[item.id as keyof typeof formData]}</span>
+                                                <span className="text-xl w-6 text-center">{(formData as any)[item.id]}</span>
                                                 <button 
                                                     onClick={() => updateCounter(item.id as any, true)}
                                                     className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
@@ -821,7 +893,7 @@ export default function HostOnboardingPage() {
 
                                 <div className="flex items-center justify-center py-12">
                                     <div className="relative border-b-2 border-transparent focus-within:border-neutral-900 transition-all w-full flex justify-center pb-2">
-                                        <span className="absolute left-[10%] sm:left-[20%] top-1/2 -translate-y-1/2 text-5xl sm:text-6xl font-black text-neutral-300">MAD</span>
+                                        <span className="absolute left-[10%] sm:left-[20%] top-1/2 -translate-y-1/2 text-5xl sm:text-6xl font-black text-neutral-300">{currency}</span>
                                         <input 
                                             type="number" 
                                             placeholder="0"
@@ -834,6 +906,325 @@ export default function HostOnboardingPage() {
                             </motion.div>
                         )}
 
+                        {/* EVENT STEP 101: Identity */}
+                        {step === 101 && (
+                            <motion.div key="step101" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    Let&apos;s define your Event
+                                </h1>
+                                <p className="text-lg text-neutral-500">Give your event a catchy title and clear description.</p>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Event Title</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="e.g. Desert Rhythms Festival" 
+                                            value={formData.title}
+                                            onChange={(e) => updateForm('title', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-neutral-700 mb-2">Category</label>
+                                            <select 
+                                                value={formData.property_type}
+                                                onChange={(e) => updateForm('property_type', e.target.value)}
+                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                            >
+                                                <option value="" disabled>Select category...</option>
+                                                <option value="music">Live Music</option>
+                                                <option value="workshop">Workshop</option>
+                                                <option value="networking">Networking</option>
+                                                <option value="nightlife">Nightlife</option>
+                                                <option value="art">Art & Culture</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-neutral-700 mb-2">Age Limit</label>
+                                            <select 
+                                                value={formData.age_restriction}
+                                                onChange={(e) => updateForm('age_restriction', e.target.value)}
+                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                            >
+                                                <option value="Family Friendly">Family Friendly</option>
+                                                <option value="16+">16+</option>
+                                                <option value="18+">18+</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Description</label>
+                                        <textarea 
+                                            rows={4}
+                                            placeholder="What should guests expect?" 
+                                            value={formData.description}
+                                            onChange={(e) => updateForm('description', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none resize-none"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* EVENT STEP 102: Location */}
+                        {step === 102 && (
+                            <motion.div key="step102" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">Where is the event?</h1>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Venue Name</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="e.g. The Grand Riad Courtyard" 
+                                            value={formData.venue_name}
+                                            onChange={(e) => updateForm('venue_name', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Country</label>
+                                        <select 
+                                            value={selectedCountryCode}
+                                            onChange={handleCountryChange}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 bg-white"
+                                        >
+                                            {MENA_COUNTRIES.map(c => (
+                                                <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">City</label>
+                                        <select 
+                                            value={formData.address_city}
+                                            onChange={(e) => updateForm('address_city', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 bg-white"
+                                        >
+                                            <option value="" disabled>Select a city</option>
+                                            {availableCities.map(c => (
+                                                <option key={c.name} value={c.name}>{c.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Exact Street Address</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="123 Medina St" 
+                                            value={formData.address_street}
+                                            onChange={(e) => updateForm('address_street', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* EVENT STEP 103: Map Pin */}
+                        {step === 103 && (
+                            <motion.div key="step103" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 w-full max-w-4xl mx-auto h-[60vh] flex flex-col">
+                                <div className="text-center">
+                                    <h1 className="text-4xl font-black text-neutral-900 tracking-tight leading-tight mb-2">Pin the venue</h1>
+                                    <p className="text-lg text-neutral-500">Drag the map to pinpoint the exact entrance.</p>
+                                </div>
+                                <div className="flex-1 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 relative bg-neutral-100" ref={mapRef}>
+                                    <InteractiveMap 
+                                        center={getCityCenter()}
+                                        onMoveEnd={(lat, lng) => setMapCenter({lat, lng})}
+                                    />
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full pb-2 z-10 pointer-events-none drop-shadow-xl text-amber-500 flex flex-col items-center">
+                                        <div className="bg-amber-500 text-white font-bold px-3 py-1 rounded-full shadow-md text-sm mb-1">
+                                            {formData.venue_name || 'Venue'}
+                                        </div>
+                                        <MapPin size={48} fill="currentColor" className="text-white" />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* EVENT STEP 104: Schedule */}
+                        {step === 104 && (
+                            <motion.div key="step104" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    When is it happening?
+                                </h1>
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Doors Open (Start Time)</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={formData.start_datetime}
+                                            min={new Date().toISOString().slice(0, 16)}
+                                            onChange={(e) => updateForm('start_datetime', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Event Ends (End Time)</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={formData.end_datetime}
+                                            min={formData.start_datetime || new Date().toISOString().slice(0, 16)}
+                                            onChange={(e) => updateForm('end_datetime', e.target.value)}
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* EVENT STEP 105: Ticketing */}
+                        {step === 105 && (
+                            <motion.div key="step105" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-2xl mx-auto w-full">
+                                <div>
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
+                                        Ticketing & Waitlist
+                                    </h1>
+                                    <p className="text-lg text-neutral-500">Define your ticket tiers and enable the smart waitlist.</p>
+                                </div>
+
+                                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-200 flex items-start gap-4">
+                                    <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+                                        <Sparkles size={20} />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between mb-1">
+                                            <h3 className="font-bold text-neutral-900">Smart Waitlist</h3>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" className="sr-only peer" checked={formData.is_waitlist_enabled} onChange={(e) => updateForm('is_waitlist_enabled', e.target.checked)} />
+                                                <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                            </label>
+                                        </div>
+                                        <p className="text-sm text-neutral-600">If enabled, when tickets sell out, users can join a waitlist. If someone cancels, the ticket is auto-offered to the next person in line.</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-bold text-xl">Ticket Tiers</h3>
+                                        <button 
+                                            onClick={() => updateForm('tickets', [...formData.tickets, { name: '', price: '', quantity_available: 50, description: '' }])}
+                                            className="text-sm font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1"
+                                        >
+                                            <Plus size={16} /> Add Tier
+                                        </button>
+                                    </div>
+                                    
+                                    {formData.tickets.map((ticket, index) => (
+                                        <div key={index} className="p-5 border-2 border-neutral-200 rounded-2xl space-y-4 bg-white relative">
+                                            {formData.tickets.length > 1 && (
+                                                <button onClick={() => updateForm('tickets', formData.tickets.filter((_, i) => i !== index))} className="absolute top-4 right-4 text-neutral-400 hover:text-red-500">
+                                                    <X size={20} />
+                                                </button>
+                                            )}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Tier Name</label>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="e.g. VIP Access"
+                                                        value={ticket.name}
+                                                        onChange={(e) => {
+                                                            const newTickets = [...formData.tickets];
+                                                            newTickets[index].name = e.target.value;
+                                                            updateForm('tickets', newTickets);
+                                                        }}
+                                                        className="w-full p-3 rounded-xl border border-neutral-200 outline-none focus:border-neutral-900"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Price ({currency})</label>
+                                                    <input 
+                                                        type="number" 
+                                                        placeholder="e.g. 150 (0 for Free)"
+                                                        value={ticket.price}
+                                                        onChange={(e) => {
+                                                            const newTickets = [...formData.tickets];
+                                                            newTickets[index].price = e.target.value;
+                                                            updateForm('tickets', newTickets);
+                                                        }}
+                                                        className="w-full p-3 rounded-xl border border-neutral-200 outline-none focus:border-neutral-900"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Quantity Available</label>
+                                                    <div className="flex items-center gap-4 border border-neutral-200 p-2 rounded-xl w-max">
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newTickets = [...formData.tickets];
+                                                                if (newTickets[index].quantity_available > 1) newTickets[index].quantity_available -= 1;
+                                                                updateForm('tickets', newTickets);
+                                                            }}
+                                                            className="w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-900"
+                                                        ><Minus size={16}/></button>
+                                                        <span className="w-12 text-center font-bold">{ticket.quantity_available}</span>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newTickets = [...formData.tickets];
+                                                                newTickets[index].quantity_available += 1;
+                                                                updateForm('tickets', newTickets);
+                                                            }}
+                                                            className="w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-900"
+                                                        ><Plus size={16}/></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                        
+                        {/* EVENT STEP 106: Media & Validation */}
+                        {step === 106 && (
+                            <motion.div key="step106" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-3xl mx-auto w-full">
+                                <div className="text-center">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
+                                        Upload the Event Poster
+                                    </h1>
+                                    <p className="text-lg text-neutral-500">Add 1 poster (or multiple photos) to make your event stand out.</p>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {previewUrls.map((url, i) => (
+                                        <div key={i} className={`relative rounded-2xl overflow-hidden border-2 border-neutral-100 group ${i === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}>
+                                            <img src={url} alt={`Preview ${i}`} className="w-full h-full object-cover" />
+                                            {i === 0 && (
+                                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
+                                                    Main Poster
+                                                </div>
+                                            )}
+                                            <button 
+                                                onClick={() => removePhoto(i)}
+                                                className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 shadow-sm"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    
+                                    <button 
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className={`rounded-2xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 hover:border-neutral-900 hover:bg-neutral-50 transition-all ${previewUrls.length === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}
+                                    >
+                                        <UploadCloud size={previewUrls.length === 0 ? 48 : 24} className="text-neutral-400" />
+                                        <span className="text-neutral-600 font-medium">{previewUrls.length === 0 ? 'Click to upload main poster' : 'Add more'}</span>
+                                    </button>
+                                </div>
+                                <input type="file" multiple accept="image/*" className="hidden" ref={fileInputRef} onChange={handlePhotoUpload} />
+                                
+                                <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-200 mt-8">
+                                    <h3 className="font-bold text-neutral-900 mb-2 flex items-center gap-2">
+                                        <ShieldAlert size={20} className="text-amber-500" /> Trust & Verification
+                                    </h3>
+                                    <p className="text-sm text-neutral-600">
+                                        When you publish this event, it will go into a <strong>Pending Review</strong> state. Our admins will verify the details before tickets go on sale to ensure platform safety. Your payout will be secured in Escrow until the event finishes successfully.
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
                 </div>
             </main>
@@ -841,7 +1232,7 @@ export default function HostOnboardingPage() {
             {/* Footer Navigation */}
             <footer className="h-24 border-t border-neutral-200 bg-white flex items-center justify-between px-4 sm:px-8 max-w-[1440px] mx-auto w-full fixed bottom-0 z-50">
                 <div className="flex-1">
-                    {step > 1 && (
+                    {currentStepIndex > 1 && (
                         <button 
                             onClick={prevStep}
                             className="px-6 py-3 rounded-full font-bold text-neutral-900 underline hover:bg-neutral-50 transition-colors"
@@ -851,7 +1242,7 @@ export default function HostOnboardingPage() {
                     )}
                 </div>
                 <div className="flex-1 flex justify-end">
-                    {step < TOTAL_STEPS ? (
+                    {currentStepIndex < TOTAL_STEPS ? (
                         <button 
                             onClick={nextStep}
                             disabled={isNextDisabled()}

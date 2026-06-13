@@ -9,9 +9,13 @@ use Modules\Auth\Http\Requests\UpdateAvatarRequest;
 use Modules\Auth\Http\Requests\UpdateProfileRequest;
 use Modules\Auth\Http\Requests\SendPhoneOtpRequest;
 use Modules\Auth\Http\Requests\VerifyPhoneOtpRequest;
+use Modules\Auth\Http\Requests\SendEmailOtpRequest;
+use Modules\Auth\Http\Requests\VerifyEmailOtpRequest;
 use Modules\Core\Traits\ApiResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmailOtpMail;
 
 class ProfileController extends Controller
 {
@@ -27,7 +31,12 @@ class ProfileController extends Controller
         /** @var \App\Models\User $user */
         $user = auth('api')->user();
 
-        $user->update($request->validated());
+        // Remove phone and email from the update request to prevent bypassing OTP
+        $data = $request->validated();
+        unset($data['phone']);
+        unset($data['email']);
+
+        $user->update($data);
 
         return $this->successResponse($user, 'Profile updated successfully.');
     }
@@ -111,5 +120,87 @@ class ProfileController extends Controller
         $user->update(['phone' => $cachedData['phone']]);
 
         return $this->successResponse($user, 'Phone number updated successfully.');
+    }
+
+    /**
+     * Send an OTP to the user's new email address.
+     *
+     * POST /api/v1/profile/email/send-otp
+     */
+    public function sendEmailOtp(SendEmailOtpRequest $request): JsonResponse
+    {
+        $userId = auth('api')->id();
+        $email = $request->input('email');
+        
+        $otp = (string) random_int(100000, 999999);
+        
+        Cache::put('email_otp_' . $userId, [
+            'email' => $email,
+            'otp' => $otp
+        ], now()->addMinutes(10));
+        
+        // Send the real email
+        try {
+            Mail::to($email)->send(new VerifyEmailOtpMail($otp));
+            Log::info("Email OTP for User {$userId} sent to email {$email}");
+        } catch (\Exception $e) {
+            Log::error("Failed to send OTP email to {$email}: " . $e->getMessage());
+            return $this->errorResponse('email_failed', 'Failed to send verification email. Please try again later.', 500);
+        }
+
+        return $this->successResponse(
+            message: 'Verification code sent to your email address.'
+        );
+    }
+
+    /**
+     * Verify the OTP and update the user's email address.
+     *
+     * POST /api/v1/profile/email/verify
+     */
+    public function verifyEmailOtp(VerifyEmailOtpRequest $request): JsonResponse
+    {
+        $userId = auth('api')->id();
+        $cachedData = Cache::get('email_otp_' . $userId);
+
+        if (!$cachedData || $cachedData['otp'] !== $request->input('otp') || $cachedData['email'] !== $request->input('email')) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'otp' => ['The verification code is invalid or has expired.'],
+            ]);
+        }
+
+        Cache::forget('email_otp_' . $userId);
+
+        /** @var \App\Models\User $user */
+        $user = auth('api')->user();
+        $user->update(['email' => $cachedData['email']]);
+
+        return $this->successResponse($user, 'Email address updated successfully.');
+    }
+
+    /**
+     * Update the authenticated user's password.
+     *
+     * PUT /api/v1/auth/profile/password
+     */
+    public function updatePassword(\Illuminate\Http\Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = auth('api')->user();
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return $this->errorResponse('invalid_credentials', 'Current password does not match.', 422);
+        }
+
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->new_password)
+        ]);
+
+        return $this->successResponse(null, 'Password updated successfully.');
     }
 }

@@ -27,7 +27,11 @@ export default function LoginPage() {
             const res = await api.post('/auth/login', { email, password });
             const { user, access_token } = res.data.data;
             setAuth(user, access_token);
-            router.push('/dashboard');
+            if (user.role === 'admin') {
+                router.push('/admin');
+            } else {
+                router.push('/dashboard');
+            }
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
             

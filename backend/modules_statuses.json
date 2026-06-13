@@ -1,5 +1,8 @@
 {
     "Auth": true,
     "Core": true,
-    "Listing": true
+    "Listing": true,
+    "Booking": true,
+    "Payment": true,
+    "Admin": true
 }

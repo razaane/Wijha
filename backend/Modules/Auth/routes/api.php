@@ -51,11 +51,19 @@ Route::prefix('v1/auth')->group(function () {
         
         // Profile Management
         Route::put('/profile', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateProfile'])->name('auth.profile.update');
+        Route::put('/profile/password', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updatePassword'])->name('auth.profile.password');
         Route::post('/profile/avatar', [\Modules\Auth\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('auth.profile.avatar');
         
         Route::middleware('throttle:5,1')->group(function () {
             Route::post('/profile/phone/send-otp', [\Modules\Auth\Http\Controllers\ProfileController::class, 'sendPhoneOtp'])->name('auth.profile.phone.send-otp');
             Route::post('/profile/phone/verify', [\Modules\Auth\Http\Controllers\ProfileController::class, 'verifyPhoneOtp'])->name('auth.profile.phone.verify');
+            
+            Route::post('/profile/email/send-otp', [\Modules\Auth\Http\Controllers\ProfileController::class, 'sendEmailOtp'])->name('auth.profile.email.send-otp');
+            Route::post('/profile/email/verify', [\Modules\Auth\Http\Controllers\ProfileController::class, 'verifyEmailOtp'])->name('auth.profile.email.verify');
         });
+
+        // Identity Verification (KYC)
+        Route::get('/identity-verification', [\Modules\Auth\Http\Controllers\IdentityVerificationController::class, 'show'])->name('auth.identity.show');
+        Route::post('/identity-verification', [\Modules\Auth\Http\Controllers\IdentityVerificationController::class, 'store'])->name('auth.identity.store');
     });
 });

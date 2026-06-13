@@ -34,6 +34,11 @@ class User extends Authenticatable implements JWTSubject
         'locale',
         'provider_name',
         'provider_id',
+        'preferred_currency',
+        'preferred_language',
+        'notification_preferences',
+        'privacy_preferences',
+        'ui_preferences',
     ];
 
     /**
@@ -47,6 +52,15 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'is_verified_host',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -56,6 +70,9 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notification_preferences' => 'array',
+            'privacy_preferences' => 'array',
+            'ui_preferences' => 'array',
         ];
     }
 
@@ -77,5 +94,20 @@ class User extends Authenticatable implements JWTSubject
         return [
             'role' => $this->role,
         ];
+    }
+
+    public function identityVerification()
+    {
+        return $this->hasOne(\Modules\Auth\Models\IdentityVerification::class);
+    }
+
+    public function isVerifiedHost(): bool
+    {
+        return $this->identityVerification()->where('status', 'approved')->exists();
+    }
+
+    public function getIsVerifiedHostAttribute(): bool
+    {
+        return $this->isVerifiedHost();
     }
 }

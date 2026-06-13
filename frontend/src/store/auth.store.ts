@@ -9,6 +9,23 @@ interface User {
     avatar?: string | null;
     phone?: string | null;
     locale?: string;
+    preferred_currency?: string;
+    preferred_language?: string;
+    notification_preferences?: {
+        email_alerts: boolean;
+        sms_alerts: boolean;
+        promo_emails: boolean;
+    };
+    privacy_preferences?: {
+        profile_visible: boolean;
+        show_online_status: boolean;
+        share_data: boolean;
+    };
+    ui_preferences?: {
+        dark_mode: boolean;
+        compact_density: boolean;
+    };
+    is_verified_host?: boolean;
 }
 
 interface AuthState {

@@ -27,6 +27,11 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'locale' => ['nullable', 'string', 'in:en,fr,ar'],
+            'preferred_currency' => ['nullable', 'string', 'max:3'],
+            'preferred_language' => ['nullable', 'string', 'max:10'],
+            'notification_preferences' => ['nullable', 'array'],
+            'privacy_preferences' => ['nullable', 'array'],
+            'ui_preferences' => ['nullable', 'array'],
         ];
     }
 }
