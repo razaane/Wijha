@@ -228,10 +228,10 @@ export default function PremiumHostSettingsPage() {
 
     // Helper for rendering a standard settings toggle switch
     const renderToggle = (label: string, description: string, checked: boolean, onChange: () => void) => (
-        <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex items-center justify-between group hover:border-amber-200 transition-colors cursor-pointer" onClick={onChange}>
+        <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex items-center justify-between group hover:border-amber-200 dark:hover:border-amber-500/50 transition-colors cursor-pointer" onClick={onChange}>
             <div className="pr-8">
-                <p className="text-xl font-bold text-neutral-900">{label}</p>
-                <p className="text-sm font-semibold text-neutral-500 mt-1">{description}</p>
+                <p className="text-xl font-bold text-neutral-900 dark:text-white">{label}</p>
+                <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 mt-1">{description}</p>
             </div>
             <div className={`transition-colors flex items-center justify-center ${checked ? 'text-amber-500' : 'text-neutral-300'}`}>
                 {checked ? <ToggleRight size={40} /> : <ToggleLeft size={40} />}
@@ -240,11 +240,11 @@ export default function PremiumHostSettingsPage() {
     );
 
     return (
-        <div className="min-h-screen bg-[#fafafa] text-neutral-900 font-sans pb-24 relative">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] text-neutral-900 dark:text-white font-sans pb-24 relative transition-colors duration-300">
             
             {/* Top Navigation */}
             <div className="absolute top-0 w-full z-10 px-6 sm:px-12 py-8 flex items-center justify-between pointer-events-none">
-                <button onClick={() => router.back()} className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all text-neutral-600 hover:text-neutral-900 border border-neutral-200/50">
+                <button onClick={() => router.back()} className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white border border-neutral-200/50 dark:border-neutral-800/50">
                     <ChevronLeft size={18} />
                     Back
                 </button>
@@ -261,8 +261,8 @@ export default function PremiumHostSettingsPage() {
                 
                 {/* Floating Sidebar */}
                 <div className="w-full md:w-72 shrink-0">
-                    <h1 className="text-4xl font-black mb-8 tracking-tight text-neutral-900">Settings</h1>
-                    <div className="bg-white rounded-3xl p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex flex-col gap-1">
+                    <h1 className="text-4xl font-black mb-8 tracking-tight text-neutral-900 dark:text-white">Settings</h1>
+                    <div className="bg-white dark:bg-neutral-900 rounded-3xl p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex flex-col gap-1 transition-colors">
                         {tabs.map(tab => {
                             const Icon = tab.icon;
                             const isActive = activeTab === tab.id;
@@ -271,7 +271,7 @@ export default function PremiumHostSettingsPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full text-left px-5 py-4 rounded-2xl flex items-center gap-4 transition-all duration-300 relative overflow-hidden group ${
-                                        isActive ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'hover:bg-neutral-50 text-neutral-600 hover:text-neutral-900'
+                                        isActive ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white'
                                     }`}
                                 >
                                     <Icon size={20} className={isActive ? "text-white" : "text-neutral-400 group-hover:text-amber-500 transition-colors"} />
@@ -295,35 +295,35 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'personal' && (
                             <motion.div key="personal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Personal Information</h2>
-                                <p className="text-neutral-500 mb-8">Update your identity details and how we can reach you.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Update your identity details and how we can reach you.</p>
 
                                 {/* Cards */}
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex items-center justify-between group hover:border-amber-200 transition-colors">
+                                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex items-center justify-between group hover:border-amber-200 transition-colors">
                                     <div>
-                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-1">Legal Name</p>
-                                        <p className="text-xl font-bold text-neutral-900">{user?.name || 'Not provided'}</p>
+                                        <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Legal Name</p>
+                                        <p className="text-xl font-bold text-neutral-900 dark:text-white">{user?.name || 'Not provided'}</p>
                                     </div>
-                                    <button onClick={() => openModal('name')} className="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-neutral-500 group-hover:bg-amber-50 group-hover:text-amber-600 transition-all">
+                                    <button onClick={() => openModal('name')} className="w-12 h-12 rounded-full bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 group-hover:bg-amber-50 group-hover:text-amber-600 dark:group-hover:bg-amber-500/10 transition-all">
                                         <Edit3 size={18} />
                                     </button>
                                 </div>
 
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex items-center justify-between group hover:border-amber-200 transition-colors">
+                                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex items-center justify-between group hover:border-amber-200 transition-colors">
                                     <div>
-                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-1">Email Address</p>
-                                        <p className="text-xl font-bold text-neutral-900">{user?.email || 'Not provided'}</p>
+                                        <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Email Address</p>
+                                        <p className="text-xl font-bold text-neutral-900 dark:text-white">{user?.email || 'Not provided'}</p>
                                     </div>
-                                    <button onClick={() => openModal('email')} className="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-neutral-500 group-hover:bg-amber-50 group-hover:text-amber-600 transition-all">
+                                    <button onClick={() => openModal('email')} className="w-12 h-12 rounded-full bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 group-hover:bg-amber-50 group-hover:text-amber-600 dark:group-hover:bg-amber-500/10 transition-all">
                                         <Edit3 size={18} />
                                     </button>
                                 </div>
 
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex items-center justify-between group hover:border-amber-200 transition-colors">
+                                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex items-center justify-between group hover:border-amber-200 transition-colors">
                                     <div>
-                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-1">Phone Number</p>
-                                        <p className="text-xl font-bold text-neutral-900">{user?.phone || 'Not provided'}</p>
+                                        <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Phone Number</p>
+                                        <p className="text-xl font-bold text-neutral-900 dark:text-white">{user?.phone || 'Not provided'}</p>
                                     </div>
-                                    <button onClick={() => openModal('phone')} className="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center text-neutral-500 group-hover:bg-amber-50 group-hover:text-amber-600 transition-all">
+                                    <button onClick={() => openModal('phone')} className="w-12 h-12 rounded-full bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400 group-hover:bg-amber-50 group-hover:text-amber-600 dark:group-hover:bg-amber-500/10 transition-all">
                                         <Edit3 size={18} />
                                     </button>
                                 </div>
@@ -333,19 +333,19 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'security' && (
                             <motion.div key="security" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Login & Security</h2>
-                                <p className="text-neutral-500 mb-8">Manage your account security and authentication methods.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Manage your account security and authentication methods.</p>
 
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 flex items-center justify-between group hover:border-amber-200 transition-colors">
+                                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 flex items-center justify-between group hover:border-amber-200 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-full bg-neutral-50 flex items-center justify-center">
-                                            <Lock size={20} className="text-neutral-400" />
+                                        <div className="w-12 h-12 rounded-full bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center">
+                                            <Lock size={20} className="text-neutral-400 dark:text-neutral-500" />
                                         </div>
                                         <div>
-                                            <p className="text-xl font-bold text-neutral-900">Password</p>
-                                            <p className="text-sm font-semibold text-neutral-400">Regularly update for security</p>
+                                            <p className="text-xl font-bold text-neutral-900 dark:text-white">Password</p>
+                                            <p className="text-sm font-semibold text-neutral-400 dark:text-neutral-500">Regularly update for security</p>
                                         </div>
                                     </div>
-                                    <button onClick={() => openModal('password')} className="px-6 py-2.5 rounded-full bg-neutral-900 text-white font-bold hover:bg-neutral-800 transition-colors shadow-lg shadow-neutral-900/20">
+                                    <button onClick={() => openModal('password')} className="px-6 py-2.5 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors shadow-lg">
                                         Update
                                     </button>
                                 </div>
@@ -355,18 +355,18 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'localization' && (
                             <motion.div key="localization" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Localization</h2>
-                                <p className="text-neutral-500 mb-8">Customize your dashboard experience.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Customize your dashboard experience.</p>
 
-                                <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 space-y-8">
+                                <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 dark:border-neutral-800 space-y-8">
                                     <div>
-                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-3">Preferred Currency</p>
+                                        <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-3">Preferred Currency</p>
                                         <select 
                                             value={currency} 
                                             onChange={(e) => {
                                                 setCurrency(e.target.value);
                                                 handleSavePreferences(language, e.target.value);
                                             }}
-                                            className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 hover:border-amber-200 focus:border-amber-500 focus:bg-white outline-none transition-colors appearance-none cursor-pointer text-lg font-bold text-neutral-900"
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 hover:border-amber-200 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors appearance-none cursor-pointer text-lg font-bold text-neutral-900 dark:text-white"
                                         >
                                             <option value="USD">US Dollar ($)</option>
                                             <option value="EUR">Euro (€)</option>
@@ -376,14 +376,14 @@ export default function PremiumHostSettingsPage() {
                                     </div>
 
                                     <div>
-                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-3">Dashboard Language</p>
+                                        <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-3">Dashboard Language</p>
                                         <select 
                                             value={language} 
                                             onChange={(e) => {
                                                 setLanguage(e.target.value);
                                                 handleSavePreferences(e.target.value, currency);
                                             }}
-                                            className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 hover:border-amber-200 focus:border-amber-500 focus:bg-white outline-none transition-colors appearance-none cursor-pointer text-lg font-bold text-neutral-900"
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 hover:border-amber-200 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors appearance-none cursor-pointer text-lg font-bold text-neutral-900 dark:text-white"
                                         >
                                             <option value="en">English</option>
                                             <option value="fr">Français</option>
@@ -397,7 +397,7 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'notifications' && (
                             <motion.div key="notifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Notifications</h2>
-                                <p className="text-neutral-500 mb-8">Choose how and when we contact you.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Choose how and when we contact you.</p>
                                 
                                 {renderToggle('Email Alerts', 'Receive booking confirmations and important updates via email.', emailAlerts, () => handleUpdateNotifications('email_alerts', !emailAlerts))}
                                 {renderToggle('SMS Alerts', 'Get instantly notified on your phone for new bookings.', smsAlerts, () => handleUpdateNotifications('sms_alerts', !smsAlerts))}
@@ -408,7 +408,7 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'privacy' && (
                             <motion.div key="privacy" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Privacy & Sharing</h2>
-                                <p className="text-neutral-500 mb-8">Control what others see and how your data is used.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Control what others see and how your data is used.</p>
                                 
                                 {renderToggle('Public Profile Visibility', 'Allow your host profile to appear in search engines and public directories.', profileVisible, () => handleUpdatePrivacy('profile_visible', !profileVisible))}
                                 {renderToggle('Show Online Status', 'Let guests see when you are currently online and active.', showOnlineStatus, () => handleUpdatePrivacy('show_online_status', !showOnlineStatus))}
@@ -419,7 +419,7 @@ export default function PremiumHostSettingsPage() {
                         {activeTab === 'appearance' && (
                             <motion.div key="appearance" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                                 <h2 className="text-3xl font-bold tracking-tight mb-2">Appearance</h2>
-                                <p className="text-neutral-500 mb-8">Customize how Wijha looks on your device.</p>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-8">Customize how Wijha looks on your device.</p>
                                 
                                 {renderToggle('Dark Mode', 'Switch to a darker theme to reduce eye strain in low-light environments.', darkMode, () => handleUpdateUI('dark_mode', !darkMode))}
                                 {renderToggle('Compact UI', 'Reduce spacing between elements to fit more information on the screen.', compactDensity, () => handleUpdateUI('compact_density', !compactDensity))}
@@ -447,14 +447,14 @@ export default function PremiumHostSettingsPage() {
                             className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white/50"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="flex items-center justify-between border-b border-neutral-100 px-8 py-6 bg-white/50 backdrop-blur-md relative z-10">
-                                <h3 className="font-bold text-xl text-neutral-900 tracking-tight">
+                            <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 px-8 py-6 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md relative z-10">
+                                <h3 className="font-bold text-xl text-neutral-900 dark:text-white tracking-tight">
                                     {modalType === 'name' ? 'Edit Legal Name' : 
                                      modalType === 'email' ? 'Update Email' : 
                                      modalType === 'phone' ? 'Update Phone' : 
                                      'Update Password'}
                                </h3>
-                                <button onClick={closeModal} className="w-10 h-10 bg-neutral-100 hover:bg-neutral-200 text-neutral-500 rounded-full flex items-center justify-center transition-colors">
+                                <button onClick={closeModal} className="w-10 h-10 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 dark:text-neutral-400 rounded-full flex items-center justify-center transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>

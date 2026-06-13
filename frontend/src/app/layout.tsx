@@ -4,6 +4,8 @@ import AuthProvider from "@/components/AuthProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./globals.css";
 
+import ThemeProvider from "@/components/ThemeProvider";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -34,9 +36,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ErrorBoundary>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </ThemeProvider>
         </ErrorBoundary>
       </body>
     </html>
