@@ -67,7 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (!mounted || !isAuthenticated || !user) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
             </div>
         );
@@ -79,9 +79,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
             {/* Top Navigation Bar */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl border-b border-neutral-100 shadow-sm transition-all">
+            <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-2xl border-b border-neutral-100 dark:border-neutral-800/50 shadow-sm transition-all">
                 <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 h-24 flex items-center justify-between">
                     
                     {/* Logo (Left) */}
@@ -93,7 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                     {/* Navigation Pills (Center - Desktop) */}
-                    <nav className="hidden md:flex items-center space-x-1 p-1.5 bg-neutral-100/70 rounded-full border border-neutral-200">
+                    <nav className="hidden md:flex items-center space-x-1 p-1.5 bg-neutral-100/70 dark:bg-neutral-900/70 rounded-full border border-neutral-200 dark:border-neutral-800">
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href;
                             return (
@@ -102,8 +102,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     href={link.href}
                                     className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${
                                         isActive 
-                                        ? 'bg-white text-neutral-900 shadow-sm border border-neutral-200/50' 
-                                        : 'text-neutral-500 hover:text-neutral-900 hover:bg-white/60'
+                                        ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm border border-neutral-200/50 dark:border-neutral-700' 
+                                        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-neutral-800/60'
                                     }`}
                                 >
                                     {link.name}
@@ -129,17 +129,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="hidden md:block relative" ref={dropdownRef}>
                             <button 
                                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                className="flex items-center gap-3 pl-3 pr-4 py-2 bg-white hover:bg-neutral-50 border border-neutral-200 hover:border-neutral-300 hover:shadow-md rounded-full transition-all"
+                                className="flex items-center gap-3 pl-3 pr-4 py-2 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-md rounded-full transition-all"
                             >
                                 <img 
                                     src={getAvatarUrl(user.avatar)} 
                                     alt={user.name} 
-                                    className="w-10 h-10 rounded-full object-cover shadow-sm border border-neutral-100"
+                                    className="w-10 h-10 rounded-full object-cover shadow-sm border border-neutral-100 dark:border-neutral-800"
                                 />
                                 <div className="flex flex-col items-start hidden lg:flex">
-                                    <span className="text-sm font-bold text-neutral-900 leading-tight">{user.name.split(' ')[0]}</span>
+                                    <span className="text-sm font-bold text-neutral-900 dark:text-white leading-tight">{user.name.split(' ')[0]}</span>
                                 </div>
-                                <Menu size={18} className="text-neutral-500 ml-1" />
+                                <Menu size={18} className="text-neutral-500 dark:text-neutral-400 ml-1" />
                             </button>
 
                             <AnimatePresence>
@@ -149,24 +149,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden py-2"
+                                        className="absolute right-0 mt-3 w-56 bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-800 overflow-hidden py-2"
                                     >
-                                        <div className="px-4 py-3 border-b border-neutral-100 mb-2">
-                                            <p className="text-sm font-bold text-neutral-900 truncate">{user.name}</p>
-                                            <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+                                        <div className="px-4 py-3 border-b border-neutral-100 dark:border-neutral-800 mb-2">
+                                            <p className="text-sm font-bold text-neutral-900 dark:text-white truncate">{user.name}</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{user.email}</p>
                                         </div>
                                         
-                                        <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
-                                            <User size={18} className="text-neutral-400" /> My Profile
+                                        <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white">
+                                            <User size={18} className="text-neutral-400 dark:text-neutral-500" /> My Profile
                                         </Link>
-                                        <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
-                                            <Settings size={18} className="text-neutral-400" /> Settings
+                                        <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white">
+                                            <Settings size={18} className="text-neutral-400 dark:text-neutral-500" /> Settings
                                         </Link>
                                         
-                                        <div className="h-px bg-neutral-100 my-2"></div>
+                                        <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
 
                                         {user?.role === 'partner' ? (
-                                            <Link href="/host/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50">
+                                            <Link href="/host/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10">
                                                 <Home size={18} className="text-amber-500" /> Switch to Hosting
                                             </Link>
                                         ) : (
@@ -175,17 +175,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                     setIsProfileDropdownOpen(false);
                                                     setIsHostModalOpen(true);
                                                 }}
-                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-white"
                                             >
-                                                <Home size={18} className="text-neutral-400" /> Become a Host
+                                                <Home size={18} className="text-neutral-400 dark:text-neutral-500" /> Become a Host
                                             </button>
                                         )}
                                         
-                                        <div className="h-px bg-neutral-100 my-2"></div>
+                                        <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
                                         
                                         <button 
                                             onClick={handleLogout}
-                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50"
+                                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
                                         >
                                             <LogOut size={18} /> Log Out
                                         </button>
@@ -214,20 +214,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="fixed inset-0 bg-black/50 z-50 md:hidden backdrop-blur-sm"
+                            className="fixed inset-0 bg-black/50 dark:bg-black/80 z-50 md:hidden backdrop-blur-sm"
                         />
                         <motion.aside 
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 md:hidden flex flex-col"
+                            className="fixed inset-y-0 right-0 w-80 bg-white dark:bg-neutral-900 shadow-2xl z-50 md:hidden flex flex-col"
                         >
-                            <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-                                <span className="text-xl font-bold text-neutral-900">Menu</span>
+                            <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
+                                <span className="text-xl font-bold text-neutral-900 dark:text-white">Menu</span>
                                 <button 
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="p-2 text-neutral-400 hover:bg-neutral-100 rounded-full transition-colors"
+                                    className="p-2 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
                                 >
                                     <X size={20} />
                                 </button>
@@ -241,8 +241,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         className="w-12 h-12 rounded-full object-cover shadow-sm"
                                     />
                                     <div>
-                                        <p className="text-base font-bold text-neutral-900">{user.name}</p>
-                                        <p className="text-sm text-neutral-500">{user.email}</p>
+                                        <p className="text-base font-bold text-neutral-900 dark:text-white">{user.name}</p>
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400">{user.email}</p>
                                     </div>
                                 </div>
 
@@ -255,7 +255,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 href={link.href}
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                                 className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all font-bold ${
-                                                    isActive ? 'bg-amber-50 text-amber-600' : 'text-neutral-600 hover:bg-neutral-50'
+                                                    isActive ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600' : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                                                 }`}
                                             >
                                                 {link.name}
@@ -264,13 +264,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     })}
                                 </nav>
                                 
-                                <div className="h-px bg-neutral-100 my-6"></div>
+                                <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-6"></div>
 
                                 <nav className="space-y-2">
-                                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800">
                                         <User size={20} /> My Profile
                                     </Link>
-                                    <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                    <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800">
                                         <Settings size={20} /> Settings
                                     </Link>
                                     {user?.role !== 'partner' && (
@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 setIsMobileMenuOpen(false);
                                                 setIsHostModalOpen(true);
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50"
+                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                                         >
                                             <Home size={20} /> Become a Host
                                         </button>
@@ -287,10 +287,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </nav>
                             </div>
 
-                            <div className="p-6 border-t border-neutral-100">
+                            <div className="p-6 border-t border-neutral-100 dark:border-neutral-800">
                                 <button 
                                     onClick={handleLogout}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all"
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-600 font-bold hover:bg-red-100 dark:hover:bg-red-500/20 transition-all"
                                 >
                                     <LogOut size={20} /> Log Out
                                 </button>
