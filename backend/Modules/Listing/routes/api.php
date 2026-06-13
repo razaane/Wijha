@@ -18,6 +18,9 @@ Route::prefix('v1/listings')->group(function () {
         Route::get('/{id}', [ListingController::class, 'show'])->name('listings.show');
         Route::put('/{id}', [ListingController::class, 'update'])->name('listings.update');
         Route::delete('/{id}', [ListingController::class, 'destroy'])->name('listings.destroy');
+        Route::post('/{id}/photos', [ListingController::class, 'uploadPhotos'])->name('listings.photos.store');
+        Route::post('/{id}/photos/reorder', [ListingController::class, 'reorderPhotos'])->name('listings.photos.reorder');
+        Route::delete('/{id}/photos/{photoId}', [ListingController::class, 'destroyPhoto'])->name('listings.photos.destroy');
         
         // Calendar Routes
         Route::get('/{id}/calendar', [ListingCalendarController::class, 'index'])->name('listings.calendar.index');

@@ -23,6 +23,7 @@ class Listing extends Model implements HasMedia
         'title',
         'description',
         'price',
+        'currency',
         'property_type',
         'privacy_type',
         'address_country',
@@ -109,5 +110,25 @@ class Listing extends Model implements HasMedia
     public function availabilities()
     {
         return $this->hasMany(ListingAvailability::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(ListingTicket::class);
+    }
+
+    public function eventMeta()
+    {
+        return $this->hasOne(ListingEventMeta::class);
+    }
+
+    public function eventWaitlists()
+    {
+        return $this->hasMany(EventWaitlist::class);
+    }
+
+    public function eventVerification()
+    {
+        return $this->hasOne(EventVerification::class);
     }
 }

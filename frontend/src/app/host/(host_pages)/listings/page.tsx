@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { getStorageUrl } from '@/lib/url';
 import Link from 'next/link';
-import { Plus, MapPin, MoreVertical, Home, Star, LayoutGrid, List, Loader2, ArrowRight, Ticket, Map as MapIcon } from 'lucide-react';
+import { Plus, MapPin, MoreVertical, Home, Star, LayoutGrid, List, Loader2, ArrowRight, Ticket, Map as MapIcon, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import HostSelectionModal from '@/components/HostSelectionModal';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useCurrencyFormatter } from "@/hooks/useCurrencyFormatter";
 
 interface Listing {
     id: number;
@@ -21,33 +22,57 @@ interface Listing {
     is_active: boolean;
     is_draft: boolean;
     photo_urls: { small: string, original: string }[];
+    currency?: string;
 }
 
 export default function ListingsPage() {
+    const { formatConverted } = useCurrencyFormatter();
     const [listings, setListings] = useState<Listing[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [filter, setFilter] = useState<'all' | 'rental' | 'tour' | 'event'>('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [listingToDelete, setListingToDelete] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
 
     const filteredListings = listings.filter(l => filter === 'all' || l.type === filter);
 
     useEffect(() => {
+        const fetchListings = async () => {
+            try {
+                const res = await api.get('/listings/me');
+                if (res.data?.status === 'success') {
+                    // res.data.data is the pagination object, .data is the array
+                    setListings(res.data.data.data || []);
+                }
+            } catch (error) {
+                console.error("Failed to fetch listings:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchListings();
     }, []);
 
-    const fetchListings = async () => {
-        setLoading(true);
+    const handleDeleteClick = (e: React.MouseEvent, id: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setListingToDelete(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!listingToDelete) return;
+        setIsDeleting(true);
         try {
-            const res = await api.get('/listings/me');
-            if (res.data?.status === 'success') {
-                setListings(res.data.data.data || []); // Access standard Laravel pagination wrapper
-            }
-        } catch (err) {
-            console.error("Failed to fetch listings", err);
+            await api.delete(`/listings/${listingToDelete}`);
+            setListings(listings.filter(l => l.id !== listingToDelete));
+            setListingToDelete(null);
+        } catch (error) {
+            console.error('Failed to delete listing:', error);
         } finally {
-            setLoading(false);
+            setIsDeleting(false);
         }
     };
 
@@ -252,9 +277,12 @@ export default function ListingsPage() {
                                         {getStatusBadge(listing)}
                                     </div>
                                     
-                                    {/* Action Button (Hover) */}
-                                    <button className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-600 hover:text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-sm">
-                                        <MoreVertical size={16} />
+                                    {/* Delete Button (Hover) */}
+                                    <button 
+                                        onClick={(e) => handleDeleteClick(e, listing.id)}
+                                        className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                                    >
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
 
@@ -276,8 +304,16 @@ export default function ListingsPage() {
 
                                     <div className="mt-auto pt-4 border-t border-neutral-100 flex items-end justify-between">
                                         <div>
-                                            <span className="text-lg font-black text-neutral-900">${listing.price || 0}</span>
-                                            <span className="text-neutral-500 text-sm font-medium"> / night</span>
+                                            {listing.type === 'event' ? (
+                                                <span className="text-lg font-black text-neutral-900">Tickets</span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-lg font-black text-neutral-900">{formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
+                                                    <span className="text-neutral-500 text-sm font-medium">
+                                                        {listing.type === 'tour' ? ' / person' : ' / night'}
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -336,12 +372,31 @@ export default function ListingsPage() {
 
                                 <div className="w-full sm:w-auto flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 border-t sm:border-t-0 border-neutral-100 pt-4 sm:pt-0 pl-0 sm:pl-6 sm:border-l">
                                     <div className="text-left sm:text-right">
-                                        <div className="text-lg font-black text-neutral-900">${listing.price || 0}</div>
-                                        <div className="text-neutral-500 text-xs font-medium uppercase tracking-wider">Per night</div>
+                                        {listing.type === 'event' ? (
+                                            <>
+                                                <div className="text-lg font-black text-neutral-900">Tickets</div>
+                                                <div className="text-neutral-500 text-xs font-medium uppercase tracking-wider">Available</div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="text-lg font-black text-neutral-900">{formatConverted(listing.price || 0, listing.currency || 'USD')}</div>
+                                                <div className="text-neutral-500 text-xs font-medium uppercase tracking-wider">
+                                                    {listing.type === 'tour' ? 'Per person' : 'Per night'}
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
-                                    <button className="text-neutral-400 hover:text-amber-600 transition-colors bg-neutral-50 hover:bg-amber-50 p-2 rounded-full">
-                                        <ArrowRight size={18} />
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <button 
+                                            onClick={(e) => handleDeleteClick(e, listing.id)}
+                                            className="text-neutral-400 hover:text-white hover:bg-rose-500 transition-colors bg-neutral-50 p-2 rounded-full"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                        <button className="text-neutral-400 hover:text-amber-600 transition-colors bg-neutral-50 hover:bg-amber-50 p-2 rounded-full">
+                                            <ArrowRight size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             </Link>
                         ))}
@@ -349,7 +404,54 @@ export default function ListingsPage() {
                 )}
             </AnimatePresence>
             
-            <HostSelectionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <HostSelectionModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {listingToDelete !== null && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => !isDeleting && setListingToDelete(null)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                        >
+                            <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6">
+                                <Trash2 size={32} />
+                            </div>
+                            <h3 className="text-2xl font-black text-neutral-900 mb-2 tracking-tight">Delete Listing?</h3>
+                            <p className="text-neutral-500 mb-8 font-medium">Are you sure you want to permanently delete this listing? All associated data will be lost. This action cannot be undone.</p>
+                            
+                            <div className="flex items-center gap-3 w-full">
+                                <button 
+                                    onClick={() => setListingToDelete(null)}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 px-4 rounded-xl font-bold text-neutral-600 hover:bg-neutral-100 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={confirmDelete}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 px-4 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center"
+                                >
+                                    {isDeleting ? <Loader2 size={20} className="animate-spin" /> : 'Delete'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

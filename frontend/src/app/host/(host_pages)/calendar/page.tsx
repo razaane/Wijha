@@ -11,9 +11,11 @@ import {
     Image as ImageIcon, Home, ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
+import { useCurrencyFormatter } from "@/hooks/useCurrencyFormatter";
 
 export default function HostCalendarPage() {
     const { user } = useAuthStore();
+    const { formatConverted } = useCurrencyFormatter();
     const [listings, setListings] = useState<any[]>([]);
     const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
@@ -33,7 +35,7 @@ export default function HostCalendarPage() {
             try {
                 const res = await api.get('/listings/me');
                 if (res.data?.status === 'success') {
-                    const listingsArray = (res.data.data.data || []).filter((l: any) => !l.is_draft);
+                    const listingsArray = (res.data.data.data || []).filter((l: any) => !l.is_draft && l.type === 'rental');
                     setListings(listingsArray);
                     if (listingsArray.length > 0) {
                         setSelectedListingId(listingsArray[0].id);
@@ -256,7 +258,7 @@ export default function HostCalendarPage() {
                             <span className={`font-bold ${selected ? 'text-white' : ''}`}>{day}</span>
                             {!past && data.price > 0 && (
                                 <span className={`text-[10px] mt-0.5 ${selected ? 'text-neutral-300' : isBlocked ? 'text-red-300 line-through' : 'text-neutral-400'}`}>
-                                    ${data.price}
+                                    {formatConverted(data.price, selectedListing?.currency || 'USD')}
                                 </span>
                             )}
                             {selected && (
@@ -472,7 +474,7 @@ export default function HostCalendarPage() {
                                             type="number" 
                                             value={customPrice}
                                             onChange={(e) => setCustomPrice(e.target.value)}
-                                            placeholder={`Base: $${selectedListing?.price || 0}`}
+                                            placeholder={`Base: ${formatConverted(selectedListing?.price || 0, selectedListing?.currency || 'USD')}`}
                                             className="w-full pl-11 pr-4 py-3 bg-white border border-neutral-200 rounded-xl font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                                         />
                                     </div>

@@ -156,10 +156,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             <p className="text-xs text-neutral-500 truncate">{user.email}</p>
                                         </div>
                                         
-                                        <Link href="/dashboard/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                        <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
                                             <User size={18} className="text-neutral-400" /> My Profile
                                         </Link>
-                                        <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                        <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
                                             <Settings size={18} className="text-neutral-400" /> Settings
                                         </Link>
                                         
@@ -267,10 +267,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <div className="h-px bg-neutral-100 my-6"></div>
 
                                 <nav className="space-y-2">
-                                    <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
                                         <User size={20} /> My Profile
                                     </Link>
-                                    <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
+                                    <Link href="/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 hover:bg-neutral-50">
                                         <Settings size={20} /> Settings
                                     </Link>
                                     {user?.role !== 'partner' && (

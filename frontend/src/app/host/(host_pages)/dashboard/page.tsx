@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuthStore } from '@/store/auth.store';
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     CheckCircle2, Plus, ArrowUpRight, Calendar, 
-    MessageCircle, Star, TrendingUp, Clock, MapPin, Loader2, Compass, Camera
+    MessageCircle, Star, TrendingUp, Clock, MapPin, Loader2, Compass, Camera, Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,10 +16,14 @@ import HostSelectionModal from '@/components/HostSelectionModal';
 
 export default function HostDashboardPage() {
     const { user } = useAuthStore();
+    const { formatConverted } = useCurrencyFormatter();
     const [listings, setListings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeWorkspace, setActiveWorkspace] = useState<'all' | 'stays' | 'experiences' | 'events'>('all');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    const [listingToDelete, setListingToDelete] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const fetchListings = async () => {
@@ -36,6 +41,26 @@ export default function HostDashboardPage() {
         };
         fetchListings();
     }, []);
+
+    const handleDeleteClick = (e: React.MouseEvent, id: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setListingToDelete(id);
+    };
+
+    const confirmDelete = async () => {
+        if (!listingToDelete) return;
+        setIsDeleting(true);
+        try {
+            await api.delete(`/listings/${listingToDelete}`);
+            setListings(listings.filter(l => l.id !== listingToDelete));
+            setListingToDelete(null);
+        } catch (error) {
+            console.error('Failed to delete listing:', error);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     // Dynamic Stats
     const getStats = () => {
@@ -125,23 +150,33 @@ export default function HostDashboardPage() {
                 ))}
             </div>
 
-            {/* Active Listings or Quick Actions Alert */}
-            {activeWorkspace === 'experiences' || activeWorkspace === 'events' ? (
-                <div className="bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
-                    <h3 className="text-xl font-bold text-neutral-900 mb-2">{activeWorkspace === 'experiences' ? 'Experiences' : 'Events'} are coming soon</h3>
-                    <p className="text-neutral-500 max-w-md">We are currently building out the infrastructure for you to host amazing {activeWorkspace}. Stay tuned!</p>
-                </div>
-            ) : loading ? (
-                <div className="flex items-center justify-center py-12">
-                    <Loader2 className="animate-spin text-amber-500" size={32} />
-                </div>
-            ) : listings.length === 0 ? (
-                <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-amber-50 border border-amber-200 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6"
-                >
+            {/* Filter Listings based on workspace */}
+            {(() => {
+                const filteredListings = activeWorkspace === 'all' 
+                    ? listings 
+                    : listings.filter(l => 
+                        (activeWorkspace === 'stays' && l.type === 'rental') ||
+                        (activeWorkspace === 'experiences' && l.type === 'tour') ||
+                        (activeWorkspace === 'events' && l.type === 'event')
+                    );
+
+                return loading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <Loader2 className="animate-spin text-amber-500" size={32} />
+                    </div>
+                ) : filteredListings.length === 0 ? (
+                    activeWorkspace === 'experiences' ? (
+                        <div className="bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                            <h3 className="text-xl font-bold text-neutral-900 mb-2">Experiences are coming soon</h3>
+                            <p className="text-neutral-500 max-w-md">We are currently building out the infrastructure for you to host amazing Experiences. Stay tuned!</p>
+                        </div>
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="bg-amber-50 border border-amber-200 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6"
+                        >
                     <div className="flex items-start gap-4">
                         <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
                             <CheckCircle2 size={24} />
@@ -155,23 +190,24 @@ export default function HostDashboardPage() {
                         Resume setup
                     </Link>
                 </motion.div>
+                )
             ) : (
                 <div className="space-y-8">
                     <h2 className="text-3xl font-black text-neutral-900 tracking-tight">Your Listings</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 xl:gap-8">
-                        {listings.map((listing, idx) => {
+                        {filteredListings.map((listing, idx) => {
                             const photoObj = listing.photo_urls?.[0];
                             const imageUrl = getStorageUrl(photoObj?.large || photoObj?.original);
 
                             return (
-                                <motion.div 
-                                    key={listing.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 + (idx * 0.1) }}
-                                    className="bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
-                                >
-                                    <div className="relative h-48 w-full overflow-hidden bg-neutral-100 flex-shrink-0">
+                                <Link href={`/host/listings/${listing.id}`} key={listing.id} className="block group">
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 + (idx * 0.1) }}
+                                        className="bg-white rounded-3xl border border-neutral-100 overflow-hidden shadow-sm hover:shadow-xl transition-all h-full flex flex-col relative"
+                                    >
+                                        <div className="relative h-48 w-full overflow-hidden bg-neutral-100 flex-shrink-0">
                                         {imageUrl ? (
                                             <img 
                                                 src={imageUrl} 
@@ -199,6 +235,14 @@ export default function HostDashboardPage() {
                                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Paused
                                             </div>
                                         )}
+
+                                        {/* Delete Button */}
+                                        <button 
+                                            onClick={(e) => handleDeleteClick(e, listing.id)}
+                                            className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
                                     </div>
                                     <div className="p-5">
                                         <h3 className="font-bold text-lg text-neutral-900 mb-1 truncate">{listing.title || 'Untitled Draft'}</h3>
@@ -210,22 +254,26 @@ export default function HostDashboardPage() {
                                             </span>
                                         </p>
                                         <div className="flex items-center justify-between">
-                                            {listing.price ? (
-                                                <span className="font-black text-neutral-900">${listing.price} <span className="text-neutral-500 text-sm font-medium">/ night</span></span>
+                                            {listing.type === 'event' ? (
+                                                <span className="font-black text-neutral-900">Tickets <span className="text-neutral-500 text-sm font-medium">Available</span></span>
+                                            ) : listing.price ? (
+                                                <span className="font-black text-neutral-900">{formatConverted(listing.price, listing.currency || 'USD')} <span className="text-neutral-500 text-sm font-medium">{listing.type === 'tour' ? '/ person' : '/ night'}</span></span>
                                             ) : (
                                                 <span className="font-bold text-neutral-400 text-sm">Price not set</span>
                                             )}
-                                            <Link href={`/host/listings/${listing.id}`} className="text-sm font-bold text-amber-500 hover:text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg ml-auto">
+                                            <div className="text-sm font-bold text-amber-500 bg-amber-50 group-hover:bg-amber-500 group-hover:text-white transition-colors px-3 py-1.5 rounded-lg ml-auto">
                                                 {listing.is_draft ? 'Continue' : 'Manage'}
-                                            </Link>
+                                            </div>
                                         </div>
                                     </div>
-                                </motion.div>
+                                    </motion.div>
+                                </Link>
                             );
                         })}
                     </div>
                 </div>
-            )}
+            );
+            })()}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
@@ -297,7 +345,54 @@ export default function HostDashboardPage() {
             </div>
 
             {/* Create Selection Modal */}
-            <HostSelectionModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+            <HostSelectionModal 
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+            />
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {listingToDelete !== null && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => !isDeleting && setListingToDelete(null)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                        >
+                            <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6">
+                                <Trash2 size={32} />
+                            </div>
+                            <h3 className="text-2xl font-black text-neutral-900 mb-2 tracking-tight">Delete Listing?</h3>
+                            <p className="text-neutral-500 mb-8 font-medium">Are you sure you want to permanently delete this listing? All associated data will be lost. This action cannot be undone.</p>
+                            
+                            <div className="flex items-center gap-3 w-full">
+                                <button 
+                                    onClick={() => setListingToDelete(null)}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 px-4 rounded-xl font-bold text-neutral-600 hover:bg-neutral-100 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={confirmDelete}
+                                    disabled={isDeleting}
+                                    className="flex-1 py-3.5 px-4 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center"
+                                >
+                                    {isDeleting ? <Loader2 size={20} className="animate-spin" /> : 'Delete'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -22,6 +22,12 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
         
         if (!isAuthenticated) {
             window.location.href = '/login';
+            return;
+        }
+
+        if (user && !user.is_verified_host) {
+            router.push('/host/verify-identity');
+            return;
         }
 
         const handleClickOutside = (event: MouseEvent) => {
@@ -43,7 +49,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
         }
     };
 
-    const getAvatarUrl = (avatar: string | null) => {
+    const getAvatarUrl = (avatar?: string | null) => {
         if (!avatar) return `https://ui-avatars.com/api/?name=${user?.name}&background=f59e0b&color=fff`;
         return getStorageUrl(avatar);
     };
@@ -138,10 +144,10 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
                                         <p className="text-xs text-neutral-500 truncate">Host Account</p>
                                     </div>
                                     
-                                    <Link href="/dashboard/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                    <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
                                         <User size={18} className="text-neutral-400" /> My Profile
                                     </Link>
-                                    <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
+                                    <Link href="/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900">
                                         <Settings size={18} className="text-neutral-400" /> Settings
                                     </Link>
                                     
