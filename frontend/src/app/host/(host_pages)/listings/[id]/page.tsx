@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Save, Home, DollarSign, Image as ImageIcon, MapPin, CheckCircle2, Users, Shield, Power, Settings2, Map, Calendar } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Home, DollarSign, Image as ImageIcon, MapPin, CheckCircle2, XCircle, Users, Shield, Power, Settings2, Map, Calendar } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { getStorageUrl } from '@/lib/url';
@@ -87,6 +87,7 @@ export default function ListingManagementPage() {
     
     // Pricing State
     const [price, setPrice] = useState('');
+    const [listingCurrency, setListingCurrency] = useState(currency);
     
     // Event Meta State
     const [startDatetime, setStartDatetime] = useState('');
@@ -99,6 +100,7 @@ export default function ListingManagementPage() {
     const [tickets, setTickets] = useState<{name: string, price: number, quantity_available: number, description: string}[]>([]);
     
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState('');
     
     const [showExitWarning, setShowExitWarning] = useState(false);
     const initialPayloadRef = useRef<string | null>(null);
@@ -124,8 +126,8 @@ export default function ListingManagementPage() {
         address_postal_code: postalCode,
         latitude,
         longitude,
-        price: parseFloat(price),
-        currency: currency,
+        price: parseFloat(price) || 0,
+        currency: listingCurrency,
         ...(type === 'event' && {
             event_meta: {
                 start_datetime: startDatetime || null,
@@ -181,7 +183,9 @@ export default function ListingManagementPage() {
                         setLongitude(parseFloat(data.longitude));
                     }
                     
-                    setPrice(data.price ? convertPrice(data.price, data.currency || 'USD', currency).toFixed(2) : '');
+                    const savedCurrency = data.currency || currency;
+                    setListingCurrency(savedCurrency);
+                    setPrice(data.price ? convertPrice(data.price, savedCurrency, savedCurrency).toFixed(2) : '');
 
                     if (data.event_meta) {
                         setStartDatetime(data.event_meta.start_datetime ? data.event_meta.start_datetime.replace(' ', 'T').substring(0, 16) : '');
@@ -193,7 +197,7 @@ export default function ListingManagementPage() {
                     if (data.tickets) {
                         setTickets(data.tickets.map((t: any) => ({
                             ...t,
-                            price: convertPrice(t.price || 0, data.currency || 'USD', currency).toFixed(2)
+                            price: convertPrice(t.price || 0, data.currency || 'USD', data.currency || 'USD').toFixed(2)
                         })));
                     }
                 } else {
@@ -224,7 +228,8 @@ export default function ListingManagementPage() {
             }
         } catch (error) {
             console.error("Failed to update listing:", error);
-            alert("Failed to save changes. Please try again.");
+            setShowError("Failed to save changes. Please try again.");
+            setTimeout(() => setShowError(''), 5000);
         } finally {
             setSaving(false);
         }
@@ -253,7 +258,8 @@ export default function ListingManagementPage() {
             }
         } catch (error) {
             console.error('Failed to delete photo:', error);
-            alert('Failed to delete photo. Please try again.');
+            setShowError('Failed to delete photo. Please try again.');
+            setTimeout(() => setShowError(''), 5000);
         } finally {
             setIsDeletingPhoto(null);
         }
@@ -281,7 +287,8 @@ export default function ListingManagementPage() {
             }
         } catch (error) {
             console.error('Failed to upload photos:', error);
-            alert('Failed to upload photos. Please try again.');
+            setShowError('Failed to upload photos. Please try again.');
+            setTimeout(() => setShowError(''), 5000);
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -307,7 +314,8 @@ export default function ListingManagementPage() {
             }
         } catch (error) {
             console.error('Failed to set cover photo:', error);
-            alert('Failed to set cover photo. Please try again.');
+            setShowError('Failed to set cover photo. Please try again.');
+            setTimeout(() => setShowError(''), 5000);
         }
     };
 
@@ -344,9 +352,9 @@ export default function ListingManagementPage() {
     const isReadyToPublish = title && price && parseFloat(price) > 0 && listing.photo_urls && listing.photo_urls.length >= (type === 'rental' ? 5 : 1) && isValidEventDates();
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-50/40 via-neutral-50 to-neutral-100 pb-24 font-sans selection:bg-amber-500/30">
+        <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-50/40 via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-[#0a0a0a] dark:to-[#0a0a0a] pb-24 font-sans selection:bg-amber-500/30 transition-colors duration-300">
             {/* Sticky Header */}
-            <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-2xl border-b border-neutral-200/50 shadow-sm transition-all">
+            <header className="sticky top-0 z-40 bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-2xl border-b border-neutral-200/50 dark:border-neutral-800/50 shadow-sm transition-all">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <button 
@@ -359,13 +367,13 @@ export default function ListingManagementPage() {
                                     router.push('/host/dashboard');
                                 }
                             }}
-                            className="w-10 h-10 bg-neutral-100 hover:bg-neutral-200 rounded-full flex items-center justify-center transition-colors text-neutral-600"
+                            className="w-10 h-10 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-full flex items-center justify-center transition-colors text-neutral-600 dark:text-neutral-300"
                         >
                             <ArrowLeft size={20} />
                         </button>
-                        <div className="h-8 w-px bg-neutral-200 hidden md:block"></div>
+                        <div className="h-8 w-px bg-neutral-200 dark:bg-neutral-800 hidden md:block"></div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-xl font-bold text-neutral-900 truncate max-w-[200px] md:max-w-xs">{title || 'Untitled'}</h1>
+                            <h1 className="text-xl font-bold text-neutral-900 dark:text-white truncate max-w-[200px] md:max-w-xs">{title || 'Untitled'}</h1>
                             
                             {/* Status Badge */}
                             {isDraft ? (
@@ -408,7 +416,7 @@ export default function ListingManagementPage() {
                         ) : (
                             <button 
                                 onClick={() => setIsActive(!isActive)}
-                                className={`px-4 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 border ${isActive ? 'bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50' : 'bg-neutral-100 border-neutral-200 text-neutral-900 hover:bg-neutral-200'}`}
+                                className={`px-4 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 border ${isActive ? 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800' : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-700'}`}
                             >
                                 <Power size={18} className={isActive ? 'text-rose-500' : 'text-emerald-500'} />
                                 <span className="hidden sm:inline">{isActive ? 'Pause Listing' : 'Activate Listing'}</span>
@@ -440,6 +448,18 @@ export default function ListingManagementPage() {
                         Changes saved successfully!
                     </motion.div>
                 )}
+                
+                {showError && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-rose-500 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2"
+                    >
+                        <XCircle size={20} />
+                        {showError}
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             <main className="max-w-7xl mx-auto px-6 mt-8 flex flex-col lg:flex-row gap-8">
@@ -462,7 +482,7 @@ export default function ListingManagementPage() {
                             <button 
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as any)}
-                                className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 ${activeTab === tab.id ? 'bg-gradient-to-r from-neutral-900 to-neutral-800 text-white shadow-lg shadow-neutral-900/20 scale-[1.02]' : 'text-neutral-500 hover:bg-white hover:text-neutral-900 hover:shadow-sm'}`}
+                                className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 ${activeTab === tab.id ? 'bg-gradient-to-r from-neutral-900 to-neutral-800 dark:from-neutral-100 dark:to-white text-white dark:text-neutral-900 shadow-lg shadow-neutral-900/20 dark:shadow-white/10 scale-[1.02]' : 'text-neutral-500 dark:text-neutral-400 hover:bg-white dark:hover:bg-neutral-900 hover:text-neutral-900 dark:hover:text-white hover:shadow-sm'}`}
                             >
                                 <tab.icon size={18} className={activeTab === tab.id ? 'text-amber-400' : 'text-neutral-400'} /> 
                                 {tab.label}
@@ -476,43 +496,43 @@ export default function ListingManagementPage() {
                     
                     {/* DETAILS TAB */}
                     {activeTab === 'details' && (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-8">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none space-y-8">
                             <div className="flex items-center gap-4 border-b border-neutral-100 pb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
                                     <Settings2 size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-neutral-900 tracking-tight">Listing Details</h2>
-                                    <p className="text-neutral-500 font-medium">Manage the core information about your listing.</p>
+                                    <h2 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">Listing Details</h2>
+                                    <p className="text-neutral-500 dark:text-neutral-400 font-medium">Manage the core information about your listing.</p>
                                 </div>
                             </div>
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Title</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Title</label>
                                     <input 
                                         type="text" 
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white dark:focus:bg-neutral-900 transition-all font-medium text-neutral-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Description</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Description</label>
                                     <textarea 
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         rows={6}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900 resize-none"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white dark:focus:bg-neutral-900 transition-all font-medium text-neutral-900 dark:text-white resize-none"
                                     />
                                 </div>
                                 {type === 'rental' && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-neutral-100 dark:border-neutral-800">
                                         <div>
-                                            <label className="block text-sm font-bold text-neutral-900 mb-2">Property Type</label>
+                                            <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Property Type</label>
                                             <select 
                                                 value={propertyType}
                                                 onChange={(e) => setPropertyType(e.target.value)}
-                                                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
+                                                className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white dark:focus:bg-neutral-900 transition-all font-medium text-neutral-900 dark:text-white"
                                             >
                                                 <option value="apartment">Apartment</option>
                                                 <option value="house">House</option>
@@ -522,11 +542,11 @@ export default function ListingManagementPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-neutral-900 mb-2">Privacy Type</label>
+                                            <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Privacy Type</label>
                                             <select 
                                                 value={privacyType}
                                                 onChange={(e) => setPrivacyType(e.target.value)}
-                                                className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium text-neutral-900"
+                                                className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white dark:focus:bg-neutral-900 transition-all font-medium text-neutral-900 dark:text-white"
                                             >
                                                 <option value="entire_place">Entire Place</option>
                                                 <option value="private_room">Private Room</option>
@@ -541,62 +561,62 @@ export default function ListingManagementPage() {
 
                     {/* EVENT INFO TAB */}
                     {activeTab === 'event_info' && (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-8">
-                            <div className="flex items-center gap-4 border-b border-neutral-100 pb-6">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none space-y-8">
+                            <div className="flex items-center gap-4 border-b border-neutral-100 dark:border-neutral-800 pb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
                                     <Calendar size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-neutral-900 tracking-tight">Event Information</h2>
-                                    <p className="text-neutral-500 font-medium">Set the dates, times, and rules for your upcoming event.</p>
+                                    <h2 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">Event Information</h2>
+                                    <p className="text-neutral-500 dark:text-neutral-400 font-medium">Set the dates, times, and rules for your upcoming event.</p>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Start Date & Time</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Start Date & Time</label>
                                     <input 
                                         type="datetime-local" 
                                         value={startDatetime}
                                         min={new Date().toISOString().slice(0, 16)}
                                         onChange={(e) => setStartDatetime(e.target.value)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">End Date & Time</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">End Date & Time</label>
                                     <input 
                                         type="datetime-local" 
                                         value={endDatetime}
                                         min={startDatetime || new Date().toISOString().slice(0, 16)}
                                         onChange={(e) => setEndDatetime(e.target.value)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white"
                                     />
                                 </div>
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Venue Name (Optional)</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Venue Name (Optional)</label>
                                     <input 
                                         type="text" 
                                         value={venueName}
                                         onChange={(e) => setVenueName(e.target.value)}
                                         placeholder="e.g. Madison Square Garden"
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Total Ticket Capacity</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Total Ticket Capacity</label>
                                     <input 
                                         type="number" 
                                         value={guests}
                                         onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Age Restriction</label>
+                                    <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Age Restriction</label>
                                     <select 
                                         value={ageRestriction}
                                         onChange={(e) => setAgeRestriction(e.target.value)}
-                                        className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900"
+                                        className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white"
                                     >
                                         <option value="">None / All Ages</option>
                                         <option value="18+">18+ Only</option>
@@ -610,8 +630,8 @@ export default function ListingManagementPage() {
 
                     {/* CAPACITY TAB */}
                     {activeTab === 'capacity' && (
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-                            <h2 className="text-2xl font-black text-neutral-900 mb-6">Capacity & Rooms</h2>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
+                            <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-6">Capacity & Rooms</h2>
                             <div className="space-y-6 max-w-xl">
                                 {[
                                     { label: 'Guests', value: guests, setter: setGuests, desc: 'Maximum number of guests allowed' },
@@ -619,20 +639,20 @@ export default function ListingManagementPage() {
                                     { label: 'Beds', value: beds, setter: setBeds, desc: 'Total number of beds available' },
                                     { label: 'Bathrooms', value: bathrooms, setter: setBathrooms, desc: 'Number of bathrooms available' }
                                 ].map((item) => (
-                                    <div key={item.label} className="flex items-center justify-between py-4 border-b border-neutral-100 last:border-0">
+                                    <div key={item.label} className="flex items-center justify-between py-4 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                                         <div>
-                                            <h3 className="font-bold text-neutral-900">{item.label}</h3>
-                                            <p className="text-sm text-neutral-500">{item.desc}</p>
+                                            <h3 className="font-bold text-neutral-900 dark:text-white">{item.label}</h3>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{item.desc}</p>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <button 
                                                 onClick={() => item.setter(Math.max(1, item.value - 1))}
-                                                className="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                                                className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors"
                                             >-</button>
-                                            <span className="w-6 text-center font-bold text-lg">{item.value}</span>
+                                            <span className="w-6 text-center font-bold text-lg dark:text-white">{item.value}</span>
                                             <button 
                                                 onClick={() => item.setter(item.value + 1)}
-                                                className="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-600 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                                                className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-600 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-200 transition-colors"
                                             >+</button>
                                         </div>
                                     </div>
@@ -644,37 +664,37 @@ export default function ListingManagementPage() {
                     {/* AMENITIES TAB */}
                     {activeTab === 'amenities' && (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-                                <h2 className="text-2xl font-black text-neutral-900 mb-2">Amenities</h2>
-                                <p className="text-neutral-500 mb-6">Select all the amenities your property offers.</p>
+                            <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
+                                <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-2">Amenities</h2>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-6">Select all the amenities your property offers.</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                     {AVAILABLE_AMENITIES.map((amenity) => (
-                                        <label key={amenity.id} className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${amenities.includes(amenity.id) ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-100 hover:border-neutral-300'}`}>
+                                        <label key={amenity.id} className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${amenities.includes(amenity.id) ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800' : 'border-neutral-100 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'}`}>
                                             <input 
                                                 type="checkbox" 
                                                 checked={amenities.includes(amenity.id)}
                                                 onChange={() => toggleAmenity(amenity.id)}
-                                                className="w-5 h-5 accent-neutral-900 rounded"
+                                                className="w-5 h-5 accent-neutral-900 dark:accent-white rounded"
                                             />
-                                            <span className="font-bold text-neutral-900">{amenity.name}</span>
+                                            <span className="font-bold text-neutral-900 dark:text-white">{amenity.name}</span>
                                         </label>
                                     ))}
                                 </div>
                             </div>
                             
-                            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-                                <h2 className="text-2xl font-black text-neutral-900 mb-2">Safety Items</h2>
-                                <p className="text-neutral-500 mb-6">Check all the safety equipment available.</p>
+                            <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
+                                <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-2">Safety Items</h2>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-6">Check all the safety equipment available.</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {AVAILABLE_SAFETY_ITEMS.map((item) => (
-                                        <label key={item.id} className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${safetyItems.includes(item.id) ? 'border-emerald-500 bg-emerald-50' : 'border-neutral-100 hover:border-neutral-300'}`}>
+                                        <label key={item.id} className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${safetyItems.includes(item.id) ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'border-neutral-100 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'}`}>
                                             <input 
                                                 type="checkbox" 
                                                 checked={safetyItems.includes(item.id)}
                                                 onChange={() => toggleSafety(item.id)}
                                                 className="w-5 h-5 accent-emerald-500 rounded"
                                             />
-                                            <span className="font-bold text-neutral-900">{item.name}</span>
+                                            <span className="font-bold text-neutral-900 dark:text-white">{item.name}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -685,40 +705,40 @@ export default function ListingManagementPage() {
                     {/* LOCATION TAB */}
                     {activeTab === 'location' && (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-                                <h2 className="text-2xl font-black text-neutral-900 mb-6">Location Details</h2>
+                            <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
+                                <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-6">Location Details</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Country</label>
-                                        <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Country</label>
+                                        <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                     <div className="md:col-span-2">
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Street Address</label>
-                                        <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Street Address</label>
+                                        <input type="text" value={street} onChange={(e) => setStreet(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Apt, Suite, etc. (Optional)</label>
-                                        <input type="text" value={apt} onChange={(e) => setApt(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Apt, Suite, etc. (Optional)</label>
+                                        <input type="text" value={apt} onChange={(e) => setApt(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">City</label>
-                                        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">City</label>
+                                        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Province / State</label>
-                                        <input type="text" value={province} onChange={(e) => setProvince(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Province / State</label>
+                                        <input type="text" value={province} onChange={(e) => setProvince(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-900 mb-2">Postal Code</label>
-                                        <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900" />
+                                        <label className="block text-sm font-bold text-neutral-900 dark:text-white mb-2">Postal Code</label>
+                                        <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 font-medium text-neutral-900 dark:text-white" />
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm">
-                                <h2 className="text-2xl font-black text-neutral-900 mb-2">Pinpoint on Map</h2>
-                                <p className="text-neutral-500 mb-6">Drag the map to set the exact location of your property.</p>
-                                <div className="w-full h-96 rounded-2xl overflow-hidden relative border border-neutral-200">
+                            <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
+                                <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-2">Pinpoint on Map</h2>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-6">Drag the map to set the exact location of your property.</p>
+                                <div className="w-full h-96 rounded-2xl overflow-hidden relative border border-neutral-200 dark:border-neutral-800">
                                     <InteractiveMap 
                                         center={[latitude, longitude]} 
                                         onMoveEnd={(lat, lng) => {
@@ -737,36 +757,66 @@ export default function ListingManagementPage() {
 
                     {/* PRICING TAB */}
                     {activeTab === 'pricing' && (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] space-y-8">
-                            <div className="flex items-center gap-4 border-b border-neutral-100 pb-6">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }} className="bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white dark:border-neutral-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none space-y-8">
+                            <div className="flex items-center gap-4 border-b border-neutral-100 dark:border-neutral-800 pb-6">
                                 <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
                                     <DollarSign size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-neutral-900 tracking-tight">{type === 'event' ? 'Ticketing Strategy' : 'Pricing Strategy'}</h2>
-                                    <p className="text-neutral-500 font-medium">Set your prices to attract more bookings.</p>
+                                    <h2 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">{type === 'event' ? 'Ticketing Strategy' : 'Pricing Strategy'}</h2>
+                                    <p className="text-neutral-500 dark:text-neutral-400 font-medium">Set your prices to attract more bookings.</p>
                                 </div>
                             </div>
                             {type === 'rental' ? (
                                 <div className="max-w-md">
-                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Base Nightly Price ({currency})</label>
-                                    <div className="relative">
-                                        <input 
-                                            type="number" 
-                                            value={price}
-                                            onChange={(e) => setPrice(e.target.value)}
-                                            className="w-full px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-black text-3xl text-neutral-900"
-                                        />
+                                    <label className="block text-sm font-bold text-neutral-900 mb-2">Base Nightly Price</label>
+                                    <div className="relative flex gap-4">
+                                        <div className="flex-1 relative">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <DollarSign size={20} className="text-neutral-400" />
+                                            </div>
+                                            <input 
+                                                type="number" 
+                                                value={price}
+                                                onChange={(e) => setPrice(e.target.value)}
+                                                className="w-full pl-12 pr-4 py-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-black text-3xl text-neutral-900"
+                                            />
+                                        </div>
+                                        <select 
+                                            value={listingCurrency}
+                                            onChange={(e) => setListingCurrency(e.target.value)}
+                                            className="w-32 px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-xl text-neutral-900 appearance-none text-center"
+                                        >
+                                            <option value="USD">USD</option>
+                                            <option value="EUR">EUR</option>
+                                            <option value="GBP">GBP</option>
+                                            <option value="MAD">MAD</option>
+                                        </select>
                                     </div>
                                     <p className="text-sm text-neutral-500 mt-4 font-medium p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">
                                         <span className="font-bold block mb-1">Tip from Wijha:</span>
-                                        Researching similar properties in your area and offering a competitive price can significantly increase your early bookings. Your price is shown and saved in {currency}.
+                                        Researching similar properties in your area and offering a competitive price can significantly increase your early bookings. Your price is saved in {listingCurrency}.
                                     </p>
                                 </div>
                             ) : (
                                 <div className="space-y-6">
+                                    <div className="flex justify-end mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Event Currency:</span>
+                                            <select 
+                                                value={listingCurrency}
+                                                onChange={(e) => setListingCurrency(e.target.value)}
+                                                className="px-4 py-2 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-neutral-900 dark:text-white"
+                                            >
+                                                <option value="USD">USD</option>
+                                                <option value="EUR">EUR</option>
+                                                <option value="GBP">GBP</option>
+                                                <option value="MAD">MAD</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     {tickets.map((ticket, index) => (
-                                        <div key={index} className="p-6 rounded-2xl border-2 border-neutral-100 bg-white relative group">
+                                        <div key={index} className="p-6 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 relative group">
                                             <button 
                                                 onClick={() => setTickets(tickets.filter((_, i) => i !== index))}
                                                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-rose-50 text-rose-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-500 hover:text-white"
@@ -790,7 +840,7 @@ export default function ListingManagementPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-bold text-neutral-700 mb-2">Price ({currency})</label>
+                                                    <label className="block text-sm font-bold text-neutral-700 mb-2">Price ({listingCurrency})</label>
                                                     <input 
                                                         type="number" 
                                                         value={ticket.price}
@@ -846,10 +896,10 @@ export default function ListingManagementPage() {
                     {/* PHOTOS TAB */}
                     {activeTab === 'photos' && (
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                            <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm">
+                            <div className="flex items-center justify-between bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm dark:shadow-none">
                                 <div>
-                                    <h2 className="text-xl font-black text-neutral-900">Media Gallery</h2>
-                                    <p className="text-sm text-neutral-500">Drag to reorder or click to delete.</p>
+                                    <h2 className="text-xl font-black text-neutral-900 dark:text-white">Media Gallery</h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Drag to reorder or click to delete.</p>
                                 </div>
                                 <div>
                                     <input 
@@ -922,17 +972,17 @@ export default function ListingManagementPage() {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl"
+                        className="bg-white dark:bg-neutral-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-neutral-100 dark:border-neutral-800"
                     >
                         <div className="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
                             ⚠️
                         </div>
-                        <h3 className="text-2xl font-black text-center text-neutral-900 mb-2">Delete Photo?</h3>
-                        <p className="text-center text-neutral-500 font-medium mb-8">Are you sure you want to delete this photo? This action cannot be undone.</p>
+                        <h3 className="text-2xl font-black text-center text-neutral-900 dark:text-white mb-2">Delete Photo?</h3>
+                        <p className="text-center text-neutral-500 dark:text-neutral-400 font-medium mb-8">Are you sure you want to delete this photo? This action cannot be undone.</p>
                         <div className="flex gap-4">
                             <button 
                                 onClick={() => setPhotoToDelete(null)}
-                                className="flex-1 py-3.5 rounded-xl font-bold text-neutral-600 bg-neutral-100 hover:bg-neutral-200 transition-colors"
+                                className="flex-1 py-3.5 rounded-xl font-bold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                             >
                                 Cancel
                             </button>
@@ -952,17 +1002,17 @@ export default function ListingManagementPage() {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl"
+                        className="bg-white dark:bg-neutral-900 rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-neutral-100 dark:border-neutral-800"
                     >
                         <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
                             ⚠️
                         </div>
-                        <h3 className="text-2xl font-black text-center text-neutral-900 mb-2">Unsaved Changes</h3>
-                        <p className="text-center text-neutral-500 font-medium mb-8">You have unsaved changes. Are you sure you want to exit without saving?</p>
+                        <h3 className="text-2xl font-black text-center text-neutral-900 dark:text-white mb-2">Unsaved Changes</h3>
+                        <p className="text-center text-neutral-500 dark:text-neutral-400 font-medium mb-8">You have unsaved changes. Are you sure you want to exit without saving?</p>
                         <div className="flex gap-4">
                             <button 
                                 onClick={() => setShowExitWarning(false)}
-                                className="flex-1 py-3.5 rounded-xl font-bold text-neutral-600 bg-neutral-100 hover:bg-neutral-200 transition-colors"
+                                className="flex-1 py-3.5 rounded-xl font-bold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
                             >
                                 Cancel
                             </button>
