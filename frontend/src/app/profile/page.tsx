@@ -63,15 +63,15 @@ export default function PremiumPublicProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#fafafa] text-neutral-900 font-sans pb-24">
+        <div className="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0a] text-neutral-900 dark:text-white font-sans pb-24 transition-colors duration-300">
             
             {/* Top Navigation */}
             <div className="absolute top-0 w-full z-10 px-6 sm:px-12 py-8 flex items-center justify-between pointer-events-none">
-                <button onClick={() => router.back()} className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all text-neutral-600 hover:text-neutral-900 border border-neutral-200/50">
+                <button onClick={() => router.back()} className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white border border-neutral-200/50 dark:border-neutral-800/50">
                     <ChevronLeft size={18} />
                     Back
                 </button>
-                <Link href="/settings" className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-neutral-900 text-white px-6 py-2.5 rounded-full shadow-lg shadow-neutral-900/20 hover:bg-neutral-800 transition-all hover:scale-105 active:scale-95">
+                <Link href="/settings" className="pointer-events-auto flex items-center gap-2 text-sm font-bold bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-6 py-2.5 rounded-full shadow-lg shadow-neutral-900/20 dark:shadow-white/10 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-all hover:scale-105 active:scale-95">
                     <Edit3 size={16} />
                     Edit Profile
                 </Link>
@@ -170,7 +170,7 @@ export default function PremiumPublicProfilePage() {
                 className="max-w-5xl mx-auto px-6 -mt-8 relative z-20 grid grid-cols-1 md:grid-cols-3 gap-6"
             >
                 {/* About Card */}
-                <motion.div variants={itemVariants} className="md:col-span-2 bg-white rounded-3xl p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
+                <motion.div variants={itemVariants} className="md:col-span-2 bg-white dark:bg-neutral-900 rounded-3xl p-8 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-neutral-100 dark:border-neutral-800 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold tracking-tight">About {user.name?.split(' ')[0]}</h2>
                     </div>
@@ -180,18 +180,18 @@ export default function PremiumPublicProfilePage() {
                     
                     <div className="mt-8 pt-8 border-t border-neutral-100 grid grid-cols-2 gap-6">
                         <div>
-                            <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-1">Languages</p>
-                            <p className="font-semibold text-neutral-800">English, {user.preferred_language === 'fr' ? 'Français' : user.preferred_language === 'ar' ? 'العربية' : 'French'}</p>
+                            <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Languages</p>
+                            <p className="font-semibold text-neutral-800 dark:text-white">English, {user.preferred_language === 'fr' ? 'Français' : user.preferred_language === 'ar' ? 'العربية' : 'French'}</p>
                         </div>
                         <div>
-                            <p className="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-1">Response Rate</p>
-                            <p className="font-semibold text-emerald-600">100%</p>
+                            <p className="text-sm font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-1">Response Rate</p>
+                            <p className="font-semibold text-emerald-600 dark:text-emerald-500">100%</p>
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Verification Card */}
-                <motion.div variants={itemVariants} className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-3xl p-8 sm:p-10 shadow-xl text-white relative overflow-hidden group">
+                <motion.div variants={itemVariants} className="bg-gradient-to-br from-neutral-900 to-neutral-800 dark:from-neutral-900/60 dark:to-neutral-800/60 dark:border dark:border-neutral-800 rounded-3xl p-8 sm:p-10 shadow-xl text-white relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
                     
                     <h2 className="text-xl font-bold tracking-tight mb-8">Confirmed Info</h2>
@@ -223,39 +223,39 @@ export default function PremiumPublicProfilePage() {
                 </motion.div>
 
                 {/* Stats Bento */}
-                <motion.div variants={itemVariants} className="bg-amber-50 rounded-3xl p-8 border border-amber-100 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <motion.div variants={itemVariants} className="bg-amber-50 dark:bg-amber-500/10 rounded-3xl p-8 border border-amber-100 dark:border-amber-500/20 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Star className="text-amber-500 fill-amber-500" size={28} />
                     </div>
-                    <p className="text-4xl font-black text-neutral-900 mb-1">0</p>
-                    <p className="text-sm font-bold text-amber-600 uppercase tracking-widest">Reviews</p>
+                    <p className="text-4xl font-black text-neutral-900 dark:text-white mb-1">0</p>
+                    <p className="text-sm font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest">Reviews</p>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="bg-blue-50 rounded-3xl p-8 border border-blue-100 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
-                    <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <motion.div variants={itemVariants} className="bg-blue-50 dark:bg-blue-500/10 rounded-3xl p-8 border border-blue-100 dark:border-blue-500/20 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Building className="text-blue-500" size={28} />
                     </div>
-                    <p className="text-4xl font-black text-neutral-900 mb-1">0</p>
-                    <p className="text-sm font-bold text-blue-600 uppercase tracking-widest">Listings</p>
+                    <p className="text-4xl font-black text-neutral-900 dark:text-white mb-1">0</p>
+                    <p className="text-sm font-bold text-blue-600 dark:text-blue-500 uppercase tracking-widest">Listings</p>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="bg-purple-50 rounded-3xl p-8 border border-purple-100 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
-                    <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <motion.div variants={itemVariants} className="bg-purple-50 dark:bg-purple-500/10 rounded-3xl p-8 border border-purple-100 dark:border-purple-500/20 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-all group">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Calendar className="text-purple-500" size={28} />
                     </div>
-                    <p className="text-3xl font-black text-neutral-900 mb-1">{yearsString}</p>
-                    <p className="text-sm font-bold text-purple-600 uppercase tracking-widest">On Wijha</p>
+                    <p className="text-3xl font-black text-neutral-900 dark:text-white mb-1">{yearsString}</p>
+                    <p className="text-sm font-bold text-purple-600 dark:text-purple-500 uppercase tracking-widest">On Wijha</p>
                 </motion.div>
                 
                 {/* Reviews Section */}
-                <motion.div variants={itemVariants} className="md:col-span-3 bg-white rounded-3xl p-8 sm:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 mt-6">
+                <motion.div variants={itemVariants} className="md:col-span-3 bg-white dark:bg-neutral-900 rounded-3xl p-8 sm:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-neutral-100 dark:border-neutral-800 mt-6">
                     <h2 className="text-2xl font-bold tracking-tight mb-8">Guest Reviews</h2>
-                    <div className="bg-neutral-50 rounded-2xl border border-neutral-100 flex flex-col items-center justify-center text-center py-16">
-                        <div className="w-20 h-20 rounded-full bg-white shadow-sm flex items-center justify-center mb-4">
-                            <Star className="text-neutral-300" size={32} />
+                    <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800/50 flex flex-col items-center justify-center text-center py-16">
+                        <div className="w-20 h-20 rounded-full bg-white dark:bg-neutral-800 shadow-sm flex items-center justify-center mb-4">
+                            <Star className="text-neutral-300 dark:text-neutral-600" size={32} />
                         </div>
-                        <h3 className="text-xl font-bold text-neutral-900 mb-2">No reviews yet</h3>
-                        <p className="text-neutral-500 max-w-sm">When guests stay at your listings and leave reviews, they will appear here on your public profile.</p>
+                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">No reviews yet</h3>
+                        <p className="text-neutral-500 dark:text-neutral-400 max-w-sm">When guests stay at your listings and leave reviews, they will appear here on your public profile.</p>
                     </div>
                 </motion.div>
 
