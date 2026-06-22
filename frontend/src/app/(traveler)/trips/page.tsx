@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/auth.store';
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Ticket, ArrowRight, Loader2, Home } from 'lucide-react';
-import { getStorageUrl } from '@/lib/utils';
+import { getStorageUrl } from '@/lib/url';
 
 export default function MyTripsPage() {
     const { token, isAuthenticated } = useAuthStore();
