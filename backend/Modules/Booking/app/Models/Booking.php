@@ -4,7 +4,7 @@ namespace Modules\Booking\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Booking\Database\Factories\BookingFactory;
+use Modules\Booking\Database\Factories\BookingFactory;
 
 class Booking extends Model
 {
@@ -17,9 +17,22 @@ class Booking extends Model
         'user_id',
         'listing_id',
         'listing_ticket_id',
+        'check_in',
+        'check_out',
+        'guests_count',
         'total_amount',
         'currency',
         'status',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'check_in' => 'date',
+        'check_out' => 'date',
+        'guests_count' => 'integer',
+        'total_amount' => 'decimal:2',
     ];
 
     public function user()
@@ -47,8 +60,8 @@ class Booking extends Model
         return $this->hasMany(\Modules\Payment\Models\Dispute::class);
     }
 
-    // protected static function newFactory(): BookingFactory
-    // {
-    //     // return BookingFactory::new();
-    // }
+    protected static function newFactory(): BookingFactory
+    {
+        return BookingFactory::new();
+    }
 }
