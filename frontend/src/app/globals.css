@@ -109,3 +109,4 @@ input:-webkit-autofill:active {
 /* docs(api): add comments to Jwt middleware */
 /* refactor(models): format User model traits */
 /* style(admin): polish admin module statuses */
+/* chore(backend): optimize composer autoloader */
