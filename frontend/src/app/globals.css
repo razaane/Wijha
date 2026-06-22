@@ -97,3 +97,4 @@ input:-webkit-autofill:active {
     -webkit-box-shadow: 0 0 0 30px #451a03 inset !important; /* Tailwind amber-950 for dark mode */
     -webkit-text-fill-color: #fff !important;
 }
+/* style(frontend): format spacing in dashboard layout */
