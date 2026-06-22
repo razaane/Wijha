@@ -148,6 +148,108 @@ class ListingController extends Controller
     }
 
     /**
+     * Browse all active, published listings (public — no auth required).
+     *
+     * GET /api/v1/listings/browse
+     * Filters: type, city, min_price, max_price, guests_count
+     */
+    public function browse(Request $request)
+    {
+        $query = Listing::where('is_active', true)
+            ->where('is_draft', false);
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('city')) {
+            $query->where('address_city', 'LIKE', '%' . $request->city . '%');
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+        if ($request->filled('guests_count')) {
+            $query->where('guests_count', '>=', $request->guests_count);
+        }
+
+        $listings = $query->with('user:id,name,avatar')
+            ->latest()
+            ->paginate(20);
+
+        $listings->getCollection()->transform(function ($listing) {
+            return $listing->append('photo_urls');
+        });
+
+        return $this->successResponse($listings, 'Listings retrieved successfully.');
+    }
+
+    /**
+     * Search listings by title and description (public — no auth required).
+     *
+     * GET /api/v1/listings/search?q=...
+     */
+    public function search(Request $request)
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
+
+        $searchTerm = $request->q;
+
+        $query = Listing::where('is_active', true)
+            ->where('is_draft', false)
+            ->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('address_city', 'LIKE', "%{$searchTerm}%");
+            });
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        $listings = $query->with('user:id,name,avatar')
+            ->latest()
+            ->paginate(20);
+
+        $listings->getCollection()->transform(function ($listing) {
+            return $listing->append('photo_urls');
+        });
+
+        return $this->successResponse($listings, 'Search results retrieved successfully.');
+    }
+
+    /**
+     * Show a single active listing publicly (no auth required).
+     *
+     * GET /api/v1/listings/public/{id}
+     */
+    public function publicShow($id)
+    {
+        $listing = Listing::with(['eventMeta', 'tickets', 'user:id,name,avatar'])
+            ->where('id', $id)
+            ->where('is_active', true)
+            ->where('is_draft', false)
+            ->first();
+
+        if (!$listing) {
+            return $this->errorResponse('not_found', 'Listing not found.', 404);
+        }
+
+        $listing->append('photo_urls');
+
+        return $this->successResponse($listing, 'Listing retrieved successfully.');
+    }
+
+    /**
      * Get all listings for the authenticated user.
      * GET /api/v1/listings/me
      */

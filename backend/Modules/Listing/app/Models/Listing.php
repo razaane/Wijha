@@ -131,4 +131,9 @@ class Listing extends Model implements HasMedia
     {
         return $this->hasOne(EventVerification::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(\Modules\Booking\Models\Booking::class);
+    }
 }

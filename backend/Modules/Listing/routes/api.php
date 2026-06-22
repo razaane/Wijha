@@ -12,6 +12,12 @@ use Modules\Listing\Http\Controllers\ListingCalendarController;
 */
 
 Route::prefix('v1/listings')->group(function () {
+    // Public routes — no authentication required
+    Route::get('/browse', [ListingController::class, 'browse'])->name('listings.browse');
+    Route::get('/search', [ListingController::class, 'search'])->name('listings.search');
+    Route::get('/public/{id}', [ListingController::class, 'publicShow'])->name('listings.public.show');
+
+    // Protected routes (JWT authentication required)
     Route::middleware('auth:api')->group(function () {
         Route::get('/me', [ListingController::class, 'myListings'])->name('listings.me');
         Route::post('/', [ListingController::class, 'store'])->name('listings.store');
@@ -25,5 +31,11 @@ Route::prefix('v1/listings')->group(function () {
         // Calendar Routes
         Route::get('/{id}/calendar', [ListingCalendarController::class, 'index'])->name('listings.calendar.index');
         Route::put('/{id}/calendar', [ListingCalendarController::class, 'update'])->name('listings.calendar.update');
+    });
+});
+
+Route::prefix('v1/host')->group(function () {
+    Route::middleware('auth:api')->group(function () {
+        Route::get('/insights', [\Modules\Listing\Http\Controllers\HostInsightsController::class, 'index'])->name('host.insights.index');
     });
 });
