@@ -19,6 +19,17 @@ import dynamic from 'next/dynamic';
 
 const InteractiveMap = dynamic(() => import('@/components/InteractiveMap'), { ssr: false });
 
+const getUniqueCities = (countryCode: string) => {
+    const cities = City.getCitiesOfCountry(countryCode) || [];
+    const unique = new Map();
+    cities.forEach(c => {
+        if (!unique.has(c.name)) {
+            unique.set(c.name, c);
+        }
+    });
+    return Array.from(unique.values()).sort((a, b) => a.name.localeCompare(b.name));
+};
+
 // --- Constants ---
 const TYPES = [
     { id: 'rental', label: 'Rental', icon: Home },
@@ -125,7 +136,7 @@ export default function HostOnboardingPage() {
 
     useEffect(() => {
         // Initialize cities for Morocco ('MA')
-        setAvailableCities(City.getCitiesOfCountry('MA') || []);
+        setAvailableCities(getUniqueCities('MA'));
         
         // Read type from URL
         if (typeof window !== 'undefined') {
@@ -161,7 +172,7 @@ export default function HostOnboardingPage() {
         const countryData = Country.getCountryByCode(code);
         updateForm('address_country', countryData?.name || code);
         
-        const newCities = City.getCitiesOfCountry(code) || [];
+        const newCities = getUniqueCities(code);
         setAvailableCities(newCities);
         updateForm('address_city', ''); // Reset city to force re-selection
         setMapCenter(null);
@@ -579,7 +590,7 @@ export default function HostOnboardingPage() {
                                                     className="w-full bg-transparent text-lg font-bold text-neutral-900 dark:text-white outline-none appearance-none cursor-pointer pr-8"
                                                 >
                                                     {MENA_COUNTRIES.map((c) => (
-                                                        <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+                                                        <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" key={c.isoCode} value={c.isoCode}>{c.name}</option>
                                                     ))}
                                                 </select>
                                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
@@ -592,7 +603,7 @@ export default function HostOnboardingPage() {
                                             <input 
                                                 type="text" placeholder="e.g. 123 Main St" 
                                                 value={formData.address_street} onChange={(e) => updateForm('address_street', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
+                                                className="w-full bg-transparent text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none"
                                             />
                                         </div>
                                         <div className="p-4 border-b border-neutral-300 dark:border-neutral-700">
@@ -600,7 +611,7 @@ export default function HostOnboardingPage() {
                                             <input 
                                                 type="text" placeholder="e.g. Apt 4B" 
                                                 value={formData.address_apt} onChange={(e) => updateForm('address_apt', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
+                                                className="w-full bg-transparent text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none"
                                             />
                                         </div>
                                         <div className="p-4 border-b border-neutral-300 dark:border-neutral-700">
@@ -614,9 +625,9 @@ export default function HostOnboardingPage() {
                                                     }}
                                                     className="w-full text-lg font-medium text-neutral-900 dark:text-white bg-transparent outline-none appearance-none cursor-pointer pr-8"
                                                 >
-                                                    <option value="" disabled>Select a city</option>
+                                                    <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="" disabled>Select a city</option>
                                                     {availableCities.map((city, idx) => (
-                                                        <option key={`${city.name}-${idx}`} value={city.name}>{city.name}</option>
+                                                        <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" key={`${city.name}-${idx}`} value={city.name}>{city.name}</option>
                                                     ))}
                                                 </select>
                                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
@@ -629,15 +640,15 @@ export default function HostOnboardingPage() {
                                             <input 
                                                 type="text" placeholder="e.g. Marrakech-Safi" 
                                                 value={formData.address_province} onChange={(e) => updateForm('address_province', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
+                                                className="w-full bg-transparent text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none"
                                             />
                                         </div>
                                         <div className="p-4">
                                             <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Postal code</label>
                                             <input 
                                                 type="text" placeholder="e.g. 40000" 
-                                                value={formData.address_postal_code} onChange={(e) => updateForm('address_postal_code', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
+                                                value={formData.address_postal_code} onChange={(e) => updateForm('address_postal_code', e.target.value.replace(/[^0-9]/g, ''))}
+                                                className="w-full bg-transparent text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none"
                                             />
                                         </div>
                                     </div>
@@ -933,12 +944,12 @@ export default function HostOnboardingPage() {
                                                 onChange={(e) => updateForm('property_type', e.target.value)}
                                                 className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                             >
-                                                <option value="" disabled>Select category...</option>
-                                                <option value="music">Live Music</option>
-                                                <option value="workshop">Workshop</option>
-                                                <option value="networking">Networking</option>
-                                                <option value="nightlife">Nightlife</option>
-                                                <option value="art">Art & Culture</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="" disabled>Select category...</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="music">Live Music</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="workshop">Workshop</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="networking">Networking</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="nightlife">Nightlife</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="art">Art & Culture</option>
                                             </select>
                                         </div>
                                         <div>
@@ -948,9 +959,9 @@ export default function HostOnboardingPage() {
                                                 onChange={(e) => updateForm('age_restriction', e.target.value)}
                                                 className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                             >
-                                                <option value="Family Friendly">Family Friendly</option>
-                                                <option value="16+">16+</option>
-                                                <option value="18+">18+</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="Family Friendly">Family Friendly</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="16+">16+</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="18+">18+</option>
                                             </select>
                                         </div>
                                     </div>
@@ -991,7 +1002,7 @@ export default function HostOnboardingPage() {
                                             className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 bg-white dark:bg-neutral-900"
                                         >
                                             {MENA_COUNTRIES.map(c => (
-                                                <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" key={c.isoCode} value={c.isoCode}>{c.name}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -1002,9 +1013,9 @@ export default function HostOnboardingPage() {
                                             onChange={(e) => updateForm('address_city', e.target.value)}
                                             className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 bg-white dark:bg-neutral-900"
                                         >
-                                            <option value="" disabled>Select a city</option>
+                                            <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" value="" disabled>Select a city</option>
                                             {availableCities.map(c => (
-                                                <option key={c.name} value={c.name}>{c.name}</option>
+                                                <option className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white" key={c.name} value={c.name}>{c.name}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -1085,8 +1096,8 @@ export default function HostOnboardingPage() {
                                     <p className="text-lg text-neutral-500 dark:text-neutral-400">Define your ticket tiers and enable the smart waitlist.</p>
                                 </div>
 
-                                <div className="p-6 bg-amber-50 rounded-2xl border border-amber-200 flex items-start gap-4">
-                                    <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0">
+                                <div className="p-6 bg-amber-50 dark:bg-amber-500/10 rounded-2xl border border-amber-200 dark:border-amber-500/20 flex items-start gap-4">
+                                    <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center shrink-0">
                                         <Sparkles size={20} />
                                     </div>
                                     <div>
