@@ -106,3 +106,4 @@ input:-webkit-autofill:active {
 /* style(auth): polish auth store types */
 /* refactor(ui): clean up unused variables in profile */
 /* style(traveler): format ticket page imports */
+/* docs(api): add comments to Jwt middleware */
