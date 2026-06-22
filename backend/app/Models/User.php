@@ -58,6 +58,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $appends = [
         'is_verified_host',
+        'has_pending_verification',
     ];
 
     /**
@@ -109,5 +110,15 @@ class User extends Authenticatable implements JWTSubject
     public function getIsVerifiedHostAttribute(): bool
     {
         return $this->isVerifiedHost();
+    }
+
+    public function hasPendingVerification(): bool
+    {
+        return $this->identityVerification()->where('status', 'pending')->exists();
+    }
+
+    public function getHasPendingVerificationAttribute(): bool
+    {
+        return $this->hasPendingVerification();
     }
 }
