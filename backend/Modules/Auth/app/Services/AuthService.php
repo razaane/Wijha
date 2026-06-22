@@ -189,7 +189,7 @@ class AuthService
      * @param array<string, mixed> $requestData
      * @return string The plain-text refresh token (only returned once)
      */
-    private function createRefreshToken(User $user, array $requestData = []): string
+    public function createRefreshToken(User $user, array $requestData = []): string
     {
         $plainToken = Str::random(64);
 
