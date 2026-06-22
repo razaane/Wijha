@@ -15,6 +15,7 @@ export default function VerifyIdentityPage() {
     const { user } = useAuthStore();
     
     const [status, setStatus] = useState<'loading' | 'unverified' | 'pending' | 'approved' | 'rejected'>('loading');
+    const [adminNotes, setAdminNotes] = useState<string | null>(null);
     
     // Multi-step state
     const [step, setStep] = useState<number>(1);
@@ -50,6 +51,7 @@ export default function VerifyIdentityPage() {
             const res = await api.get('/auth/identity-verification');
             if (res.data?.data) {
                 setStatus(res.data.data.status);
+                setAdminNotes(res.data.data.admin_notes || null);
             } else {
                 setStatus('unverified');
             }
@@ -251,7 +253,14 @@ export default function VerifyIdentityPage() {
 
                     {status === 'rejected' && step === 1 && (
                         <div className="mb-8 p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 font-medium">
-                            Your previous verification attempt was rejected. Please ensure your documents are clear and match your profile.
+                            {adminNotes ? (
+                                <>
+                                    <p className="font-bold mb-1">Your previous verification attempt was rejected:</p>
+                                    <p>{adminNotes}</p>
+                                </>
+                            ) : (
+                                "Your previous verification attempt was rejected. Please ensure your documents are clear and match your profile."
+                            )}
                         </div>
                     )}
 
