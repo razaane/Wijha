@@ -2,7 +2,7 @@
     "Auth": true,
     "Core": true,
     "Listing": true,
-    "Booking": true,
+    "Booking": false,
     "Payment": true,
     "Admin": true
 }
