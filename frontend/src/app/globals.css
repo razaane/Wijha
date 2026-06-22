@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light dark;
 }
 
 .dark {
@@ -78,4 +79,21 @@ body {
   border-color: currentColor;
   border-width: 0 1px 1px 0;
   transform: rotate(45deg);
+}
+
+/* Fix browser autofill background for light and dark modes */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #fffbeb inset !important; /* Tailwind amber-50 */
+    -webkit-text-fill-color: #171717 !important;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus, 
+.dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #451a03 inset !important; /* Tailwind amber-950 for dark mode */
+    -webkit-text-fill-color: #fff !important;
 }
