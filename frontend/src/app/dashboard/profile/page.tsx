@@ -173,11 +173,11 @@ export default function ProfilePage() {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
+                            className="bg-white dark:bg-neutral-900 rounded-3xl p-8 max-w-md w-full shadow-2xl relative"
                         >
                             <button 
                                 onClick={() => setShowOtpModal(false)}
-                                className="absolute top-5 right-5 text-neutral-400 hover:bg-neutral-100 p-2 rounded-full transition-colors"
+                                className="absolute top-5 right-5 text-neutral-400 hover:bg-neutral-100 dark:bg-neutral-800 p-2 rounded-full transition-colors"
                             >
                                 <X size={20} />
                             </button>
@@ -186,10 +186,10 @@ export default function ProfilePage() {
                                 <div className="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <ShieldCheck size={32} />
                                 </div>
-                                <h3 className="text-2xl font-bold text-neutral-900 mb-2">Verify Phone Number</h3>
-                                <p className="text-neutral-500 text-sm">
+                                <h3 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">Verify Phone Number</h3>
+                                <p className="text-neutral-500 dark:text-neutral-400 text-sm">
                                     We've sent a 6-digit verification code to <br />
-                                    <span className="font-bold text-neutral-900">{phone}</span>
+                                    <span className="font-bold text-neutral-900 dark:text-white">{phone}</span>
                                 </p>
                             </div>
 
@@ -204,7 +204,7 @@ export default function ProfilePage() {
                                             value={digit}
                                             onChange={(e) => handleOtpChange(index, e.target.value)}
                                             onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                                            className="w-12 h-14 text-center text-2xl font-bold text-neutral-900 bg-neutral-50 border border-neutral-200 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
+                                            className="w-12 h-14 text-center text-2xl font-bold text-neutral-900 dark:text-white bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition-all"
                                         />
                                     ))}
                                 </div>
@@ -234,10 +234,10 @@ export default function ProfilePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-10"
             >
-                <h1 className="text-3xl lg:text-4xl font-extrabold text-neutral-900 mb-2 tracking-tight">
+                <h1 className="text-3xl lg:text-4xl font-extrabold text-neutral-900 dark:text-white mb-2 tracking-tight">
                     My Profile
                 </h1>
-                <p className="text-neutral-500 text-lg">Manage your personal information and preferences.</p>
+                <p className="text-neutral-500 dark:text-neutral-400 text-lg">Manage your personal information and preferences.</p>
             </motion.div>
 
             {error && (
@@ -277,7 +277,7 @@ export default function ProfilePage() {
                     transition={{ delay: 0.1 }}
                     className="md:col-span-1"
                 >
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral-100 flex flex-col items-center text-center">
+                    <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
                         <div className="relative mb-6 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                             <img 
                                 src={getAvatarUrl(user.avatar)} 
@@ -304,8 +304,8 @@ export default function ProfilePage() {
                             className="hidden" 
                         />
 
-                        <h3 className="text-xl font-bold text-neutral-900 mb-1">{user.name}</h3>
-                        <p className="text-neutral-500 text-sm mb-4">{user.email}</p>
+                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">{user.name}</h3>
+                        <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4">{user.email}</p>
                         <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                             {user.role}
                         </span>
@@ -319,12 +319,12 @@ export default function ProfilePage() {
                     transition={{ delay: 0.2 }}
                     className="md:col-span-2 space-y-8"
                 >
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral-100">
-                        <h2 className="text-xl font-bold text-neutral-900 mb-6 border-b border-neutral-100 pb-4">Personal Details</h2>
+                    <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800">
+                        <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4">Personal Details</h2>
                         
                         <form onSubmit={handleSaveProfile} className="space-y-6">
                             <div className="space-y-1">
-                                <label className="text-sm font-semibold text-neutral-700 ml-1">Full Name</label>
+                                <label className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 ml-1">Full Name</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-amber-500 transition-colors">
                                         <User size={18} />
@@ -333,14 +333,14 @@ export default function ProfilePage() {
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-neutral-50 border border-neutral-200 text-neutral-900 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium"
+                                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium"
                                         required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-sm font-semibold text-neutral-700 ml-1">Language Preference</label>
+                                <label className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 ml-1">Language Preference</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-amber-500 transition-colors">
                                         <Globe size={18} />
@@ -348,7 +348,7 @@ export default function ProfilePage() {
                                     <select
                                         value={locale}
                                         onChange={(e) => setLocale(e.target.value)}
-                                        className="w-full bg-neutral-50 border border-neutral-200 text-neutral-900 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium appearance-none"
+                                        className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium appearance-none"
                                     >
                                         <option value="en">English</option>
                                         <option value="fr">Français</option>
@@ -384,18 +384,18 @@ export default function ProfilePage() {
                         </form>
                     </div>
 
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral-100">
-                        <h2 className="text-xl font-bold text-neutral-900 mb-6 border-b border-neutral-100 pb-4">Phone Number</h2>
+                    <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-sm border border-neutral-100 dark:border-neutral-800">
+                        <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 border-b border-neutral-100 dark:border-neutral-800 pb-4">Phone Number</h2>
                         
                         <div className="space-y-4">
                             <div className="space-y-1">
-                                <label className="text-sm font-semibold text-neutral-700 ml-1">Secure Mobile Number</label>
+                                <label className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 ml-1">Secure Mobile Number</label>
                                 <PhoneInput
                                     international
                                     defaultCountry="MA"
                                     value={phone}
                                     onChange={(val) => setPhone(val as string)}
-                                    className="w-full bg-neutral-50 border border-neutral-200 text-neutral-900 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-amber-500/50 focus-within:border-amber-500 transition-all font-medium wijha-phone-input"
+                                    className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-amber-500/50 focus-within:border-amber-500 transition-all font-medium wijha-phone-input"
                                 />
                             </div>
 

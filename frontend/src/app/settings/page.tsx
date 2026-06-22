@@ -35,6 +35,9 @@ export default function PremiumHostSettingsPage() {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     // OTP State
+    const [otpSent, setOtpSent] = useState(false);
+    const [otp, setOtp] = useState('');
+
     // Mock States for new UI panels
     const [darkMode, setDarkMode] = useState(false);
     const [compactDensity, setCompactDensity] = useState(false);
@@ -118,6 +121,9 @@ export default function PremiumHostSettingsPage() {
     };
 
     const handleUpdateUI = async (key: 'dark_mode' | 'compact_density', value: boolean) => {
+        const prevDarkMode = darkMode;
+        const prevCompact = compactDensity;
+
         if (key === 'dark_mode') setDarkMode(value);
         if (key === 'compact_density') setCompactDensity(value);
         
@@ -129,6 +135,9 @@ export default function PremiumHostSettingsPage() {
             fetchUser();
         } catch (err) {
             console.error(err);
+            if (key === 'dark_mode') setDarkMode(prevDarkMode);
+            if (key === 'compact_density') setCompactDensity(prevCompact);
+            setErrorMsg('Failed to save preferences.');
         }
     };
 
@@ -285,6 +294,12 @@ export default function PremiumHostSettingsPage() {
                 {/* Content Area */}
                 <div className="flex-1 max-w-3xl">
                     <AnimatePresence mode="wait">
+                        {errorMsg && (
+                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-6 bg-red-50 text-red-700 px-6 py-4 rounded-2xl border border-red-100 flex items-center gap-3 font-semibold shadow-sm">
+                                <X size={20} />
+                                {errorMsg}
+                            </motion.div>
+                        )}
                         {successMsg && (
                             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-6 bg-emerald-50 text-emerald-700 px-6 py-4 rounded-2xl border border-emerald-100 flex items-center gap-3 font-semibold shadow-sm">
                                 <CheckCircle2 size={20} />
@@ -444,7 +459,7 @@ export default function PremiumHostSettingsPage() {
                             animate={{ scale: 1, opacity: 1, y: 0 }} 
                             exit={{ scale: 0.95, opacity: 0, y: 20 }} 
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                            className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white/50"
+                            className="bg-white dark:bg-neutral-900 rounded-[2rem] w-full max-w-md overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white/50 dark:border-neutral-800/50"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between border-b border-neutral-100 dark:border-neutral-800 px-8 py-6 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md relative z-10">
@@ -470,12 +485,12 @@ export default function PremiumHostSettingsPage() {
                                 {modalType === 'name' && (
                                     <div className="space-y-6">
                                         <div>
-                                            <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-2">First & Last Name</label>
+                                            <label className="block text-sm font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2">First & Last Name</label>
                                             <input 
                                                 type="text" 
                                                 value={name} 
                                                 onChange={(e) => setName(e.target.value)} 
-                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 hover:border-amber-200 focus:border-amber-500 focus:bg-white outline-none transition-colors text-lg font-bold"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 hover:border-amber-200 dark:hover:border-amber-500/50 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors text-lg font-bold text-neutral-900 dark:text-white"
                                             />
                                         </div>
                                         <button 
@@ -494,18 +509,18 @@ export default function PremiumHostSettingsPage() {
                                         {!otpSent ? (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-2">New {modalType === 'email' ? 'Email' : 'Phone'}</label>
+                                                    <label className="block text-sm font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2">New {modalType === 'email' ? 'Email' : 'Phone'}</label>
                                                     <input 
                                                         type={modalType === 'email' ? 'email' : 'text'} 
                                                         value={modalType === 'email' ? email : phone} 
                                                         onChange={(e) => modalType === 'email' ? setEmail(e.target.value) : setPhone(e.target.value)} 
-                                                        className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 hover:border-amber-200 focus:border-amber-500 focus:bg-white outline-none transition-colors text-lg font-bold"
+                                                        className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 hover:border-amber-200 dark:hover:border-amber-500/50 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors text-lg font-bold text-neutral-900 dark:text-white"
                                                     />
                                                 </div>
                                                 <button 
                                                     onClick={handleSendOtp} 
                                                     disabled={isSaving || (modalType === 'email' ? !email : !phone)}
-                                                    className="w-full bg-neutral-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-black hover:shadow-lg hover:shadow-neutral-900/20 transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+                                                    className="w-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 py-4 rounded-2xl font-bold text-lg hover:bg-black dark:hover:bg-neutral-200 hover:shadow-lg transition-all disabled:opacity-50 flex justify-center items-center gap-2"
                                                 >
                                                     {isSaving && <Loader2 size={20} className="animate-spin" />}
                                                     Send Security Code
@@ -514,13 +529,13 @@ export default function PremiumHostSettingsPage() {
                                         ) : (
                                             <>
                                                 <div>
-                                                    <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-2 text-center">Enter 6-Digit Code</label>
+                                                    <label className="block text-sm font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-2 text-center">Enter 6-Digit Code</label>
                                                     <input 
                                                         type="text" 
                                                         value={otp} 
                                                         onChange={(e) => setOtp(e.target.value)} 
                                                         maxLength={6}
-                                                        className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 focus:border-amber-500 focus:bg-white outline-none transition-colors tracking-[0.5em] text-center text-3xl font-black text-amber-500"
+                                                        className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors tracking-[0.5em] text-center text-3xl font-black text-amber-500 text-neutral-900 dark:text-white"
                                                     />
                                                 </div>
                                                 <button 
@@ -544,7 +559,7 @@ export default function PremiumHostSettingsPage() {
                                                 placeholder="Current password"
                                                 value={currentPassword} 
                                                 onChange={(e) => setCurrentPassword(e.target.value)} 
-                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 focus:border-amber-500 focus:bg-white outline-none transition-colors text-lg font-bold"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors text-lg font-bold text-neutral-900 dark:text-white"
                                             />
                                         </div>
                                         <div>
@@ -553,7 +568,7 @@ export default function PremiumHostSettingsPage() {
                                                 placeholder="New password"
                                                 value={newPassword} 
                                                 onChange={(e) => setNewPassword(e.target.value)} 
-                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 focus:border-amber-500 focus:bg-white outline-none transition-colors text-lg font-bold"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors text-lg font-bold text-neutral-900 dark:text-white"
                                             />
                                         </div>
                                         <div>
@@ -562,13 +577,13 @@ export default function PremiumHostSettingsPage() {
                                                 placeholder="Confirm new password"
                                                 value={confirmPassword} 
                                                 onChange={(e) => setConfirmPassword(e.target.value)} 
-                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 bg-neutral-50 focus:border-amber-500 focus:bg-white outline-none transition-colors text-lg font-bold"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-800 focus:border-amber-500 focus:bg-white dark:focus:bg-neutral-900 outline-none transition-colors text-lg font-bold text-neutral-900 dark:text-white"
                                             />
                                         </div>
                                         <button 
                                             onClick={handleUpdatePassword} 
                                             disabled={isSaving || !currentPassword || !newPassword || !confirmPassword}
-                                            className="w-full mt-2 bg-neutral-900 text-white py-4 rounded-2xl font-bold text-lg hover:bg-black hover:shadow-lg hover:shadow-neutral-900/20 transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+                                            className="w-full mt-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 py-4 rounded-2xl font-bold text-lg hover:bg-black dark:hover:bg-neutral-200 hover:shadow-lg transition-all disabled:opacity-50 flex justify-center items-center gap-2"
                                         >
                                             {isSaving && <Loader2 size={20} className="animate-spin" />}
                                             Update Password

@@ -47,12 +47,12 @@ export default function AdminOverviewPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="bg-white rounded-3xl p-6 shadow-sm border border-neutral-200 hover:shadow-md transition-shadow"
+                        className="bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-800 hover:shadow-md transition-shadow"
                     >
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-neutral-500 font-bold uppercase tracking-wider text-xs mb-1">{stat.title}</p>
-                                <h3 className="text-3xl font-black text-neutral-900">
+                                <p className="text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider text-xs mb-1">{stat.title}</p>
+                                <h3 className="text-3xl font-black text-neutral-900 dark:text-white">
                                     {loading ? <Loader2 size={24} className="animate-spin text-neutral-300" /> : stat.value}
                                 </h3>
                             </div>
@@ -60,8 +60,8 @@ export default function AdminOverviewPage() {
                                 <stat.icon size={24} />
                             </div>
                         </div>
-                        <div className="mt-4 pt-4 border-t border-neutral-100">
-                            <Link href={stat.link} className="text-sm font-bold text-neutral-600 hover:text-neutral-900 flex items-center gap-1">
+                        <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+                            <Link href={stat.link} className="text-sm font-bold text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:text-white flex items-center gap-1">
                                 View Details →
                             </Link>
                         </div>
@@ -69,9 +69,9 @@ export default function AdminOverviewPage() {
                 ))}
             </div>
 
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-neutral-200">
-                <h3 className="text-xl font-bold text-neutral-900 mb-6">Recent Activity</h3>
-                <div className="flex items-center justify-center h-64 text-neutral-500 bg-neutral-50 rounded-2xl border-2 border-dashed border-neutral-200">
+            <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-sm border border-neutral-200 dark:border-neutral-800">
+                <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6">Recent Activity</h3>
+                <div className="flex items-center justify-center h-64 text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800">
                     Activity feed coming soon...
                 </div>
             </div>

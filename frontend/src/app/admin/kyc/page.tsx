@@ -71,17 +71,17 @@ export default function AdminKycPage() {
 
     return (
         <div className="space-y-6">
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-neutral-200">
+            <div className="bg-white dark:bg-neutral-900 rounded-3xl p-6 shadow-sm border border-neutral-200 dark:border-neutral-800">
                 <div className="flex justify-between items-center mb-6">
                     <div className="relative w-96">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                         <input 
                             type="text" 
                             placeholder="Search by name or email..." 
-                            className="w-full pl-12 pr-4 py-3 bg-neutral-50 border-2 border-neutral-200 rounded-xl outline-none focus:border-neutral-900 font-medium"
+                            className="w-full pl-12 pr-4 py-3 bg-neutral-50 dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl outline-none focus:border-neutral-900 font-medium"
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-3 border-2 border-neutral-200 rounded-xl font-bold text-neutral-600 hover:bg-neutral-50 transition-colors">
+                    <button className="flex items-center gap-2 px-4 py-3 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:bg-neutral-900 transition-colors">
                         <Filter size={20} />
                         Filters
                     </button>
@@ -90,7 +90,7 @@ export default function AdminKycPage() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-xs">
+                            <tr className="border-b border-neutral-200 dark:border-neutral-800 text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider text-xs">
                                 <th className="p-4">User</th>
                                 <th className="p-4">Document Type</th>
                                 <th className="p-4">Submitted At</th>
@@ -100,22 +100,22 @@ export default function AdminKycPage() {
                         </thead>
                         <tbody>
                             {verifications.map((kyc) => (
-                                <tr key={kyc.id} className="border-b border-neutral-100 hover:bg-neutral-50/50 transition-colors">
+                                <tr key={kyc.id} className="border-b border-neutral-100 dark:border-neutral-800 hover:bg-neutral-50 dark:bg-neutral-900/50 transition-colors">
                                     <td className="p-4 flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center font-bold text-neutral-600">
+                                        <div className="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center font-bold text-neutral-600 dark:text-neutral-400">
                                             {kyc.user?.name?.charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-neutral-900">{kyc.user?.name}</p>
-                                            <p className="text-sm text-neutral-500">{kyc.user?.email}</p>
+                                            <p className="font-bold text-neutral-900 dark:text-white">{kyc.user?.name}</p>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{kyc.user?.email}</p>
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        <span className="font-medium text-neutral-700 bg-neutral-100 px-3 py-1 rounded-full text-sm">
+                                        <span className="font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-3 py-1 rounded-full text-sm">
                                             {kyc.document_type === 'id_card' ? 'ID Card' : 'Passport'}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-neutral-600 font-medium">
+                                    <td className="p-4 text-neutral-600 dark:text-neutral-400 font-medium">
                                         {new Date(kyc.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="p-4">
@@ -147,7 +147,7 @@ export default function AdminKycPage() {
                             ))}
                             {verifications.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="p-8 text-center text-neutral-500 font-medium">
+                                    <td colSpan={5} className="p-8 text-center text-neutral-500 dark:text-neutral-400 font-medium">
                                         No identity verifications found.
                                     </td>
                                 </tr>
@@ -165,7 +165,7 @@ export default function AdminKycPage() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white w-full max-w-6xl h-[90vh] rounded-3xl shadow-xl flex overflow-hidden"
+                            className="bg-white dark:bg-neutral-900 w-full max-w-6xl h-[90vh] rounded-3xl shadow-xl flex overflow-hidden"
                         >
                             {/* Document Viewer */}
                             <div className="flex-1 bg-neutral-900 overflow-y-auto p-8 border-r border-neutral-800">
@@ -176,7 +176,7 @@ export default function AdminKycPage() {
                                             {selectedKyc.selfie_url ? (
                                                 <img src={selectedKyc.selfie_url} alt="Selfie" className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-neutral-500">No Image</div>
+                                                <div className="w-full h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400">No Image</div>
                                             )}
                                         </div>
                                     </div>
@@ -189,7 +189,7 @@ export default function AdminKycPage() {
                                             {selectedKyc.id_document_front_url ? (
                                                 <img src={selectedKyc.id_document_front_url} alt="Front Document" className="w-full object-contain" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-neutral-500">No Image</div>
+                                                <div className="w-full h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400">No Image</div>
                                             )}
                                         </div>
                                     </div>
@@ -201,7 +201,7 @@ export default function AdminKycPage() {
                                                 {selectedKyc.id_document_back_url ? (
                                                     <img src={selectedKyc.id_document_back_url} alt="Back Document" className="w-full object-contain" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-neutral-500">No Image</div>
+                                                    <div className="w-full h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400">No Image</div>
                                                 )}
                                             </div>
                                         </div>
@@ -210,23 +210,23 @@ export default function AdminKycPage() {
                             </div>
 
                             {/* Info & Actions Sidebar */}
-                            <div className="w-96 bg-white flex flex-col">
-                                <div className="p-6 border-b border-neutral-100 flex justify-between items-center">
-                                    <h3 className="text-xl font-black text-neutral-900">Review Request</h3>
-                                    <button onClick={() => setSelectedKyc(null)} className="text-neutral-400 hover:text-neutral-900">
+                            <div className="w-96 bg-white dark:bg-neutral-900 flex flex-col">
+                                <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 flex justify-between items-center">
+                                    <h3 className="text-xl font-black text-neutral-900 dark:text-white">Review Request</h3>
+                                    <button onClick={() => setSelectedKyc(null)} className="text-neutral-400 hover:text-neutral-900 dark:text-white">
                                         <X size={24} />
                                     </button>
                                 </div>
 
                                 <div className="p-6 flex-1 space-y-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center font-bold text-xl text-neutral-600">
+                                        <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center font-bold text-xl text-neutral-600 dark:text-neutral-400">
                                             {selectedKyc.user?.name?.charAt(0)}
                                         </div>
                                         <div>
-                                            <h4 className="text-xl font-black text-neutral-900">{selectedKyc.user?.name}</h4>
-                                            <p className="text-neutral-500 font-medium">{selectedKyc.user?.email}</p>
-                                            <p className="text-neutral-500 font-medium">{selectedKyc.user?.phone || 'No phone'}</p>
+                                            <h4 className="text-xl font-black text-neutral-900 dark:text-white">{selectedKyc.user?.name}</h4>
+                                            <p className="text-neutral-500 dark:text-neutral-400 font-medium">{selectedKyc.user?.email}</p>
+                                            <p className="text-neutral-500 dark:text-neutral-400 font-medium">{selectedKyc.user?.phone || 'No phone'}</p>
                                         </div>
                                     </div>
 
@@ -243,11 +243,11 @@ export default function AdminKycPage() {
                                     </div>
 
                                     {selectedKyc.status === 'pending' && (
-                                        <div className="space-y-4 pt-4 border-t border-neutral-100">
+                                        <div className="space-y-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-neutral-700">Rejection Reason (if rejecting)</label>
+                                                <label className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Rejection Reason (if rejecting)</label>
                                                 <textarea 
-                                                    className="w-full p-4 bg-neutral-50 border-2 border-neutral-200 rounded-xl outline-none focus:border-neutral-900 font-medium resize-none"
+                                                    className="w-full p-4 bg-neutral-50 dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-xl outline-none focus:border-neutral-900 font-medium resize-none"
                                                     placeholder="E.g., Document is blurry..."
                                                     rows={3}
                                                     value={rejectReason}
@@ -275,7 +275,7 @@ export default function AdminKycPage() {
                                     )}
 
                                     {selectedKyc.status !== 'pending' && (
-                                        <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 text-center font-bold text-neutral-600">
+                                        <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 text-center font-bold text-neutral-600 dark:text-neutral-400">
                                             This request was {selectedKyc.status}.
                                         </div>
                                     )}
