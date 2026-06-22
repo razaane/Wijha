@@ -26,6 +26,8 @@ interface User {
         compact_density: boolean;
     };
     is_verified_host?: boolean;
+    has_pending_verification?: boolean;
+    created_at?: string;
 }
 
 interface AuthState {
