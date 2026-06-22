@@ -74,17 +74,18 @@ class Listing extends Model implements HasMedia
      */
     public function registerMediaConversions(?Media $media = null): void
     {
-        $this->addMediaConversion('thumb')
-            ->width(400)
-            ->height(300)
-            ->sharpen(10)
-            ->nonQueued();
+        // Temporarily disabled to bypass missing php-gd extension locally
+        // $this->addMediaConversion('thumb')
+        //     ->width(400)
+        //     ->height(300)
+        //     ->sharpen(10)
+        //     ->nonQueued();
 
-        $this->addMediaConversion('large')
-            ->width(1200)
-            ->height(900)
-            ->sharpen(5)
-            ->nonQueued();
+        // $this->addMediaConversion('large')
+        //     ->width(1200)
+        //     ->height(900)
+        //     ->sharpen(5)
+        //     ->nonQueued();
     }
 
     /**
@@ -96,8 +97,9 @@ class Listing extends Model implements HasMedia
             return [
                 'id' => $media->id,
                 'original' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
-                'large' => $media->getUrl('large'),
+                // Fallback to original image since conversions are disabled
+                'thumb' => $media->getUrl(),
+                'large' => $media->getUrl(),
             ];
         })->toArray();
     }
