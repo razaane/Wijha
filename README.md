@@ -20,9 +20,9 @@ Wijha is structured as a **Monorepo** consisting of a modern, SEO-optimized fron
 - **Data Fetching:** React Query (TanStack Query)
 
 ### ⚙️ Backend (`/backend`)
-- **Framework:** [Laravel 13](https://laravel.com/)
+- **Framework:** [Laravel 11.x](https://laravel.com/) (PHP 8.3+)
 - **Architecture:** Domain-Driven Design (DDD) via `nwidart/laravel-modules`
-- **Database:** PostgreSQL 16
+- **Database:** SQLite (default for local dev) / PostgreSQL 16
 - **Authentication:** JWT (JSON Web Tokens) via `tymon/jwt-auth`
 - **Media Management:** Spatie MediaLibrary v11
 - **Multilingual Support:** Spatie Translatable (Arabic, French, English)
@@ -55,7 +55,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 - PHP 8.3+
 - Node.js 20+
-- PostgreSQL 16
+- SQLite (default) or PostgreSQL 16
 - Composer
 - Git
 
