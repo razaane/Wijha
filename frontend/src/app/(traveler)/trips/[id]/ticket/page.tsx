@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '@/store/auth.store';
-import api from '@/lib/api';
+import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { ArrowLeft, MapPin, Calendar, Clock, Ticket as TicketIcon, Download, Loader2, CheckCircle2 } from 'lucide-react';
