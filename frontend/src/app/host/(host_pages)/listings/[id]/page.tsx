@@ -184,8 +184,8 @@ export default function ListingManagementPage() {
                     }
                     
                     const savedCurrency = data.currency || currency;
-                    setListingCurrency(savedCurrency);
-                    setPrice(data.price ? convertPrice(data.price, savedCurrency, savedCurrency).toFixed(2) : '');
+                    setListingCurrency(currency);
+                    setPrice(data.price ? convertPrice(data.price, savedCurrency, currency).toFixed(2) : '');
 
                     if (data.event_meta) {
                         setStartDatetime(data.event_meta.start_datetime ? data.event_meta.start_datetime.replace(' ', 'T').substring(0, 16) : '');
@@ -197,7 +197,7 @@ export default function ListingManagementPage() {
                     if (data.tickets) {
                         setTickets(data.tickets.map((t: any) => ({
                             ...t,
-                            price: convertPrice(t.price || 0, data.currency || 'USD', data.currency || 'USD').toFixed(2)
+                            price: convertPrice(t.price || 0, data.currency || 'USD', currency).toFixed(2)
                         })));
                     }
                 } else {
@@ -216,7 +216,7 @@ export default function ListingManagementPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const payload = getPayload();
+            const payload = { ...getPayload(), currency: currency };
 
             const res = await api.put(`/listings/${listingId}`, payload);
             
@@ -782,16 +782,9 @@ export default function ListingManagementPage() {
                                                 className="w-full pl-12 pr-4 py-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all font-black text-3xl text-neutral-900"
                                             />
                                         </div>
-                                        <select 
-                                            value={listingCurrency}
-                                            onChange={(e) => setListingCurrency(e.target.value)}
-                                            className="w-32 px-4 py-4 bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-xl text-neutral-900 appearance-none text-center"
-                                        >
-                                            <option value="USD">USD</option>
-                                            <option value="EUR">EUR</option>
-                                            <option value="GBP">GBP</option>
-                                            <option value="MAD">MAD</option>
-                                        </select>
+                                        <div className="w-32 px-4 py-4 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl font-bold text-xl text-neutral-500 flex items-center justify-center">
+                                            {currency}
+                                        </div>
                                     </div>
                                     <p className="text-sm text-neutral-500 mt-4 font-medium p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">
                                         <span className="font-bold block mb-1">Tip from Wijha:</span>
@@ -800,21 +793,6 @@ export default function ListingManagementPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-6">
-                                    <div className="flex justify-end mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300">Event Currency:</span>
-                                            <select 
-                                                value={listingCurrency}
-                                                onChange={(e) => setListingCurrency(e.target.value)}
-                                                className="px-4 py-2 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-neutral-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-neutral-900 dark:text-white"
-                                            >
-                                                <option value="USD">USD</option>
-                                                <option value="EUR">EUR</option>
-                                                <option value="GBP">GBP</option>
-                                                <option value="MAD">MAD</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     {tickets.map((ticket, index) => (
                                         <div key={index} className="p-6 rounded-2xl border-2 border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-900 relative group">
                                             <button 
@@ -840,7 +818,7 @@ export default function ListingManagementPage() {
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-sm font-bold text-neutral-700 mb-2">Price ({listingCurrency})</label>
+                                                    <label className="block text-sm font-bold text-neutral-700 mb-2">Price ({currency})</label>
                                                     <input 
                                                         type="number" 
                                                         value={ticket.price}

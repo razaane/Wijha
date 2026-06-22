@@ -145,8 +145,8 @@ export default function HostOnboardingPage() {
 
     if (!user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white flex-col">
-                <p className="text-xl font-bold text-neutral-900 mb-4">Please log in to become a host.</p>
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900 flex-col">
+                <p className="text-xl font-bold text-neutral-900 dark:text-white mb-4">Please log in to become a host.</p>
                 <Link href="/login" className="px-6 py-3 bg-amber-500 text-white rounded-full font-bold hover:bg-amber-600">
                     Log In
                 </Link>
@@ -473,22 +473,22 @@ export default function HostOnboardingPage() {
     const currentStepIndex = isEvent ? step - 100 : step;
 
     return (
-        <div className="min-h-screen bg-white flex flex-col font-sans text-neutral-900">
+        <div className="min-h-screen bg-white dark:bg-neutral-900 flex flex-col font-sans text-neutral-900 dark:text-white">
             
             {/* Header */}
-            <header className="h-20 border-b border-neutral-100 flex items-center justify-between px-4 sm:px-8 bg-white sticky top-0 z-50">
+            <header className="h-20 border-b border-neutral-100 dark:border-neutral-800 flex items-center justify-between px-4 sm:px-8 bg-white dark:bg-neutral-900 sticky top-0 z-50">
                 <Link href="/host/dashboard" className="text-2xl font-black text-amber-500 tracking-tight">Wijha</Link>
                 <button 
                     onClick={handleSaveDraft}
                     disabled={loading}
-                    className="text-sm font-bold text-neutral-500 hover:text-neutral-900 px-4 py-2 rounded-full hover:bg-neutral-50 transition-colors disabled:opacity-50"
+                    className="text-sm font-bold text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:text-white px-4 py-2 rounded-full hover:bg-neutral-50 dark:bg-neutral-900 transition-colors disabled:opacity-50"
                 >
                     {loading ? 'Saving...' : 'Save & exit'}
                 </button>
             </header>
 
             {/* Progress Bar */}
-            <div className="w-full bg-neutral-100 h-1.5 relative z-40">
+            <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-1.5 relative z-40">
                 <div 
                     className="bg-neutral-900 h-1.5 transition-all duration-500 ease-out" 
                     style={{ width: `${(currentStepIndex / TOTAL_STEPS) * 100}%` }}
@@ -519,7 +519,7 @@ export default function HostOnboardingPage() {
                         {/* STEP 2: Property Type */}
                         {step === 2 && (
                             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight text-center sm:text-left">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight text-center sm:text-left">
                                     Which of these best describes your place?
                                 </h1>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -527,10 +527,10 @@ export default function HostOnboardingPage() {
                                         <div 
                                             key={item.id}
                                             onClick={() => updateForm('property_type', item.id)}
-                                            className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${formData.property_type === item.id ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                            className={`p-4 border-2 rounded-2xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${formData.property_type === item.id ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900 shadow-md' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-900'}`}
                                         >
-                                            <item.icon size={32} className={`mb-3 ${formData.property_type === item.id ? 'text-neutral-900' : 'text-neutral-600'}`} />
-                                            <h3 className="text-sm font-bold text-neutral-900">{item.label}</h3>
+                                            <item.icon size={32} className={`mb-3 ${formData.property_type === item.id ? 'text-neutral-900 dark:text-white' : 'text-neutral-600 dark:text-neutral-400'}`} />
+                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">{item.label}</h3>
                                         </div>
                                     ))}
                                 </div>
@@ -540,7 +540,7 @@ export default function HostOnboardingPage() {
                         {/* STEP 3: Privacy Type */}
                         {step === 3 && (
                             <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     What type of place will guests have?
                                 </h1>
                                 <div className="space-y-4">
@@ -548,11 +548,11 @@ export default function HostOnboardingPage() {
                                         <div 
                                             key={item.id}
                                             onClick={() => updateForm('privacy_type', item.id)}
-                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex justify-between items-center hover:shadow-md ${formData.privacy_type === item.id ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                            className={`p-6 border-2 rounded-2xl cursor-pointer transition-all flex justify-between items-center hover:shadow-md ${formData.privacy_type === item.id ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900 shadow-md' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-900'}`}
                                         >
                                             <div>
-                                                <h3 className="text-xl font-bold text-neutral-900 mb-1">{item.label}</h3>
-                                                <p className="text-neutral-500">{item.desc}</p>
+                                                <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-1">{item.label}</h3>
+                                                <p className="text-neutral-500 dark:text-neutral-400">{item.desc}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -563,20 +563,20 @@ export default function HostOnboardingPage() {
                         {/* STEP 4: Address Form */}
                         {step === 4 && (
                             <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight text-center">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight text-center">
                                     Confirm your address
                                 </h1>
-                                <p className="text-lg text-neutral-500 text-center">Your exact address won't be shared with guests until they book.</p>
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400 text-center">Your exact address won't be shared with guests until they book.</p>
                                 
                                 <div className="space-y-4">
-                                    <div className="border border-neutral-300 rounded-2xl overflow-hidden focus-within:border-neutral-900 focus-within:ring-1 focus-within:ring-neutral-900 transition-all">
-                                        <div className="p-4 border-b border-neutral-300 bg-neutral-50/50">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Country / Region</label>
+                                    <div className="border border-neutral-300 dark:border-neutral-700 rounded-2xl overflow-hidden focus-within:border-neutral-900 focus-within:ring-1 focus-within:ring-neutral-900 transition-all">
+                                        <div className="p-4 border-b border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50">
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Country / Region</label>
                                             <div className="relative">
                                                 <select 
                                                     value={selectedCountryCode}
                                                     onChange={handleCountryChange}
-                                                    className="w-full bg-transparent text-lg font-bold text-neutral-900 outline-none appearance-none cursor-pointer pr-8"
+                                                    className="w-full bg-transparent text-lg font-bold text-neutral-900 dark:text-white outline-none appearance-none cursor-pointer pr-8"
                                                 >
                                                     {MENA_COUNTRIES.map((c) => (
                                                         <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
@@ -587,24 +587,24 @@ export default function HostOnboardingPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="p-4 border-b border-neutral-300 relative group">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Street address</label>
+                                        <div className="p-4 border-b border-neutral-300 dark:border-neutral-700 relative group">
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Street address</label>
                                             <input 
                                                 type="text" placeholder="e.g. 123 Main St" 
                                                 value={formData.address_street} onChange={(e) => updateForm('address_street', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 placeholder-neutral-300 outline-none"
+                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
                                             />
                                         </div>
-                                        <div className="p-4 border-b border-neutral-300">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Apt, floor, bldg (optional)</label>
+                                        <div className="p-4 border-b border-neutral-300 dark:border-neutral-700">
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Apt, floor, bldg (optional)</label>
                                             <input 
                                                 type="text" placeholder="e.g. Apt 4B" 
                                                 value={formData.address_apt} onChange={(e) => updateForm('address_apt', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 placeholder-neutral-300 outline-none"
+                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
                                             />
                                         </div>
-                                        <div className="p-4 border-b border-neutral-300">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">City / town</label>
+                                        <div className="p-4 border-b border-neutral-300 dark:border-neutral-700">
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">City / town</label>
                                             <div className="relative">
                                                 <select 
                                                     value={formData.address_city}
@@ -612,7 +612,7 @@ export default function HostOnboardingPage() {
                                                         updateForm('address_city', e.target.value);
                                                         setMapCenter(null); // Reset pin when city changes
                                                     }}
-                                                    className="w-full text-lg font-medium text-neutral-900 bg-transparent outline-none appearance-none cursor-pointer pr-8"
+                                                    className="w-full text-lg font-medium text-neutral-900 dark:text-white bg-transparent outline-none appearance-none cursor-pointer pr-8"
                                                 >
                                                     <option value="" disabled>Select a city</option>
                                                     {availableCities.map((city, idx) => (
@@ -624,20 +624,20 @@ export default function HostOnboardingPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="p-4 border-b border-neutral-300">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Province / state</label>
+                                        <div className="p-4 border-b border-neutral-300 dark:border-neutral-700">
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Province / state</label>
                                             <input 
                                                 type="text" placeholder="e.g. Marrakech-Safi" 
                                                 value={formData.address_province} onChange={(e) => updateForm('address_province', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 placeholder-neutral-300 outline-none"
+                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
                                             />
                                         </div>
                                         <div className="p-4">
-                                            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-1">Postal code</label>
+                                            <label className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider block mb-1">Postal code</label>
                                             <input 
                                                 type="text" placeholder="e.g. 40000" 
                                                 value={formData.address_postal_code} onChange={(e) => updateForm('address_postal_code', e.target.value)}
-                                                className="w-full text-lg font-medium text-neutral-900 placeholder-neutral-300 outline-none"
+                                                className="w-full text-lg font-medium text-neutral-900 dark:text-white placeholder-neutral-300 outline-none"
                                             />
                                         </div>
                                     </div>
@@ -649,10 +649,10 @@ export default function HostOnboardingPage() {
                         {step === 5 && (
                             <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 h-full flex flex-col max-w-2xl mx-auto">
                                 <div className="text-center">
-                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                         Is the pin in the right spot?
                                     </h1>
-                                    <p className="text-lg text-neutral-500 mt-2">Your address is only shared with guests after they've made a reservation.</p>
+                                    <p className="text-lg text-neutral-500 dark:text-neutral-400 mt-2">Your address is only shared with guests after they've made a reservation.</p>
                                 </div>
                                 
                                 <div ref={mapRef} className="w-full min-h-[500px] bg-[#E8F0F2] rounded-3xl relative overflow-hidden flex items-center justify-center">
@@ -665,8 +665,8 @@ export default function HostOnboardingPage() {
                                     
                                     {/* UI Match of Screenshot: Fixed pin, drag the map beneath it */}
                                     <div className="relative z-10 flex flex-col items-center pointer-events-none mb-14">
-                                        <div className="bg-white/95 backdrop-blur rounded-full px-6 py-3 shadow-lg flex items-center gap-3 relative border border-neutral-100">
-                                            <span className="font-bold text-neutral-900 text-[15px] pl-2 pr-10">Drag the map to reposition the pin</span>
+                                        <div className="bg-white dark:bg-neutral-900/95 backdrop-blur rounded-full px-6 py-3 shadow-lg flex items-center gap-3 relative border border-neutral-100 dark:border-neutral-800">
+                                            <span className="font-bold text-neutral-900 dark:text-white text-[15px] pl-2 pr-10">Drag the map to reposition the pin</span>
                                             
                                             {/* The Black Circle Pin overlapping the pill */}
                                             <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 flex flex-col items-center cursor-move hover:scale-105 transition-transform">
@@ -685,7 +685,7 @@ export default function HostOnboardingPage() {
                         {/* STEP 6: Floor Plan / Basics */}
                         {step === 6 && (
                             <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     Let's start with the basics
                                 </h1>
 
@@ -696,12 +696,12 @@ export default function HostOnboardingPage() {
                                         { id: 'beds_count', label: 'Beds' },
                                         { id: 'bathrooms_count', label: 'Bathrooms' },
                                     ].map((item) => (
-                                        <div key={item.id} className="flex items-center justify-between py-6 border-b border-neutral-100">
-                                            <span className="text-xl text-neutral-900">{item.label}</span>
+                                        <div key={item.id} className="flex items-center justify-between py-6 border-b border-neutral-100 dark:border-neutral-800">
+                                            <span className="text-xl text-neutral-900 dark:text-white">{item.label}</span>
                                             <div className="flex items-center gap-4">
                                                 <button 
                                                     onClick={() => updateCounter(item.id as any, false)}
-                                                    className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 transition-colors disabled:opacity-30 disabled:hover:border-neutral-300 disabled:cursor-not-allowed"
+                                                    className="w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:border-neutral-900 hover:text-neutral-900 dark:text-white transition-colors disabled:opacity-30 disabled:hover:border-neutral-300 dark:border-neutral-700 disabled:cursor-not-allowed"
                                                     disabled={(formData as any)[item.id] <= (item.id === 'guests_count' ? 1 : 0)}
                                                 >
                                                     <Minus size={18} />
@@ -709,7 +709,7 @@ export default function HostOnboardingPage() {
                                                 <span className="text-xl w-6 text-center">{(formData as any)[item.id]}</span>
                                                 <button 
                                                     onClick={() => updateCounter(item.id as any, true)}
-                                                    className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-500 hover:border-neutral-900 hover:text-neutral-900 transition-colors"
+                                                    className="w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400 hover:border-neutral-900 hover:text-neutral-900 dark:text-white transition-colors"
                                                 >
                                                     <Plus size={18} />
                                                 </button>
@@ -718,15 +718,15 @@ export default function HostOnboardingPage() {
                                     ))}
                                     
                                     <div className="pt-8">
-                                        <h3 className="text-xl text-neutral-900 mb-6">Does every bedroom have a lock?</h3>
+                                        <h3 className="text-xl text-neutral-900 dark:text-white mb-6">Does every bedroom have a lock?</h3>
                                         <div className="flex gap-4">
                                             <button 
                                                 onClick={() => updateForm('has_locks', true)}
-                                                className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${formData.has_locks === true ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-900 hover:border-neutral-900'}`}
+                                                className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${formData.has_locks === true ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white hover:border-neutral-900'}`}
                                             >Yes</button>
                                             <button 
                                                 onClick={() => updateForm('has_locks', false)}
-                                                className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${formData.has_locks === false ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 text-neutral-900 hover:border-neutral-900'}`}
+                                                className={`flex-1 py-4 rounded-xl border-2 font-bold transition-all ${formData.has_locks === false ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white hover:border-neutral-900'}`}
                                             >No</button>
                                         </div>
                                     </div>
@@ -738,12 +738,12 @@ export default function HostOnboardingPage() {
                         {step === 7 && (
                             <motion.div key="step7" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
                                 <div>
-                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight mb-2">
                                         Tell guests what your place has to offer
                                     </h1>
-                                    <p className="text-lg text-neutral-500 mb-8">You can add more amenities after you publish your listing.</p>
+                                    <p className="text-lg text-neutral-500 dark:text-neutral-400 mb-8">You can add more amenities after you publish your listing.</p>
                                     
-                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">What about these guest favorites?</h2>
+                                    <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-4">What about these guest favorites?</h2>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                         {GUEST_FAVORITES.map((amenity) => {
                                             const isSelected = formData.amenities.includes(amenity.id);
@@ -751,10 +751,10 @@ export default function HostOnboardingPage() {
                                                 <div 
                                                     key={amenity.id}
                                                     onClick={() => toggleArrayItem('amenities', amenity.id)}
-                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900 shadow-md' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-900'}`}
                                                 >
-                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
-                                                    <h3 className="text-[15px] font-bold text-neutral-900">{amenity.name}</h3>
+                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900 dark:text-white' : 'text-neutral-700 dark:text-neutral-300'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white">{amenity.name}</h3>
                                                 </div>
                                             )
                                         })}
@@ -762,7 +762,7 @@ export default function HostOnboardingPage() {
                                 </div>
 
                                 <div>
-                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">Do you have any standout amenities?</h2>
+                                    <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-4">Do you have any standout amenities?</h2>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                         {STANDOUT_AMENITIES.map((amenity) => {
                                             const isSelected = formData.amenities.includes(amenity.id);
@@ -770,10 +770,10 @@ export default function HostOnboardingPage() {
                                                 <div 
                                                     key={amenity.id}
                                                     onClick={() => toggleArrayItem('amenities', amenity.id)}
-                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900 shadow-md' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-900'}`}
                                                 >
-                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
-                                                    <h3 className="text-[15px] font-bold text-neutral-900">{amenity.name}</h3>
+                                                    <amenity.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900 dark:text-white' : 'text-neutral-700 dark:text-neutral-300'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white">{amenity.name}</h3>
                                                 </div>
                                             )
                                         })}
@@ -781,7 +781,7 @@ export default function HostOnboardingPage() {
                                 </div>
 
                                 <div>
-                                    <h2 className="text-xl font-bold text-neutral-900 mb-4">Do you have any of these safety items?</h2>
+                                    <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-4">Do you have any of these safety items?</h2>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         {SAFETY_ITEMS.map((item) => {
                                             const isSelected = formData.safety_items.includes(item.id);
@@ -789,10 +789,10 @@ export default function HostOnboardingPage() {
                                                 <div 
                                                     key={item.id}
                                                     onClick={() => toggleArrayItem('safety_items', item.id)}
-                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 shadow-md' : 'border-neutral-200 hover:border-neutral-900'}`}
+                                                    className={`p-4 sm:p-5 border-2 rounded-xl cursor-pointer transition-all flex flex-col items-start hover:shadow-md ${isSelected ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900 shadow-md' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-900'}`}
                                                 >
-                                                    <item.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900' : 'text-neutral-700'}`} />
-                                                    <h3 className="text-[15px] font-bold text-neutral-900">{item.name}</h3>
+                                                    <item.icon size={28} strokeWidth={1.5} className={`mb-3 ${isSelected ? 'text-neutral-900 dark:text-white' : 'text-neutral-700 dark:text-neutral-300'}`} />
+                                                    <h3 className="text-[15px] font-bold text-neutral-900 dark:text-white">{item.name}</h3>
                                                 </div>
                                             )
                                         })}
@@ -804,11 +804,11 @@ export default function HostOnboardingPage() {
                         {/* STEP 8: Photos */}
                         {step === 8 && (
                             <motion.div key="step8" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight text-center sm:text-left">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight text-center sm:text-left">
                                     Add some photos of your house
                                 </h1>
-                                <p className="text-lg text-neutral-500 text-center sm:text-left">
-                                    You'll need <strong className="text-neutral-900">5 photos</strong> to get started. You can add more or make changes later.
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
+                                    You'll need <strong className="text-neutral-900 dark:text-white">5 photos</strong> to get started. You can add more or make changes later.
                                     <br />
                                     <span className="text-sm font-medium">({previewUrls.length} / 5 photos selected)</span>
                                 </p>
@@ -817,22 +817,22 @@ export default function HostOnboardingPage() {
                                     {/* Upload Button */}
                                     <div 
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="col-span-2 sm:col-span-1 h-64 border-2 border-dashed border-neutral-300 bg-neutral-50/50 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-neutral-900 hover:bg-neutral-50 transition-all group"
+                                        className="col-span-2 sm:col-span-1 h-64 border-2 border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-neutral-900 hover:bg-neutral-50 dark:bg-neutral-900 transition-all group"
                                     >
-                                        <UploadCloud size={48} className="text-neutral-400 mb-4 group-hover:text-neutral-900 transition-colors" />
-                                        <span className="font-bold text-neutral-900 text-lg">Upload Photos</span>
-                                        <span className="text-sm text-neutral-500 mt-1">Drag and drop or click</span>
+                                        <UploadCloud size={48} className="text-neutral-400 mb-4 group-hover:text-neutral-900 dark:text-white transition-colors" />
+                                        <span className="font-bold text-neutral-900 dark:text-white text-lg">Upload Photos</span>
+                                        <span className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">Drag and drop or click</span>
                                     </div>
                                     <input type="file" multiple accept="image/*" ref={fileInputRef} onChange={handlePhotoUpload} className="hidden" />
 
                                     {/* Photo Previews */}
                                     {previewUrls.map((url, index) => (
-                                        <div key={index} className="h-64 rounded-3xl overflow-hidden relative group border border-neutral-200 shadow-sm">
+                                        <div key={index} className="h-64 rounded-3xl overflow-hidden relative group border border-neutral-200 dark:border-neutral-800 shadow-sm">
                                             <img src={url} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                                             {/* Beautiful remove button */}
                                             <button 
                                                 onClick={() => removePhoto(index)}
-                                                className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 shadow-lg hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                                                className="absolute top-4 right-4 w-8 h-8 bg-white dark:bg-neutral-900/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 dark:text-white shadow-lg hover:bg-white dark:bg-neutral-900 hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
                                             >
                                                 <X size={16} />
                                             </button>
@@ -841,7 +841,7 @@ export default function HostOnboardingPage() {
                                     
                                     {/* Empty placeholders to encourage 5 photos */}
                                     {Array.from({ length: Math.max(0, 4 - previewUrls.length) }).map((_, i) => (
-                                        <div key={`empty-${i}`} className="h-64 border-2 border-dashed border-neutral-200 rounded-3xl bg-neutral-50/30"></div>
+                                        <div key={`empty-${i}`} className="h-64 border-2 border-dashed border-neutral-200 dark:border-neutral-800 rounded-3xl bg-neutral-50 dark:bg-neutral-900/30"></div>
                                     ))}
                                 </div>
                             </motion.div>
@@ -850,17 +850,17 @@ export default function HostOnboardingPage() {
                         {/* STEP 9: Title */}
                         {step === 9 && (
                             <motion.div key="step9" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     Now, let's give your house a title
                                 </h1>
-                                <p className="text-lg text-neutral-500">Short titles work best. Have fun with it—you can always change it later.</p>
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400">Short titles work best. Have fun with it—you can always change it later.</p>
                                 
                                 <textarea 
                                     rows={4}
                                     placeholder="e.g. Stunning Riad with Pool in Medina" 
                                     value={formData.title}
                                     onChange={(e) => updateForm('title', e.target.value)}
-                                    className="w-full p-6 text-2xl rounded-3xl border-2 border-neutral-300 bg-white font-bold text-neutral-900 focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
+                                    className="w-full p-6 text-2xl rounded-3xl border-2 border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 font-bold text-neutral-900 dark:text-white focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
                                 />
                             </motion.div>
                         )}
@@ -868,17 +868,17 @@ export default function HostOnboardingPage() {
                         {/* STEP 10: Description */}
                         {step === 10 && (
                             <motion.div key="step10" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     Create your description
                                 </h1>
-                                <p className="text-lg text-neutral-500">Share what makes your place special.</p>
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400">Share what makes your place special.</p>
                                 
                                 <textarea 
                                     rows={6}
                                     placeholder="Describe your property..." 
                                     value={formData.description}
                                     onChange={(e) => updateForm('description', e.target.value)}
-                                    className="w-full p-6 text-xl rounded-3xl border-2 border-neutral-300 bg-white font-medium text-neutral-900 focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
+                                    className="w-full p-6 text-xl rounded-3xl border-2 border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 font-medium text-neutral-900 dark:text-white focus:border-neutral-900 outline-none transition-all resize-none shadow-sm"
                                 />
                             </motion.div>
                         )}
@@ -886,10 +886,10 @@ export default function HostOnboardingPage() {
                         {/* STEP 11: Pricing */}
                         {step === 11 && (
                             <motion.div key="step11" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8 text-center max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     Now, set your price
                                 </h1>
-                                <p className="text-lg text-neutral-500">You can change it anytime.</p>
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400">You can change it anytime.</p>
 
                                 <div className="flex items-center justify-center py-12">
                                     <div className="relative border-b-2 border-transparent focus-within:border-neutral-900 transition-all w-full flex justify-center pb-2">
@@ -899,7 +899,7 @@ export default function HostOnboardingPage() {
                                             placeholder="0"
                                             value={formData.price}
                                             onChange={(e) => updateForm('price', e.target.value)}
-                                            className="w-full pl-[100px] sm:pl-[140px] py-4 text-6xl sm:text-7xl font-black text-neutral-900 bg-transparent border-0 focus:ring-0 outline-none text-center placeholder-neutral-200"
+                                            className="w-full pl-[100px] sm:pl-[140px] py-4 text-6xl sm:text-7xl font-black text-neutral-900 dark:text-white bg-transparent border-0 focus:ring-0 outline-none text-center placeholder-neutral-200"
                                         />
                                     </div>
                                 </div>
@@ -909,29 +909,29 @@ export default function HostOnboardingPage() {
                         {/* EVENT STEP 101: Identity */}
                         {step === 101 && (
                             <motion.div key="step101" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     Let&apos;s define your Event
                                 </h1>
-                                <p className="text-lg text-neutral-500">Give your event a catchy title and clear description.</p>
+                                <p className="text-lg text-neutral-500 dark:text-neutral-400">Give your event a catchy title and clear description.</p>
                                 
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Event Title</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Event Title</label>
                                         <input 
                                             type="text" 
                                             placeholder="e.g. Desert Rhythms Festival" 
                                             value={formData.title}
                                             onChange={(e) => updateForm('title', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none"
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold text-neutral-700 mb-2">Category</label>
+                                            <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Category</label>
                                             <select 
                                                 value={formData.property_type}
                                                 onChange={(e) => updateForm('property_type', e.target.value)}
-                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                             >
                                                 <option value="" disabled>Select category...</option>
                                                 <option value="music">Live Music</option>
@@ -942,11 +942,11 @@ export default function HostOnboardingPage() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-neutral-700 mb-2">Age Limit</label>
+                                            <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Age Limit</label>
                                             <select 
                                                 value={formData.age_restriction}
                                                 onChange={(e) => updateForm('age_restriction', e.target.value)}
-                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                                className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                             >
                                                 <option value="Family Friendly">Family Friendly</option>
                                                 <option value="16+">16+</option>
@@ -955,13 +955,13 @@ export default function HostOnboardingPage() {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Description</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Description</label>
                                         <textarea 
                                             rows={4}
                                             placeholder="What should guests expect?" 
                                             value={formData.description}
                                             onChange={(e) => updateForm('description', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none resize-none"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none resize-none"
                                         />
                                     </div>
                                 </div>
@@ -971,24 +971,24 @@ export default function HostOnboardingPage() {
                         {/* EVENT STEP 102: Location */}
                         {step === 102 && (
                             <motion.div key="step102" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">Where is the event?</h1>
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">Where is the event?</h1>
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Venue Name</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Venue Name</label>
                                         <input 
                                             type="text" 
                                             placeholder="e.g. The Grand Riad Courtyard" 
                                             value={formData.venue_name}
                                             onChange={(e) => updateForm('venue_name', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Country</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Country</label>
                                         <select 
                                             value={selectedCountryCode}
                                             onChange={handleCountryChange}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 bg-white"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 bg-white dark:bg-neutral-900"
                                         >
                                             {MENA_COUNTRIES.map(c => (
                                                 <option key={c.isoCode} value={c.isoCode}>{c.name}</option>
@@ -996,11 +996,11 @@ export default function HostOnboardingPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">City</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">City</label>
                                         <select 
                                             value={formData.address_city}
                                             onChange={(e) => updateForm('address_city', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 bg-white"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 bg-white dark:bg-neutral-900"
                                         >
                                             <option value="" disabled>Select a city</option>
                                             {availableCities.map(c => (
@@ -1009,13 +1009,13 @@ export default function HostOnboardingPage() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Exact Street Address</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Exact Street Address</label>
                                         <input 
                                             type="text" 
                                             placeholder="123 Medina St" 
                                             value={formData.address_street}
                                             onChange={(e) => updateForm('address_street', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900"
                                         />
                                     </div>
                                 </div>
@@ -1026,10 +1026,10 @@ export default function HostOnboardingPage() {
                         {step === 103 && (
                             <motion.div key="step103" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 w-full max-w-4xl mx-auto h-[60vh] flex flex-col">
                                 <div className="text-center">
-                                    <h1 className="text-4xl font-black text-neutral-900 tracking-tight leading-tight mb-2">Pin the venue</h1>
-                                    <p className="text-lg text-neutral-500">Drag the map to pinpoint the exact entrance.</p>
+                                    <h1 className="text-4xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight mb-2">Pin the venue</h1>
+                                    <p className="text-lg text-neutral-500 dark:text-neutral-400">Drag the map to pinpoint the exact entrance.</p>
                                 </div>
-                                <div className="flex-1 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 relative bg-neutral-100" ref={mapRef}>
+                                <div className="flex-1 rounded-3xl overflow-hidden shadow-sm border border-neutral-200 dark:border-neutral-800 relative bg-neutral-100 dark:bg-neutral-800" ref={mapRef}>
                                     <InteractiveMap 
                                         center={getCityCenter()}
                                         onMoveEnd={(lat, lng) => setMapCenter({lat, lng})}
@@ -1047,28 +1047,28 @@ export default function HostOnboardingPage() {
                         {/* EVENT STEP 104: Schedule */}
                         {step === 104 && (
                             <motion.div key="step104" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-xl mx-auto w-full">
-                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight">
+                                <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
                                     When is it happening?
                                 </h1>
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Doors Open (Start Time)</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Doors Open (Start Time)</label>
                                         <input 
                                             type="datetime-local" 
                                             value={formData.start_datetime}
                                             min={new Date().toISOString().slice(0, 16)}
                                             onChange={(e) => updateForm('start_datetime', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-neutral-700 mb-2">Event Ends (End Time)</label>
+                                        <label className="block text-sm font-bold text-neutral-700 dark:text-neutral-300 mb-2">Event Ends (End Time)</label>
                                         <input 
                                             type="datetime-local" 
                                             value={formData.end_datetime}
                                             min={formData.start_datetime || new Date().toISOString().slice(0, 16)}
                                             onChange={(e) => updateForm('end_datetime', e.target.value)}
-                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 focus:border-neutral-900 outline-none bg-white"
+                                            className="w-full p-4 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 focus:border-neutral-900 outline-none bg-white dark:bg-neutral-900"
                                         />
                                     </div>
                                 </div>
@@ -1079,10 +1079,10 @@ export default function HostOnboardingPage() {
                         {step === 105 && (
                             <motion.div key="step105" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-2xl mx-auto w-full">
                                 <div>
-                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight mb-2">
                                         Ticketing & Waitlist
                                     </h1>
-                                    <p className="text-lg text-neutral-500">Define your ticket tiers and enable the smart waitlist.</p>
+                                    <p className="text-lg text-neutral-500 dark:text-neutral-400">Define your ticket tiers and enable the smart waitlist.</p>
                                 </div>
 
                                 <div className="p-6 bg-amber-50 rounded-2xl border border-amber-200 flex items-start gap-4">
@@ -1091,13 +1091,13 @@ export default function HostOnboardingPage() {
                                     </div>
                                     <div>
                                         <div className="flex items-center justify-between mb-1">
-                                            <h3 className="font-bold text-neutral-900">Smart Waitlist</h3>
+                                            <h3 className="font-bold text-neutral-900 dark:text-white">Smart Waitlist</h3>
                                             <label className="relative inline-flex items-center cursor-pointer">
                                                 <input type="checkbox" className="sr-only peer" checked={formData.is_waitlist_enabled} onChange={(e) => updateForm('is_waitlist_enabled', e.target.checked)} />
-                                                <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                                <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-neutral-900 after:border-neutral-300 dark:border-neutral-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                                             </label>
                                         </div>
-                                        <p className="text-sm text-neutral-600">If enabled, when tickets sell out, users can join a waitlist. If someone cancels, the ticket is auto-offered to the next person in line.</p>
+                                        <p className="text-sm text-neutral-600 dark:text-neutral-400">If enabled, when tickets sell out, users can join a waitlist. If someone cancels, the ticket is auto-offered to the next person in line.</p>
                                     </div>
                                 </div>
 
@@ -1113,7 +1113,7 @@ export default function HostOnboardingPage() {
                                     </div>
                                     
                                     {formData.tickets.map((ticket, index) => (
-                                        <div key={index} className="p-5 border-2 border-neutral-200 rounded-2xl space-y-4 bg-white relative">
+                                        <div key={index} className="p-5 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl space-y-4 bg-white dark:bg-neutral-900 relative">
                                             {formData.tickets.length > 1 && (
                                                 <button onClick={() => updateForm('tickets', formData.tickets.filter((_, i) => i !== index))} className="absolute top-4 right-4 text-neutral-400 hover:text-red-500">
                                                     <X size={20} />
@@ -1121,7 +1121,7 @@ export default function HostOnboardingPage() {
                                             )}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Tier Name</label>
+                                                    <label className="block text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Tier Name</label>
                                                     <input 
                                                         type="text" 
                                                         placeholder="e.g. VIP Access"
@@ -1131,11 +1131,11 @@ export default function HostOnboardingPage() {
                                                             newTickets[index].name = e.target.value;
                                                             updateForm('tickets', newTickets);
                                                         }}
-                                                        className="w-full p-3 rounded-xl border border-neutral-200 outline-none focus:border-neutral-900"
+                                                        className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 outline-none focus:border-neutral-900"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Price ({currency})</label>
+                                                    <label className="block text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Price ({currency})</label>
                                                     <input 
                                                         type="number" 
                                                         placeholder="e.g. 150 (0 for Free)"
@@ -1145,19 +1145,19 @@ export default function HostOnboardingPage() {
                                                             newTickets[index].price = e.target.value;
                                                             updateForm('tickets', newTickets);
                                                         }}
-                                                        className="w-full p-3 rounded-xl border border-neutral-200 outline-none focus:border-neutral-900"
+                                                        className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 outline-none focus:border-neutral-900"
                                                     />
                                                 </div>
                                                 <div className="md:col-span-2">
-                                                    <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Quantity Available</label>
-                                                    <div className="flex items-center gap-4 border border-neutral-200 p-2 rounded-xl w-max">
+                                                    <label className="block text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Quantity Available</label>
+                                                    <div className="flex items-center gap-4 border border-neutral-200 dark:border-neutral-800 p-2 rounded-xl w-max">
                                                         <button 
                                                             onClick={() => {
                                                                 const newTickets = [...formData.tickets];
                                                                 if (newTickets[index].quantity_available > 1) newTickets[index].quantity_available -= 1;
                                                                 updateForm('tickets', newTickets);
                                                             }}
-                                                            className="w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-900"
+                                                            className="w-8 h-8 rounded-full border border-neutral-200 dark:border-neutral-800 flex items-center justify-center hover:border-neutral-900"
                                                         ><Minus size={16}/></button>
                                                         <span className="w-12 text-center font-bold">{ticket.quantity_available}</span>
                                                         <button 
@@ -1166,7 +1166,7 @@ export default function HostOnboardingPage() {
                                                                 newTickets[index].quantity_available += 1;
                                                                 updateForm('tickets', newTickets);
                                                             }}
-                                                            className="w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-900"
+                                                            className="w-8 h-8 rounded-full border border-neutral-200 dark:border-neutral-800 flex items-center justify-center hover:border-neutral-900"
                                                         ><Plus size={16}/></button>
                                                     </div>
                                                 </div>
@@ -1181,24 +1181,24 @@ export default function HostOnboardingPage() {
                         {step === 106 && (
                             <motion.div key="step106" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8 max-w-3xl mx-auto w-full">
                                 <div className="text-center">
-                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 tracking-tight leading-tight mb-2">
+                                    <h1 className="text-4xl sm:text-5xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight mb-2">
                                         Upload the Event Poster
                                     </h1>
-                                    <p className="text-lg text-neutral-500">Add 1 poster (or multiple photos) to make your event stand out.</p>
+                                    <p className="text-lg text-neutral-500 dark:text-neutral-400">Add 1 poster (or multiple photos) to make your event stand out.</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     {previewUrls.map((url, i) => (
-                                        <div key={i} className={`relative rounded-2xl overflow-hidden border-2 border-neutral-100 group ${i === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}>
+                                        <div key={i} className={`relative rounded-2xl overflow-hidden border-2 border-neutral-100 dark:border-neutral-800 group ${i === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}>
                                             <img src={url} alt={`Preview ${i}`} className="w-full h-full object-cover" />
                                             {i === 0 && (
-                                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
+                                                <div className="absolute top-4 left-4 bg-white dark:bg-neutral-900/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
                                                     Main Poster
                                                 </div>
                                             )}
                                             <button 
                                                 onClick={() => removePhoto(i)}
-                                                className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 shadow-sm"
+                                                className="absolute top-4 right-4 w-8 h-8 bg-white dark:bg-neutral-900/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 shadow-sm"
                                             >
                                                 <X size={16} />
                                             </button>
@@ -1207,19 +1207,19 @@ export default function HostOnboardingPage() {
                                     
                                     <button 
                                         onClick={() => fileInputRef.current?.click()}
-                                        className={`rounded-2xl border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center gap-2 hover:border-neutral-900 hover:bg-neutral-50 transition-all ${previewUrls.length === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}
+                                        className={`rounded-2xl border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 hover:border-neutral-900 hover:bg-neutral-50 dark:bg-neutral-900 transition-all ${previewUrls.length === 0 ? 'col-span-2 md:col-span-3 aspect-[21/9]' : 'aspect-square'}`}
                                     >
                                         <UploadCloud size={previewUrls.length === 0 ? 48 : 24} className="text-neutral-400" />
-                                        <span className="text-neutral-600 font-medium">{previewUrls.length === 0 ? 'Click to upload main poster' : 'Add more'}</span>
+                                        <span className="text-neutral-600 dark:text-neutral-400 font-medium">{previewUrls.length === 0 ? 'Click to upload main poster' : 'Add more'}</span>
                                     </button>
                                 </div>
                                 <input type="file" multiple accept="image/*" className="hidden" ref={fileInputRef} onChange={handlePhotoUpload} />
                                 
-                                <div className="p-6 bg-neutral-50 rounded-2xl border border-neutral-200 mt-8">
-                                    <h3 className="font-bold text-neutral-900 mb-2 flex items-center gap-2">
+                                <div className="p-6 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 mt-8">
+                                    <h3 className="font-bold text-neutral-900 dark:text-white mb-2 flex items-center gap-2">
                                         <ShieldAlert size={20} className="text-amber-500" /> Trust & Verification
                                     </h3>
-                                    <p className="text-sm text-neutral-600">
+                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                         When you publish this event, it will go into a <strong>Pending Review</strong> state. Our admins will verify the details before tickets go on sale to ensure platform safety. Your payout will be secured in Escrow until the event finishes successfully.
                                     </p>
                                 </div>
@@ -1230,12 +1230,12 @@ export default function HostOnboardingPage() {
             </main>
 
             {/* Footer Navigation */}
-            <footer className="h-24 border-t border-neutral-200 bg-white flex items-center justify-between px-4 sm:px-8 max-w-[1440px] mx-auto w-full fixed bottom-0 z-50">
+            <footer className="h-24 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex items-center justify-between px-4 sm:px-8 max-w-[1440px] mx-auto w-full fixed bottom-0 z-50">
                 <div className="flex-1">
                     {currentStepIndex > 1 && (
                         <button 
                             onClick={prevStep}
-                            className="px-6 py-3 rounded-full font-bold text-neutral-900 underline hover:bg-neutral-50 transition-colors"
+                            className="px-6 py-3 rounded-full font-bold text-neutral-900 dark:text-white underline hover:bg-neutral-50 dark:bg-neutral-900 transition-colors"
                         >
                             Back
                         </button>

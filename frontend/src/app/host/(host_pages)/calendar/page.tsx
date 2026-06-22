@@ -215,7 +215,7 @@ export default function HostCalendarPage() {
         firstDay: number
     ) => (
         <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-black text-neutral-900 mb-5 text-center">
+            <h3 className="text-lg font-black text-neutral-900 dark:text-white mb-5 text-center">
                 {monthName} {year}
             </h3>
             
@@ -248,11 +248,11 @@ export default function HostCalendarPage() {
                             disabled={past}
                             className={`
                                 relative aspect-square rounded-xl flex flex-col items-center justify-center transition-all duration-150 text-sm
-                                ${past ? 'text-neutral-300 cursor-default' : 'cursor-pointer hover:bg-amber-50'}
-                                ${isBlocked && !selected && !past ? 'bg-red-50 text-red-300 line-through' : ''}
-                                ${selected ? 'bg-neutral-900 text-white shadow-lg scale-[1.02] z-10' : ''}
-                                ${today && !selected ? 'ring-2 ring-amber-500 font-black text-amber-600' : ''}
-                                ${!selected && !past && !today && !isBlocked ? 'text-neutral-800 hover:text-neutral-900' : ''}
+                                ${past ? 'text-neutral-300 dark:text-neutral-600 cursor-default' : 'cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/30'}
+                                ${isBlocked && !selected && !past ? 'bg-red-50 dark:bg-red-900/20 text-red-300 dark:text-red-400/50 line-through' : ''}
+                                ${selected ? 'bg-neutral-900 dark:bg-amber-500 text-white shadow-lg scale-[1.02] z-10' : ''}
+                                ${today && !selected ? 'ring-2 ring-amber-500 font-black text-amber-600 dark:text-amber-400' : ''}
+                                ${!selected && !past && !today && !isBlocked ? 'text-neutral-800 dark:text-neutral-200 hover:text-neutral-900 dark:hover:text-white' : ''}
                             `}
                         >
                             <span className={`font-bold ${selected ? 'text-white' : ''}`}>{day}</span>
@@ -280,23 +280,23 @@ export default function HostCalendarPage() {
                 {/* Page Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-4xl font-black text-neutral-900 tracking-tight mb-1">Calendar</h1>
-                        <p className="text-neutral-500 text-lg">Manage availability and pricing for your properties</p>
+                        <h1 className="text-4xl font-black text-neutral-900 dark:text-white tracking-tight mb-1">Calendar</h1>
+                        <p className="text-neutral-500 dark:text-neutral-400 text-lg">Manage availability and pricing for your properties</p>
                     </div>
 
                     {/* Month Nav */}
                     <div className="flex items-center gap-3 shrink-0">
-                        <button onClick={goToday} className="px-4 py-2 text-sm font-bold bg-white border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors text-neutral-700 shadow-sm">
+                        <button onClick={goToday} className="px-4 py-2 text-sm font-bold bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-neutral-700 dark:text-neutral-300 shadow-sm">
                             Today
                         </button>
-                        <div className="flex items-center bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
-                            <button onClick={prevMonth} className="p-2.5 hover:bg-neutral-50 text-neutral-600 transition-colors">
+                        <div className="flex items-center bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden">
+                            <button onClick={prevMonth} className="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 transition-colors">
                                 <ChevronLeft size={18} />
                             </button>
-                            <span className="px-4 font-bold text-neutral-900 text-sm min-w-[140px] text-center border-x border-neutral-100">
+                            <span className="px-4 font-bold text-neutral-900 dark:text-white text-sm min-w-[140px] text-center border-x border-neutral-100 dark:border-neutral-800">
                                 {monthNames[currentMonth]} {currentYear}
                             </span>
-                            <button onClick={nextMonth} className="p-2.5 hover:bg-neutral-50 text-neutral-600 transition-colors">
+                            <button onClick={nextMonth} className="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 transition-colors">
                                 <ChevronRight size={18} />
                             </button>
                         </div>
@@ -306,7 +306,7 @@ export default function HostCalendarPage() {
                 {/* Calendar View */}
                 <motion.div 
                     layout
-                    className="bg-white rounded-3xl border border-neutral-200 shadow-sm p-8"
+                    className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm p-8"
                 >
                     <div className="flex flex-col xl:flex-row gap-12">
                         {/* Current Month */}
@@ -349,7 +349,7 @@ export default function HostCalendarPage() {
                 <div className="relative z-50">
                     <button 
                         onClick={() => setIsListingDropdownOpen(!isListingDropdownOpen)}
-                        className="w-full flex items-center justify-between gap-3 bg-white border border-neutral-200 rounded-2xl px-4 py-3 shadow-sm hover:shadow-md transition-all"
+                        className="w-full flex items-center justify-between gap-3 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl px-4 py-3 shadow-sm hover:shadow-md transition-all"
                     >
                         {selectedListing && (
                             <div className="flex items-center gap-3 overflow-hidden">
@@ -361,8 +361,8 @@ export default function HostCalendarPage() {
                                     )}
                                 </div>
                                 <div className="text-left flex-1 min-w-0">
-                                    <p className="font-bold text-neutral-900 text-sm truncate">{selectedListing.title || 'Untitled Draft'}</p>
-                                    <p className="text-xs text-neutral-500 flex items-center gap-1">
+                                    <p className="font-bold text-neutral-900 dark:text-white text-sm truncate">{selectedListing.title || 'Untitled Draft'}</p>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
                                         <MapPin size={10} /> {selectedListing.address_city || 'No location'}
                                     </p>
                                 </div>
@@ -378,7 +378,7 @@ export default function HostCalendarPage() {
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 8, scale: 0.97 }}
                                 transition={{ duration: 0.15 }}
-                                className="absolute top-full left-0 mt-2 w-full bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden"
+                                className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden"
                             >
                                 {listings.map(listing => (
                                     <button
@@ -398,8 +398,8 @@ export default function HostCalendarPage() {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-sm text-neutral-900 truncate">{listing.title || 'Untitled Draft'}</p>
-                                            <p className="text-xs text-neutral-500 truncate">{listing.address_city || 'No location'}</p>
+                                            <p className="font-bold text-sm text-neutral-900 dark:text-white truncate">{listing.title || 'Untitled Draft'}</p>
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">{listing.address_city || 'No location'}</p>
                                         </div>
                                         {listing.id === selectedListingId && <Check size={16} className="text-amber-500 shrink-0" />}
                                     </button>
@@ -410,7 +410,7 @@ export default function HostCalendarPage() {
                 </div>
 
                 {/* Edit Panel */}
-                <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden flex-1">
+                <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden flex-1">
                     <div className="p-5 bg-neutral-900 text-white flex items-center justify-between">
                         <div>
                             <h3 className="font-bold text-base">Edit Dates</h3>
@@ -447,16 +447,16 @@ export default function HostCalendarPage() {
                                 {/* Availability Toggle */}
                                 <div>
                                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-3">Availability</label>
-                                    <div className="grid grid-cols-2 gap-2 bg-neutral-100 p-1.5 rounded-2xl">
+                                    <div className="grid grid-cols-2 gap-2 bg-neutral-100 dark:bg-neutral-950 p-1.5 rounded-2xl">
                                         <button 
                                             onClick={() => setAvailabilityStatus('available')}
-                                            className={`py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${availabilityStatus === 'available' ? 'bg-white shadow-sm text-emerald-600 border border-neutral-200' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                            className={`py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${availabilityStatus === 'available' ? 'bg-white dark:bg-neutral-800 shadow-sm text-emerald-600 dark:text-emerald-400 border border-neutral-200 dark:border-neutral-700' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                                         >
                                             <Unlock size={14} /> Open
                                         </button>
                                         <button 
                                             onClick={() => setAvailabilityStatus('blocked')}
-                                            className={`py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${availabilityStatus === 'blocked' ? 'bg-white shadow-sm text-red-600 border border-neutral-200' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                            className={`py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${availabilityStatus === 'blocked' ? 'bg-white dark:bg-neutral-800 shadow-sm text-red-600 dark:text-red-400 border border-neutral-200 dark:border-neutral-700' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                                         >
                                             <Lock size={14} /> Blocked
                                         </button>
@@ -475,7 +475,7 @@ export default function HostCalendarPage() {
                                             value={customPrice}
                                             onChange={(e) => setCustomPrice(e.target.value)}
                                             placeholder={`Base: ${formatConverted(selectedListing?.price || 0, selectedListing?.currency || 'USD')}`}
-                                            className="w-full pl-11 pr-4 py-3 bg-white border border-neutral-200 rounded-xl font-bold text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                                            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-xl font-bold text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                                         />
                                     </div>
                                     <p className="text-[11px] text-neutral-400 mt-2 flex items-start gap-1">

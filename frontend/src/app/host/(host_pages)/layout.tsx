@@ -68,6 +68,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
         { name: 'Listings', href: '/host/listings' },
         { name: 'Inbox', href: '/host/inbox' },
         { name: 'Insights', href: '/host/insights' },
+        { name: 'Earnings', href: '/host/earnings' },
     ];
 
     return (

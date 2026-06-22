@@ -189,7 +189,7 @@ export default function ListingsPage() {
     return (
         <div className="w-full">
             {/* Filter Tabs */}
-            <div className="mb-10 inline-flex items-center bg-neutral-50 p-1.5 rounded-full border border-neutral-100 shadow-sm">
+            <div className="mb-10 inline-flex items-center bg-neutral-50 dark:bg-neutral-900 p-1.5 rounded-full border border-neutral-100 dark:border-neutral-800 shadow-sm">
                 {[
                     { id: 'all', label: 'All' },
                     { id: 'rental', label: 'Stays' },
@@ -199,7 +199,7 @@ export default function ListingsPage() {
                     <button
                         key={tab.id}
                         onClick={() => setFilter(tab.id as any)}
-                        className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${filter === tab.id ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'}`}
+                        className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${filter === tab.id ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white shadow-sm' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
                     >
                         {tab.label}
                     </button>
@@ -209,22 +209,22 @@ export default function ListingsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-4xl font-black text-neutral-900 tracking-tight mb-2">Your Listings</h1>
-                    <p className="text-neutral-500 font-medium">Manage your properties, availability, and settings.</p>
+                    <h1 className="text-4xl font-black text-neutral-900 dark:text-white tracking-tight mb-2">Your Listings</h1>
+                    <p className="text-neutral-500 dark:text-neutral-400 font-medium">Manage your properties, availability, and settings.</p>
                 </div>
                 
                 <div className="flex items-center gap-3">
                     {/* View Toggles */}
-                    <div className="hidden sm:flex items-center bg-white border border-neutral-200 rounded-full p-1 shadow-sm">
+                    <div className="hidden sm:flex items-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full p-1 shadow-sm">
                         <button 
                             onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-400 hover:text-neutral-600'}`}
+                            className={`p-2 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
                         >
                             <LayoutGrid size={18} />
                         </button>
                         <button 
                             onClick={() => setViewMode('list')}
-                            className={`p-2 rounded-full transition-colors ${viewMode === 'list' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-400 hover:text-neutral-600'}`}
+                            className={`p-2 rounded-full transition-colors ${viewMode === 'list' ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
                         >
                             <List size={18} />
                         </button>
@@ -252,7 +252,7 @@ export default function ListingsPage() {
                             <Link 
                                 href={`/host/listings/${listing.id}`} 
                                 key={listing.id}
-                                className="group bg-white rounded-3xl border border-neutral-200 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                                className="group bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
                             >
                                 {/* Image Container */}
                                 <div className="relative aspect-[4/3] bg-neutral-100 overflow-hidden">
@@ -289,27 +289,27 @@ export default function ListingsPage() {
                                 {/* Card Content */}
                                 <div className="p-5 flex-1 flex flex-col">
                                     <div className="flex items-start justify-between gap-4 mb-1">
-                                        <h3 className="font-bold text-lg text-neutral-900 line-clamp-1 group-hover:text-amber-600 transition-colors">
+                                        <h3 className="font-bold text-lg text-neutral-900 dark:text-white line-clamp-1 group-hover:text-amber-600 transition-colors">
                                             {listing.title || 'Untitled Draft'}
                                         </h3>
-                                        <div className="flex items-center gap-1 text-sm font-bold text-neutral-900 shrink-0">
-                                            <Star size={14} className="fill-neutral-900" />
+                                        <div className="flex items-center gap-1 text-sm font-bold text-neutral-900 dark:text-white shrink-0">
+                                            <Star size={14} className="fill-neutral-900 dark:fill-white" />
                                             <span>New</span>
                                         </div>
                                     </div>
                                     
-                                    <p className="text-neutral-500 text-sm mb-4 line-clamp-1 capitalize">
+                                    <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-4 line-clamp-1 capitalize">
                                         {listing.type === 'rental' ? (listing.property_type?.replace('_', ' ') || 'Property') : listing.type} • {listing.address_city || 'Location pending'}
                                     </p>
 
-                                    <div className="mt-auto pt-4 border-t border-neutral-100 flex items-end justify-between">
+                                    <div className="mt-auto pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-end justify-between">
                                         <div>
                                             {listing.type === 'event' ? (
-                                                <span className="text-lg font-black text-neutral-900">Tickets</span>
+                                                <span className="text-lg font-black text-neutral-900 dark:text-white">Tickets</span>
                                             ) : (
                                                 <>
-                                                    <span className="text-lg font-black text-neutral-900">{formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
-                                                    <span className="text-neutral-500 text-sm font-medium">
+                                                    <span className="text-lg font-black text-neutral-900 dark:text-white">{formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
+                                                    <span className="text-neutral-500 dark:text-neutral-400 text-sm font-medium">
                                                         {listing.type === 'tour' ? ' / person' : ' / night'}
                                                     </span>
                                                 </>

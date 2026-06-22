@@ -181,7 +181,7 @@ export default function VerifyIdentityPage() {
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+            <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900">
                 <Loader2 className="animate-spin text-amber-500 w-12 h-12" />
             </div>
         );
@@ -189,15 +189,15 @@ export default function VerifyIdentityPage() {
 
     if (status === 'pending' || status === 'approved') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-neutral-50 p-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full bg-white rounded-3xl p-8 shadow-sm border border-neutral-200 text-center space-y-6">
+            <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 p-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-sm border border-neutral-200 dark:border-neutral-800 text-center space-y-6">
                     <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto ${status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
                         {status === 'approved' ? <CheckCircle2 size={40} /> : <ShieldCheck size={40} />}
                     </div>
-                    <h1 className="text-3xl font-black text-neutral-900">
+                    <h1 className="text-3xl font-black text-neutral-900 dark:text-white">
                         {status === 'approved' ? 'Identity Verified' : 'Verification Pending'}
                     </h1>
-                    <p className="text-neutral-500 text-lg">
+                    <p className="text-neutral-500 dark:text-neutral-400 text-lg">
                         {status === 'approved' 
                             ? 'Your identity has been successfully verified. You are clear to host properties and events on Wijha!' 
                             : 'We are currently reviewing your identity documents. This usually takes less than 24 hours. We\'ll notify you once you\'re approved to host!'}
@@ -212,7 +212,7 @@ export default function VerifyIdentityPage() {
                     ) : (
                         <Link 
                             href="/dashboard" 
-                            className="block w-full text-center py-4 rounded-xl font-bold transition-colors bg-neutral-100 text-neutral-900 hover:bg-neutral-200"
+                            className="block w-full text-center py-4 rounded-xl font-bold transition-colors bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200"
                         >
                             Return to Dashboard
                         </Link>
@@ -223,16 +223,16 @@ export default function VerifyIdentityPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 flex flex-col py-12 px-4 sm:px-6">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col py-12 px-4 sm:px-6">
             <div className="max-w-3xl mx-auto w-full">
-                <Link href="/dashboard" className="text-neutral-500 hover:text-neutral-900 mb-8 inline-block font-bold">
+                <Link href="/dashboard" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:text-white mb-8 inline-block font-bold">
                     ← Back to Traveler Dashboard
                 </Link>
 
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-neutral-200 relative overflow-hidden">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-neutral-900 rounded-3xl p-8 sm:p-12 shadow-sm border border-neutral-200 dark:border-neutral-800 relative overflow-hidden">
                     
                     {/* Progress Bar */}
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-neutral-100">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-neutral-100 dark:bg-neutral-800">
                         <div 
                             className="h-full bg-neutral-900 transition-all duration-300"
                             style={{ width: `${(step / 3) * 100}%` }}
@@ -244,8 +244,8 @@ export default function VerifyIdentityPage() {
                             <ShieldCheck size={32} />
                         </div>
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-black text-neutral-900 tracking-tight">Verify your identity</h1>
-                            <p className="text-neutral-500 text-lg mt-1">Step {step} of 3</p>
+                            <h1 className="text-3xl sm:text-4xl font-black text-neutral-900 dark:text-white tracking-tight">Verify your identity</h1>
+                            <p className="text-neutral-500 dark:text-neutral-400 text-lg mt-1">Step {step} of 3</p>
                         </div>
                     </div>
 
@@ -266,25 +266,25 @@ export default function VerifyIdentityPage() {
                         {/* STEP 1: Document Type */}
                         {step === 1 && (
                             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                                <h3 className="font-bold text-2xl text-neutral-900 mb-4">What type of document do you have?</h3>
+                                <h3 className="font-bold text-2xl text-neutral-900 dark:text-white mb-4">What type of document do you have?</h3>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <button 
                                         onClick={() => setDocType('id_card')}
-                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${docType === 'id_card' ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${docType === 'id_card' ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:border-neutral-700'}`}
                                     >
-                                        <CreditCard size={32} className={`mb-4 ${docType === 'id_card' ? 'text-neutral-900' : 'text-neutral-400'}`} />
-                                        <h4 className="font-bold text-lg text-neutral-900">National ID Card</h4>
-                                        <p className="text-neutral-500 text-sm mt-1">Requires front and back photos</p>
+                                        <CreditCard size={32} className={`mb-4 ${docType === 'id_card' ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`} />
+                                        <h4 className="font-bold text-lg text-neutral-900 dark:text-white">National ID Card</h4>
+                                        <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Requires front and back photos</p>
                                     </button>
 
                                     <button 
                                         onClick={() => setDocType('passport')}
-                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${docType === 'passport' ? 'border-neutral-900 bg-neutral-50' : 'border-neutral-200 hover:border-neutral-300'}`}
+                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${docType === 'passport' ? 'border-neutral-900 bg-neutral-50 dark:bg-neutral-900' : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:border-neutral-700'}`}
                                     >
-                                        <FileText size={32} className={`mb-4 ${docType === 'passport' ? 'text-neutral-900' : 'text-neutral-400'}`} />
-                                        <h4 className="font-bold text-lg text-neutral-900">Passport</h4>
-                                        <p className="text-neutral-500 text-sm mt-1">Requires the photo page</p>
+                                        <FileText size={32} className={`mb-4 ${docType === 'passport' ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`} />
+                                        <h4 className="font-bold text-lg text-neutral-900 dark:text-white">Passport</h4>
+                                        <p className="text-neutral-500 dark:text-neutral-400 text-sm mt-1">Requires the photo page</p>
                                     </button>
                                 </div>
 
@@ -303,22 +303,22 @@ export default function VerifyIdentityPage() {
                         {/* STEP 2: Document Upload */}
                         {step === 2 && (
                             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                                <h3 className="font-bold text-2xl text-neutral-900 mb-4">Upload your {docType === 'id_card' ? 'ID Card' : 'Passport'}</h3>
+                                <h3 className="font-bold text-2xl text-neutral-900 dark:text-white mb-4">Upload your {docType === 'id_card' ? 'ID Card' : 'Passport'}</h3>
                                 
                                 <div className={`grid grid-cols-1 ${docType === 'id_card' ? 'sm:grid-cols-2' : ''} gap-6`}>
                                     {/* Front / Passport Data Page */}
                                     <div className="space-y-3">
-                                        <p className="font-semibold text-neutral-700">{docType === 'id_card' ? 'Front side' : 'Photo page'}</p>
+                                        <p className="font-semibold text-neutral-700 dark:text-neutral-300">{docType === 'id_card' ? 'Front side' : 'Photo page'}</p>
                                         <div 
                                             onClick={() => !idFrontPreview && idFrontInputRef.current?.click()}
-                                            className={`relative h-56 rounded-2xl border-2 ${idFrontPreview ? 'border-neutral-200' : 'border-dashed border-neutral-300 hover:border-neutral-900 hover:bg-neutral-50 cursor-pointer'} flex flex-col items-center justify-center overflow-hidden transition-all`}
+                                            className={`relative h-56 rounded-2xl border-2 ${idFrontPreview ? 'border-neutral-200 dark:border-neutral-800' : 'border-dashed border-neutral-300 dark:border-neutral-700 hover:border-neutral-900 hover:bg-neutral-50 dark:bg-neutral-900 cursor-pointer'} flex flex-col items-center justify-center overflow-hidden transition-all`}
                                         >
                                             {idFrontPreview ? (
                                                 <>
                                                     <img src={idFrontPreview} alt="Preview" className="w-full h-full object-cover" />
                                                     <button 
                                                         onClick={(e) => { e.stopPropagation(); setIdFrontFile(null); setIdFrontPreview(null); }}
-                                                        className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 shadow-sm hover:scale-110 transition-transform"
+                                                        className="absolute top-4 right-4 w-10 h-10 bg-white dark:bg-neutral-900/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 dark:text-white shadow-sm hover:scale-110 transition-transform"
                                                     >
                                                         <X size={20} />
                                                     </button>
@@ -326,7 +326,7 @@ export default function VerifyIdentityPage() {
                                             ) : (
                                                 <>
                                                     <UploadCloud size={32} className="text-neutral-400 mb-2" />
-                                                    <span className="font-bold text-neutral-700 text-sm">Upload Photo</span>
+                                                    <span className="font-bold text-neutral-700 dark:text-neutral-300 text-sm">Upload Photo</span>
                                                 </>
                                             )}
                                         </div>
@@ -336,17 +336,17 @@ export default function VerifyIdentityPage() {
                                     {/* Back side (ID Card only) */}
                                     {docType === 'id_card' && (
                                         <div className="space-y-3">
-                                            <p className="font-semibold text-neutral-700">Back side</p>
+                                            <p className="font-semibold text-neutral-700 dark:text-neutral-300">Back side</p>
                                             <div 
                                                 onClick={() => !idBackPreview && idBackInputRef.current?.click()}
-                                                className={`relative h-56 rounded-2xl border-2 ${idBackPreview ? 'border-neutral-200' : 'border-dashed border-neutral-300 hover:border-neutral-900 hover:bg-neutral-50 cursor-pointer'} flex flex-col items-center justify-center overflow-hidden transition-all`}
+                                                className={`relative h-56 rounded-2xl border-2 ${idBackPreview ? 'border-neutral-200 dark:border-neutral-800' : 'border-dashed border-neutral-300 dark:border-neutral-700 hover:border-neutral-900 hover:bg-neutral-50 dark:bg-neutral-900 cursor-pointer'} flex flex-col items-center justify-center overflow-hidden transition-all`}
                                             >
                                                 {idBackPreview ? (
                                                     <>
                                                         <img src={idBackPreview} alt="Preview" className="w-full h-full object-cover" />
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); setIdBackFile(null); setIdBackPreview(null); }}
-                                                            className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 shadow-sm hover:scale-110 transition-transform"
+                                                            className="absolute top-4 right-4 w-10 h-10 bg-white dark:bg-neutral-900/90 backdrop-blur-sm rounded-full flex items-center justify-center text-neutral-900 dark:text-white shadow-sm hover:scale-110 transition-transform"
                                                         >
                                                             <X size={20} />
                                                         </button>
@@ -354,7 +354,7 @@ export default function VerifyIdentityPage() {
                                                 ) : (
                                                     <>
                                                         <UploadCloud size={32} className="text-neutral-400 mb-2" />
-                                                        <span className="font-bold text-neutral-700 text-sm">Upload Photo</span>
+                                                        <span className="font-bold text-neutral-700 dark:text-neutral-300 text-sm">Upload Photo</span>
                                                     </>
                                                 )}
                                             </div>
@@ -366,7 +366,7 @@ export default function VerifyIdentityPage() {
                                 <div className="pt-8 flex gap-4">
                                     <button
                                         onClick={() => setStep(1)}
-                                        className="px-8 py-4 rounded-xl bg-neutral-100 text-neutral-700 font-bold hover:bg-neutral-200 transition-colors"
+                                        className="px-8 py-4 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold hover:bg-neutral-200 transition-colors"
                                     >
                                         Back
                                     </button>
@@ -387,11 +387,11 @@ export default function VerifyIdentityPage() {
                         {/* STEP 3: Live Selfie */}
                         {step === 3 && (
                             <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                                <h3 className="font-bold text-2xl text-neutral-900 mb-2">Take a live selfie</h3>
-                                <p className="text-neutral-500 mb-6">Position your face clearly in the frame. This verifies it's really you.</p>
+                                <h3 className="font-bold text-2xl text-neutral-900 dark:text-white mb-2">Take a live selfie</h3>
+                                <p className="text-neutral-500 dark:text-neutral-400 mb-6">Position your face clearly in the frame. This verifies it's really you.</p>
                                 
                                 <div className="max-w-md mx-auto">
-                                    <div className="relative aspect-[3/4] bg-neutral-900 rounded-3xl overflow-hidden border-4 border-neutral-100 shadow-inner">
+                                    <div className="relative aspect-[3/4] bg-neutral-900 rounded-3xl overflow-hidden border-4 border-neutral-100 dark:border-neutral-800 shadow-inner">
                                         
                                         {!selfiePreview && (
                                             <>
@@ -416,9 +416,9 @@ export default function VerifyIdentityPage() {
                                                     <button 
                                                         onClick={captureSelfie}
                                                         disabled={!cameraActive}
-                                                        className="w-16 h-16 bg-white rounded-full flex items-center justify-center border-4 border-neutral-300 hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
+                                                        className="w-16 h-16 bg-white dark:bg-neutral-900 rounded-full flex items-center justify-center border-4 border-neutral-300 dark:border-neutral-700 hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
                                                     >
-                                                        <Camera size={24} className="text-neutral-900" />
+                                                        <Camera size={24} className="text-neutral-900 dark:text-white" />
                                                     </button>
                                                 </div>
                                             </>
@@ -443,13 +443,13 @@ export default function VerifyIdentityPage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-8 flex gap-4 border-t border-neutral-100 mt-8">
+                                <div className="pt-8 flex gap-4 border-t border-neutral-100 dark:border-neutral-800 mt-8">
                                     <button
                                         onClick={() => {
                                             stopCamera();
                                             setStep(2);
                                         }}
-                                        className="px-8 py-4 rounded-xl bg-neutral-100 text-neutral-700 font-bold hover:bg-neutral-200 transition-colors"
+                                        className="px-8 py-4 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-bold hover:bg-neutral-200 transition-colors"
                                     >
                                         Back
                                     </button>
