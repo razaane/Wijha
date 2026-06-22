@@ -104,3 +104,4 @@ input:-webkit-autofill:active {
 /* docs(kyc): add inline documentation for admin notes */
 /* chore(deps): audit frontend dependencies */
 /* style(auth): polish auth store types */
+/* refactor(ui): clean up unused variables in profile */
