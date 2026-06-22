@@ -21,7 +21,7 @@ class AdminController extends Controller
     {
         $pendingKyc = IdentityVerification::where('status', 'pending')->count();
         $totalUsers = User::count();
-        $activeListings = Listing::where('status', 'published')->count();
+        $activeListings = Listing::where('is_active', true)->where('is_draft', false)->count();
         
         // Sum of all payment amounts for the current month
         // Assuming we have a Payment model and we want it in MAD
