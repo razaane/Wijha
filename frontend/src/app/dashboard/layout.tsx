@@ -117,12 +117,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         
                         {/* Host Button (Desktop) */}
                         {user?.role !== 'partner' && (
-                            <button 
-                                onClick={() => setIsHostModalOpen(true)}
-                                className="hidden md:block px-5 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-bold hover:bg-neutral-800 transition-colors"
-                            >
-                                Become a Host
-                            </button>
+                            user?.has_pending_verification ? (
+                                <span className="hidden md:block px-5 py-2.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-500 text-sm font-bold cursor-default">
+                                    Verification Pending
+                                </span>
+                            ) : (
+                                <button 
+                                    onClick={() => setIsHostModalOpen(true)}
+                                    className="hidden md:block px-5 py-2.5 rounded-full bg-neutral-900 text-white text-sm font-bold hover:bg-neutral-800 transition-colors"
+                                >
+                                    Become a Host
+                                </button>
+                            )
                         )}
                         
                         {/* Profile Dropdown (Desktop) */}
@@ -169,6 +175,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             <Link href="/host/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10">
                                                 <Home size={18} className="text-amber-500" /> Switch to Hosting
                                             </Link>
+                                        ) : user?.has_pending_verification ? (
+                                            <div className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-amber-600 dark:text-amber-500 bg-amber-50/50 dark:bg-amber-500/5 cursor-default">
+                                                <Home size={18} className="text-amber-500" /> Verification Pending
+                                            </div>
                                         ) : (
                                             <button 
                                                 onClick={() => {
@@ -274,15 +284,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <Settings size={20} /> Settings
                                     </Link>
                                     {user?.role !== 'partner' && (
-                                        <button 
-                                            onClick={() => {
-                                                setIsMobileMenuOpen(false);
-                                                setIsHostModalOpen(true);
-                                            }}
-                                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                                        >
-                                            <Home size={20} /> Become a Host
-                                        </button>
+                                        user?.has_pending_verification ? (
+                                            <div className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-500/10 cursor-default">
+                                                <Home size={20} className="text-amber-500" /> Verification Pending
+                                            </div>
+                                        ) : (
+                                            <button 
+                                                onClick={() => {
+                                                    setIsMobileMenuOpen(false);
+                                                    setIsHostModalOpen(true);
+                                                }}
+                                                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                                            >
+                                                <Home size={20} /> Become a Host
+                                            </button>
+                                        )
                                     )}
                                 </nav>
                             </div>
