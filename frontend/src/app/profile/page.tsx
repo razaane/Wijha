@@ -36,7 +36,7 @@ export default function PremiumPublicProfilePage() {
 
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
     };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +90,7 @@ export default function PremiumPublicProfilePage() {
                     <motion.div 
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.7 }}
                         className="relative inline-block mb-6"
                     >
                         {/* Avatar Halo */}
