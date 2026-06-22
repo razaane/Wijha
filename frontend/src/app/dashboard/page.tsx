@@ -52,7 +52,8 @@ export default function DashboardOverviewPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight drop-shadow-lg"
+                            className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight"
+                            style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
                         >
                             Where do you want <br className="hidden md:block"/> to go, <span className="text-amber-400">{user.name.split(' ')[0]}?</span>
                         </motion.h1>
