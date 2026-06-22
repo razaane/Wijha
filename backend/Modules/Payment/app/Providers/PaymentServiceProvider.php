@@ -22,7 +22,9 @@ class PaymentServiceProvider extends ModuleServiceProvider
      *
      * @var string[]
      */
-    // protected array $commands = [];
+    protected array $commands = [
+        \Modules\Payment\Console\ProcessEscrowPayouts::class,
+    ];
 
     /**
      * Provider classes to register.
@@ -39,8 +41,8 @@ class PaymentServiceProvider extends ModuleServiceProvider
      * 
      * @param $schedule
      */
-    // protected function configureSchedules(Schedule $schedule): void
-    // {
-    //     $schedule->command('inspire')->hourly();
-    // }
+    protected function configureSchedules(Schedule $schedule): void
+    {
+        $schedule->command('escrow:process')->hourly();
+    }
 }

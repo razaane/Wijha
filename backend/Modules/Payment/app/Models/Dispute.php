@@ -4,7 +4,7 @@ namespace Modules\Payment\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Modules\Payment\Database\Factories\DisputeFactory;
+use Modules\Payment\Database\Factories\DisputeFactory;
 
 class Dispute extends Model
 {
@@ -31,8 +31,8 @@ class Dispute extends Model
         return $this->belongsTo(\App\Models\User::class);
     }
 
-    // protected static function newFactory(): DisputeFactory
-    // {
-    //     // return DisputeFactory::new();
-    // }
+    protected static function newFactory(): DisputeFactory
+    {
+        return DisputeFactory::new();
+    }
 }
