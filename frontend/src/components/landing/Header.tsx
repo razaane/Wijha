@@ -270,16 +270,16 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     {/* Location Button */}
                     <div 
                         onClick={() => setActivePopover('location')}
-                        className={`flex flex-col text-left px-8 w-full lg:w-[35%] py-3.5 rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] h-[66px] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'location' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Where</span>
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase mt-1">Where</span>
                         <input 
                             type="text" 
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             placeholder="Search destinations" 
-                            className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate" 
+                            className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate pb-1" 
                         />
                     </div>
 
@@ -289,7 +289,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     {/* Date Button */}
                     <div 
                         onClick={() => setActivePopover('date')}
-                        className={`flex flex-col text-left px-8 w-full lg:w-[30%] py-3.5 rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[30%] h-[66px] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
                         <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">When</span>
@@ -303,11 +303,11 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                     {/* Guests / Tickets Button */}
                     <div 
-                        className={`flex items-center pl-8 pr-2 w-full lg:w-[35%] justify-between py-2 rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex items-center pl-8 pr-2 w-full lg:w-[35%] justify-between h-[66px] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                         onClick={() => setActivePopover('guests')}
                     >
-                        <div className="flex flex-col text-left">
+                        <div className="flex flex-col justify-center text-left h-full">
                             <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">
                                 {activeCategory === 'experiences' ? 'Tickets' : 'Who'}
                             </span>
@@ -317,7 +317,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         </div>
                         <button 
                             onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
-                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-6 py-3.5 rounded-full flex items-center justify-center transition-all ml-4 shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
+                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-6 h-[50px] rounded-full flex items-center justify-center transition-all ml-4 shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
                         >
                             <Search size={18} strokeWidth={3} />
                             <span className="hidden xl:block">Search</span>
