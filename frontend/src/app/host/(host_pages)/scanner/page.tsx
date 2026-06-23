@@ -1,22 +1,57 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { api } from '@/lib/api';
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, Calendar } from 'lucide-react';
 
 export default function ScannerPage() {
     const [scanResult, setScanResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
     const [isScanning, setIsScanning] = useState(false);
+    const [events, setEvents] = useState<any[]>([]);
+    const [selectedEventId, setSelectedEventId] = useState<string>('');
+    const [isLoadingEvents, setIsLoadingEvents] = useState(true);
 
+    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
+    // Fetch active events for the host
     useEffect(() => {
-        // Initialize Scanner
+        const fetchEvents = async () => {
+            try {
+                const res = await api.get('/listings/me');
+                if (res.data?.status === 'success') {
+                    const hostEvents = (res.data.data.data || []).filter((l: any) => l.type === 'event' && l.is_active && !l.is_draft);
+                    setEvents(hostEvents);
+                    if (hostEvents.length > 0) {
+                        setSelectedEventId(hostEvents[0].id.toString());
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch events', err);
+            } finally {
+                setIsLoadingEvents(false);
+            }
+        };
+        fetchEvents();
+    }, []);
+
+    // Initialize the scanner when an event is selected
+    useEffect(() => {
+        if (!selectedEventId) {
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(console.error);
+                scannerRef.current = null;
+            }
+            return;
+        }
+
         const scanner = new Html5QrcodeScanner(
             "reader",
             { fps: 10, qrbox: { width: 250, height: 250 } },
             /* verbose= */ false
         );
+        scannerRef.current = scanner;
 
         scanner.render(async (decodedText) => {
             // Pause scanning while processing
@@ -33,7 +68,8 @@ export default function ScannerPage() {
 
                 const res = await api.post('/bookings/scan', {
                     booking_id: data.booking_id,
-                    ticket_code: data.ticket_code
+                    ticket_code: data.ticket_code,
+                    listing_id: parseInt(selectedEventId)
                 });
 
                 if (res.data.status === 'success') {
@@ -46,7 +82,9 @@ export default function ScannerPage() {
                 setIsScanning(false);
                 // Resume scanning after 4 seconds to allow reading the status
                 setTimeout(() => {
-                    scanner.resume();
+                    if (scannerRef.current) {
+                        scannerRef.current.resume();
+                    }
                     setError(null);
                     setScanResult(null);
                 }, 4000);
@@ -56,9 +94,12 @@ export default function ScannerPage() {
         });
 
         return () => {
-            scanner.clear().catch(console.error);
+            if (scannerRef.current) {
+                scannerRef.current.clear().catch(console.error);
+                scannerRef.current = null;
+            }
         };
-    }, []);
+    }, [selectedEventId]);
 
     return (
         <div className="p-6 max-w-4xl mx-auto flex flex-col items-center">
@@ -67,9 +108,42 @@ export default function ScannerPage() {
                 Scan guest QR codes to validate entry.
             </p>
 
-            <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-2xl shadow-xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
-                <div id="reader" className="w-full bg-neutral-100 dark:bg-neutral-950"></div>
+            {/* Event Selection Dropdown */}
+            <div className="w-full max-w-md mb-8">
+                {isLoadingEvents ? (
+                    <div className="flex items-center justify-center p-4">
+                        <Loader2 className="animate-spin text-amber-500" size={24} />
+                    </div>
+                ) : events.length === 0 ? (
+                    <div className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 p-4 rounded-xl text-center border border-amber-200 dark:border-amber-500/20">
+                        <p className="font-bold">No active events found.</p>
+                        <p className="text-sm mt-1">You need an active event to scan tickets.</p>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-2">
+                            <Calendar size={16} /> Select Event to Scan For
+                        </label>
+                        <select
+                            value={selectedEventId}
+                            onChange={(e) => setSelectedEventId(e.target.value)}
+                            className="w-full p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 focus:ring-2 focus:ring-amber-500 outline-none transition-all font-medium"
+                        >
+                            {events.map((event) => (
+                                <option key={event.id} value={event.id}>
+                                    {event.title || `Event #${event.id}`}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
+
+            {selectedEventId && (
+                <div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-2xl shadow-xl overflow-hidden border border-neutral-200 dark:border-neutral-800">
+                    <div id="reader" className="w-full bg-neutral-100 dark:bg-neutral-950 min-h-[250px]"></div>
+                </div>
+            )}
 
             {/* Status Overlay */}
             <div className="mt-8 w-full max-w-md h-32 flex flex-col items-center justify-center">
@@ -97,7 +171,7 @@ export default function ScannerPage() {
                     </div>
                 )}
                 
-                {!scanResult && !error && !isScanning && (
+                {!scanResult && !error && !isScanning && selectedEventId && (
                     <p className="text-neutral-400 font-medium">Ready to scan. Point camera at a QR code.</p>
                 )}
             </div>
