@@ -266,33 +266,36 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     <div className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[-1]" onClick={() => setActivePopover(null)}></div>
                 )}
 
-                <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-center max-w-4xl mx-auto w-full transition-all relative
+                <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-stretch max-w-4xl mx-auto w-full transition-all relative
                     ${activePopover ? 'bg-neutral-200 dark:bg-neutral-900 shadow-none' : 'bg-neutral-100 dark:bg-neutral-800 shadow-md'}`}
+                    style={{ height: '66px' }}
                 >
                     
                     {/* Location Button */}
                     <div 
                         onClick={() => setActivePopover('location')}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] h-[66px] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'location' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase mt-1">Where</span>
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Where</span>
                         <input 
                             type="text" 
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             placeholder="Search destinations" 
-                            className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate pb-1" 
+                            className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate" 
                         />
                     </div>
 
                     {/* Divider 1 */}
-                    <div className={`hidden lg:block w-[1px] h-8 bg-neutral-300 dark:bg-neutral-700 shrink-0 transition-opacity ${activePopover === 'location' || activePopover === 'date' ? 'opacity-0' : 'opacity-100'}`}></div>
+                    <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'location' || activePopover === 'date' ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
+                    </div>
 
                     {/* Date Button */}
                     <div 
                         onClick={() => setActivePopover('date')}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[30%] h-[66px] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[25%] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
                         <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">When</span>
@@ -302,28 +305,30 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     </div>
 
                     {/* Divider 2 */}
-                    <div className={`hidden lg:block w-[1px] h-8 bg-neutral-300 dark:bg-neutral-700 shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}></div>
+                    <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
+                    </div>
 
-                    {/* Guests / Tickets Button */}
+                    {/* Guests / Tickets Button + Search */}
                     <div 
-                        className={`flex items-center pl-8 pr-4 w-full lg:w-[35%] justify-between h-[66px] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex items-center pl-8 w-full lg:flex-1 justify-between rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                         onClick={() => setActivePopover('guests')}
                     >
-                        <div className="flex flex-col justify-center text-left h-full">
+                        <div className="flex flex-col justify-center text-left">
                             <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">
                                 {activeCategory === 'experiences' ? 'Tickets' : 'Who'}
                             </span>
-                            <span className={`font-medium text-sm w-full truncate ${totalGuests > 0 ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                            <span className={`font-medium text-sm truncate ${totalGuests > 0 ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
                                 {totalGuests > 0 ? `${totalGuests} ${activeCategory === 'experiences' ? 'ticket' : 'guest'}${totalGuests > 1 ? 's' : ''}` : (activeCategory === 'experiences' ? 'Add tickets' : 'Add guests')}
                             </span>
                         </div>
                         <button 
                             onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
-                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-6 h-[50px] rounded-full flex items-center justify-center transition-all ml-4 shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
+                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center transition-all shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide mx-2"
+                            style={{ height: '48px', width: '48px', minWidth: 'auto' }}
                         >
                             <Search size={18} strokeWidth={3} />
-                            <span className="hidden xl:block">Search</span>
                         </button>
                     </div>
                 </div>
