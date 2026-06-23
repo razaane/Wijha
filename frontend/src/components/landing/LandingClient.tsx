@@ -4,10 +4,10 @@ import { useState } from 'react';
 import Header from './Header';
 import FeedGrid from './FeedGrid';
 
-export type Category = 'stays' | 'experiences' | 'services';
+export type Category = 'all' | 'stays' | 'events' | 'experiences';
 
 export default function LandingClient() {
-    const [activeCategory, setActiveCategory] = useState<Category>('stays');
+    const [activeCategory, setActiveCategory] = useState<Category>('all');
 
     return (
         <div className="flex flex-col font-sans w-full bg-white dark:bg-[#0a0a0a]">

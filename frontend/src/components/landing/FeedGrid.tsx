@@ -21,13 +21,15 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
         const fetchListings = async () => {
             setIsLoading(true);
             try {
-                let type = 'rental';
-                if (activeCategory === 'experiences' || activeCategory === 'services') {
-                    type = 'event'; // Simplification for now, mapping services/experiences to events
+                let endpoint = '/listings/browse';
+                if (activeCategory === 'stays') {
+                    endpoint += '?type=rental';
+                } else if (activeCategory === 'experiences' || activeCategory === 'events') {
+                    endpoint += '?type=event';
                 }
 
                 // Removed .slice(0, 10) to let it fetch standard pagination limit
-                const res = await api.get(`/listings/browse?type=${type}`);
+                const res = await api.get(endpoint);
                 if (res.data?.status === 'success') {
                     setListings(res.data.data.data);
                 }
@@ -70,7 +72,7 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
                                 <button className="absolute top-3 right-3 p-2 text-white/80 hover:text-white hover:scale-110 transition-all z-10 drop-shadow-md">
                                     <Heart size={24} />
                                 </button>
-                                {activeCategory === 'stays' && (
+                                {(activeCategory === 'stays' || listing.type === 'rental') && (
                                     <div className="absolute top-3 left-3 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 border border-neutral-200/50 dark:border-neutral-700/50 text-neutral-900">
                                         <Star size={12} className="fill-neutral-900 text-neutral-900" />
                                         <span>Guest favorite</span>
@@ -81,7 +83,7 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
                             <div className="flex flex-col pr-4">
                                 <div className="flex justify-between items-start">
                                     <h3 className="font-bold text-neutral-900 dark:text-white truncate">
-                                        {activeCategory === 'stays' ? `${listing.address_city}, ${listing.address_country}` : listing.title}
+                                        {(activeCategory === 'stays' || listing.type === 'rental') ? `${listing.address_city}, ${listing.address_country}` : listing.title}
                                     </h3>
                                     <div className="flex items-center gap-1 text-sm font-medium">
                                         <Star size={14} className="fill-neutral-900 dark:fill-white text-neutral-900 dark:text-white" />
@@ -89,11 +91,11 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
                                     </div>
                                 </div>
                                 <p className="text-neutral-500 text-sm truncate mt-0.5">
-                                    {activeCategory === 'stays' ? listing.title : (listing.event_meta?.venue_name || 'Location TBA')}
+                                    {(activeCategory === 'stays' || listing.type === 'rental') ? listing.title : (listing.event_meta?.venue_name || 'Location TBA')}
                                 </p>
                                 <div className="mt-2 flex items-baseline gap-1">
                                     <span className="font-black text-neutral-900 dark:text-white">{formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
-                                    {activeCategory === 'stays' && <span className="text-neutral-500 text-sm">night</span>}
+                                    {(activeCategory === 'stays' || listing.type === 'rental') && <span className="text-neutral-500 text-sm">night</span>}
                                 </div>
                             </div>
                         </Link>
