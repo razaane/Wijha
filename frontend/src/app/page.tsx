@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Search, MapPin, Calendar, Users, Compass } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Compass, Globe, Home, Map, Briefcase } from 'lucide-react';
 import { Metadata } from 'next';
 import HomeFeeds from '@/components/landing/HomeFeeds';
 
@@ -9,94 +9,82 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col font-sans">
       
-      {/* Navigation Bar */}
-      <nav className="absolute top-0 w-full z-50 flex items-center justify-between px-8 py-6 text-white">
-        <div className="flex items-center gap-2">
-          <Compass size={28} className="text-amber-500" />
-          <span className="text-2xl font-bold tracking-tight">Wijha</span>
-        </div>
+      {/* Clean Navigation Bar */}
+      <nav className="w-full bg-white dark:bg-[#0a0a0a] border-b border-neutral-100 dark:border-neutral-800 flex flex-col items-center pt-6 pb-8 px-4 sm:px-8">
         
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/browse?type=rental" className="hover:text-amber-400 transition-colors">Stays</Link>
-          <Link href="/browse?type=event" className="hover:text-amber-400 transition-colors">Events</Link>
-          <span className="opacity-50 cursor-not-allowed" title="Coming soon">Destinations</span>
-          <span className="opacity-50 cursor-not-allowed" title="Coming soon">Experiences</span>
+        {/* Top Row: Logo, Categories, User Actions */}
+        <div className="w-full max-w-7xl flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+                <Compass size={32} className="text-[#FF385C]" />
+                <span className="text-2xl font-bold tracking-tight text-[#FF385C] hidden md:block">Wijha</span>
+            </div>
+
+            <div className="hidden md:flex items-center gap-8">
+                <Link href="#" className="flex flex-col items-center gap-1 group">
+                    <Globe size={24} className="text-neutral-900 dark:text-white" />
+                    <span className="text-sm font-bold text-neutral-900 dark:text-white border-b-2 border-neutral-900 dark:border-white pb-1">All</span>
+                </Link>
+                <Link href="#" className="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity">
+                    <Home size={24} className="text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white" />
+                    <span className="text-sm font-bold text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white pb-1">Homes</span>
+                </Link>
+                <Link href="#" className="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity">
+                    <Map size={24} className="text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white" />
+                    <span className="text-sm font-bold text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white pb-1">Experiences</span>
+                </Link>
+                <Link href="#" className="flex flex-col items-center gap-1 group opacity-60 hover:opacity-100 transition-opacity">
+                    <Briefcase size={24} className="text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white" />
+                    <span className="text-sm font-bold text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white pb-1">Services</span>
+                </Link>
+            </div>
+
+            <div className="flex items-center gap-4">
+                <Link href="/host/onboarding" className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-4 py-2 rounded-full transition-colors hidden lg:block">
+                    Switch to hosting
+                </Link>
+                <Link href="/login" className="flex items-center gap-3 border border-neutral-300 dark:border-neutral-700 rounded-full p-1 pl-3 hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-neutral-900">
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style={{ display: 'block', fill: 'none', height: '16px', width: '16px', stroke: 'currentColor', strokeWidth: 3, overflow: 'visible' }} className="text-neutral-500 dark:text-neutral-400"><g fill="none" fillRule="nonzero"><path d="m2 16h28"></path><path d="m2 24h28"></path><path d="m2 8h28"></path></g></svg>
+                    <div className="w-8 h-8 rounded-full bg-neutral-500 flex items-center justify-center text-white overflow-hidden">
+                        <Users size={16} />
+                    </div>
+                </Link>
+            </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm font-semibold hover:text-amber-400 transition-colors">
-            Sign In
-          </Link>
-          <Link href="/register" className="bg-amber-500 hover:bg-amber-400 text-white px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg shadow-amber-500/30">
-            Create Account
-          </Link>
+        {/* Search Glass Container */}
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 py-2 px-4 rounded-full flex flex-col md:flex-row items-center max-w-4xl w-full shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+          <div className="flex items-center px-6 md:border-r border-neutral-300 dark:border-neutral-700 w-full md:w-1/3 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+            <div className="flex flex-col text-left w-full">
+              <span className="text-[11px] font-extrabold text-neutral-900 dark:text-white">Where</span>
+              <input type="text" placeholder="Search destinations" className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 text-sm w-full truncate" />
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center px-6 md:border-r border-neutral-300 dark:border-neutral-700 w-full md:w-1/3 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+            <div className="flex flex-col text-left w-full">
+              <span className="text-[11px] font-extrabold text-neutral-900 dark:text-white">When</span>
+              <input type="text" placeholder="Add dates" className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 text-sm w-full truncate" />
+            </div>
+          </div>
+
+          <div className="hidden md:flex items-center pl-6 pr-2 w-full md:w-1/3 justify-between py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+            <div className="flex flex-col text-left">
+              <span className="text-[11px] font-extrabold text-neutral-900 dark:text-white">Who</span>
+              <input type="text" placeholder="Add guests" className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 text-sm w-full truncate" />
+            </div>
+            <div className="bg-[#FF385C] hover:bg-[#D70466] text-white p-3.5 rounded-full flex items-center justify-center transition-colors ml-2 shrink-0">
+              <Search size={18} strokeWidth={3} />
+            </div>
+          </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className="relative h-screen min-h-[700px] flex items-center justify-center">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1539020140153-e479b8c22e70?q=80&w=2000&auto=format&fit=crop" 
-            alt="Beautiful Moroccan Architecture" 
-            className="w-full h-full object-cover"
-          />
-          {/* Gradient Overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/70"></div>
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 text-center px-4 w-full max-w-5xl mt-16">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-tight" style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-            Discover the Heart <br /> of the <span className="text-amber-500">MENA Region</span>
-          </h1>
-          <p className="text-lg md:text-xl text-neutral-200 mb-12 max-w-2xl mx-auto drop-shadow-md">
-            Your all-in-one platform for unforgettable accommodations, rich local experiences, transport, and vibrant events.
-          </p>
-
-          {/* Search Glass Container */}
-          <div className="bg-white dark:bg-neutral-900/10 backdrop-blur-md border border-white/20 p-2 md:p-3 rounded-full flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto shadow-2xl">
-            
-            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-neutral-900/5 rounded-full flex-1 w-full hover:bg-white dark:bg-neutral-900/10 transition">
-              <MapPin className="text-amber-400" size={20} />
-              <div className="flex flex-col text-left">
-                <span className="text-xs text-neutral-300 font-medium">Location</span>
-                <input type="text" placeholder="Where are you going?" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
-              </div>
-            </div>
-
-            <div className="hidden md:block w-px h-10 bg-white dark:bg-neutral-900/20"></div>
-
-            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-neutral-900/5 rounded-full flex-1 w-full hover:bg-white dark:bg-neutral-900/10 transition">
-              <Calendar className="text-amber-400" size={20} />
-              <div className="flex flex-col text-left">
-                <span className="text-xs text-neutral-300 font-medium">Dates</span>
-                <input type="text" placeholder="Add dates" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
-              </div>
-            </div>
-
-            <div className="hidden md:block w-px h-10 bg-white dark:bg-neutral-900/20"></div>
-
-            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-neutral-900/5 rounded-full flex-1 w-full hover:bg-white dark:bg-neutral-900/10 transition">
-              <Users className="text-amber-400" size={20} />
-              <div className="flex flex-col text-left">
-                <span className="text-xs text-neutral-300 font-medium">Travelers</span>
-                <input type="text" placeholder="Add guests" className="bg-transparent text-white focus:outline-none placeholder:text-neutral-400 text-sm font-semibold w-full" />
-              </div>
-            </div>
-
-            <Link href="/browse" className="bg-amber-500 hover:bg-amber-400 text-white p-4 rounded-full flex items-center justify-center transition-transform shadow-lg w-full md:w-auto mt-2 md:mt-0">
-              <Search size={24} />
-            </Link>
-            
-          </div>
-        </div>
+      <main className="flex-1 w-full">
+        <HomeFeeds />
       </main>
 
-      <HomeFeeds />
     </div>
   );
 }
