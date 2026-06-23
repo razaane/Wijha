@@ -337,7 +337,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Location Popover */}
                 {activePopover === 'location' && (
-                    <div className="absolute top-[120%] left-0 w-full max-w-md bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 z-50">
+                    <div className="absolute top-[120%] left-0 w-full max-w-md bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 z-[9999]">
                         <h3 className="text-sm font-bold text-neutral-900 dark:text-white mb-4 pl-2">Suggested destinations</h3>
                         <div className="flex flex-col gap-1">
                             {SUGGESTED_DESTINATIONS.map((dest, i) => (
@@ -364,7 +364,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Date Popover */}
                 {activePopover === 'date' && (
-                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 w-full max-w-[850px] bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-50">
+                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 w-full max-w-[750px] bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-[9999] overflow-hidden">
                         
                         {/* Tabs for Date/Flexible */}
                         <div className="flex justify-center mb-8">
@@ -375,15 +375,19 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         </div>
 
                         {/* Calendar Body */}
-                        <div className="flex items-start justify-between relative px-4">
-                            <button onClick={prevMonth} className="absolute left-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"><ChevronLeft size={20} /></button>
+                        <div className="flex items-start justify-center gap-8 relative px-8">
+                            <button onClick={prevMonth} className="absolute left-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                                <ChevronLeft size={20} />
+                            </button>
                             
                             {renderCalendarMonth(currentMonth)}
                             <div className="hidden md:block">
                                 {renderCalendarMonth(addMonths(currentMonth, 1))}
                             </div>
 
-                            <button onClick={nextMonth} className="absolute right-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"><ChevronRight size={20} /></button>
+                            <button onClick={nextMonth} className="absolute right-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                                <ChevronRight size={20} />
+                            </button>
                         </div>
 
                         {/* Options */}
@@ -401,7 +405,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Guests Popover */}
                 {activePopover === 'guests' && (
-                    <div className="absolute top-[120%] right-0 w-full max-w-[400px] bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 z-50">
+                    <div className="absolute top-[120%] right-0 w-full max-w-[400px] bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 z-[9999]">
                         <div className="flex flex-col gap-6">
                             
                             {/* Adults */}
