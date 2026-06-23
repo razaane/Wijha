@@ -259,6 +259,7 @@ class BookingController extends Controller
             $ticket = $booking->ticket;
             if ($ticket) {
                 $ticket->increment('quantity_available');
+                \Modules\Listing\Jobs\PromoteWaitlistJob::dispatch($ticket->id);
             }
         }
 
@@ -292,6 +293,7 @@ class BookingController extends Controller
             $ticket = $booking->ticket;
             if ($ticket) {
                 $ticket->increment('quantity_available');
+                \Modules\Listing\Jobs\PromoteWaitlistJob::dispatch($ticket->id);
             }
         }
 
