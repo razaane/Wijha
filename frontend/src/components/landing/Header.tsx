@@ -3,14 +3,22 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket } from 'lucide-react';
+import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { Category } from './LandingClient';
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
+import FiltersModal from './FiltersModal';
 
 interface HeaderProps {
     activeCategory: Category;
     setActiveCategory: (c: Category) => void;
+    isCompact?: boolean;
+    searchQuery?: {
+        location?: string | null;
+        checkIn?: string | null;
+        checkOut?: string | null;
+        guests?: string | null;
+    };
 }
 
 const SUGGESTED_DESTINATIONS = [
@@ -21,7 +29,7 @@ const SUGGESTED_DESTINATIONS = [
     { city: 'Tangier', country: 'Morocco', desc: 'Great for summer getaways', icon: Anchor, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-900/30' },
 ];
 
-export default function Header({ activeCategory, setActiveCategory }: HeaderProps) {
+export default function Header({ activeCategory, setActiveCategory, isCompact = false, searchQuery }: HeaderProps) {
     const router = useRouter();
     const { isAuthenticated, user, fetchUser, logout } = useAuthStore();
     
@@ -32,6 +40,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
     // Search Popovers State
     const [activePopover, setActivePopover] = useState<'location' | 'date' | 'guests' | null>(null);
     const searchRef = useRef<HTMLDivElement>(null);
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     // Form State
     const [location, setLocation] = useState('');
@@ -285,10 +294,38 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     <div className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[-1]" onClick={() => setActivePopover(null)}></div>
                 )}
 
-                <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-stretch max-w-4xl mx-auto w-full transition-all relative
-                    ${activePopover ? 'bg-neutral-200 dark:bg-neutral-900 shadow-none' : 'bg-neutral-100 dark:bg-neutral-800 shadow-md'}`}
-                    style={{ height: '66px' }}
-                >
+                {isCompact ? (
+                    <div className="flex items-center gap-4 max-w-3xl mx-auto w-full transition-all">
+                        <div className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-2 flex-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-[#1a1a1a]">
+                            <div className="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700 w-full">
+                                <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
+                                    {searchQuery?.location || location || 'Anywhere'}
+                                </div>
+                                <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
+                                    {searchQuery?.checkIn && searchQuery?.checkOut 
+                                        ? `${format(new Date(searchQuery.checkIn), 'MMM d')} - ${format(new Date(searchQuery.checkOut), 'MMM d')}` 
+                                        : checkIn && checkOut ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` : 'Any week'}
+                                </div>
+                                <div className="px-4 text-sm text-neutral-500 truncate flex-1">
+                                    {searchQuery?.guests ? `${searchQuery.guests} guest${parseInt(searchQuery.guests) > 1 ? 's' : ''}` : totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
+                                </div>
+                            </div>
+                            <button className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full p-2.5 transition-all shrink-0">
+                                <Search size={16} strokeWidth={3} />
+                            </button>
+                        </div>
+                        <button 
+                            onClick={() => setIsFiltersOpen(true)}
+                            className="flex items-center gap-2 border border-neutral-200 dark:border-neutral-800 rounded-full px-5 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors shadow-sm bg-white dark:bg-[#1a1a1a] font-bold text-sm shrink-0"
+                        >
+                            <SlidersHorizontal size={16} /> Filters
+                        </button>
+                    </div>
+                ) : (
+                    <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-stretch max-w-4xl mx-auto w-full transition-all relative
+                        ${activePopover ? 'bg-neutral-200 dark:bg-neutral-900 shadow-none' : 'bg-neutral-100 dark:bg-neutral-800 shadow-md'}`}
+                        style={{ height: '66px' }}
+                    >
                     
                     {/* Location Button */}
                     <div 
@@ -355,6 +392,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         </button>
                     </div>
                 </div>
+                )}
 
                 {/* ---------------- POPOVERS ---------------- */}
 
