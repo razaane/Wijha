@@ -23,6 +23,7 @@ class Booking extends Model
         'total_amount',
         'currency',
         'status',
+        'scanned_at',
     ];
 
     /**
@@ -33,6 +34,7 @@ class Booking extends Model
         'check_out' => 'date',
         'guests_count' => 'integer',
         'total_amount' => 'decimal:2',
+        'scanned_at' => 'datetime',
     ];
 
     public function user()
