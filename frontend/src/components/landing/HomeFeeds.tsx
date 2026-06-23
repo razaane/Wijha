@@ -37,7 +37,7 @@ export default function HomeFeeds() {
 
     return (
         <div className="w-full bg-white dark:bg-[#0a0a0a] py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 space-y-16">
+            <div className="w-full px-4 md:px-8 xl:px-16 space-y-16">
                 
                 {/* POPULAR STAYS FEED */}
                 <section>
@@ -51,9 +51,9 @@ export default function HomeFeeds() {
                         </Link>
                     </div>
                     
-                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 md:mx-0 md:px-0">
                         {popularStays.length > 0 ? popularStays.map((listing: any) => (
-                            <Link href={`/browse/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[320px] max-w-[320px] snap-start group flex flex-col cursor-pointer shrink-0">
+                            <Link href={`/browse/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[340px] max-w-[380px] snap-start group flex flex-col cursor-pointer shrink-0">
                                 <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-200 dark:bg-neutral-800 mb-4 shadow-sm group-hover:shadow-xl transition-all border border-neutral-100 dark:border-neutral-800">
                                     {getImageUrl(listing) ? (
                                         <img src={getImageUrl(listing)} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -99,9 +99,9 @@ export default function HomeFeeds() {
                         </Link>
                     </div>
                     
-                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 md:mx-0 md:px-0">
                         {upcomingEvents.length > 0 ? upcomingEvents.map((listing: any) => (
-                            <Link href={`/browse/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[320px] max-w-[320px] snap-start group flex flex-col cursor-pointer shrink-0">
+                            <Link href={`/browse/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[340px] max-w-[380px] snap-start group flex flex-col cursor-pointer shrink-0">
                                 <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-200 dark:bg-neutral-800 mb-4 shadow-sm group-hover:shadow-xl transition-all border border-neutral-100 dark:border-neutral-800">
                                     {getImageUrl(listing) ? (
                                         <img src={getImageUrl(listing)} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
