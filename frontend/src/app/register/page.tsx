@@ -101,7 +101,7 @@ export default function RegisterPage() {
             });
             const { user, access_token } = res.data.data;
             setAuth(user, access_token);
-            router.push('/dashboard');
+            router.push('/');
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
             
