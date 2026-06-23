@@ -22,6 +22,11 @@ export default function BrowseClient() {
     );
 
     useEffect(() => {
+        const type = searchParams.get('type');
+        setActiveCategory(type === 'event' ? 'events' : (type === 'experience' ? 'experiences' : 'stays'));
+    }, [searchParams]);
+
+    useEffect(() => {
         const fetchSearchResults = async () => {
             setIsLoading(true);
             try {
