@@ -23,4 +23,8 @@ Route::prefix('v1/bookings')->middleware('auth:api')->group(function () {
     Route::get('/messages/threads', [\Modules\Booking\Http\Controllers\MessagesController::class, 'threads'])->name('booking.messages.threads');
     Route::get('/{id}/messages', [\Modules\Booking\Http\Controllers\MessagesController::class, 'show'])->name('booking.messages.show');
     Route::post('/{id}/messages', [\Modules\Booking\Http\Controllers\MessagesController::class, 'store'])->name('booking.messages.store');
+
+    // Scanning Routes
+    Route::post('/scan', [BookingController::class, 'scanTicket'])->name('booking.scan');
 });
+

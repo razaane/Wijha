@@ -299,4 +299,53 @@ class BookingController extends Controller
 
         return $this->successResponse(null, 'Booking cancelled successfully.');
     }
+
+    /**
+     * Scan a ticket for an event.
+     *
+     * POST /api/v1/bookings/scan
+     */
+    public function scanTicket(Request $request)
+    {
+        $validated = $request->validate([
+            'booking_id' => 'required|integer',
+            'ticket_code' => 'required|string',
+        ]);
+
+        $booking = Booking::with(['listing', 'user', 'ticket'])->find($validated['booking_id']);
+
+        if (!$booking) {
+            return $this->errorResponse('not_found', 'Booking not found.', 404);
+        }
+
+        // Verify the authenticated user is the host of the listing
+        if ($booking->listing->user_id !== Auth::id()) {
+            return $this->errorResponse('unauthorized', 'You are not authorized to scan this ticket.', 403);
+        }
+
+        // Verify ticket code (current naive verification WJ-booking_id-user_id)
+        $expectedCode = "WJ-{$booking->id}-{$booking->user_id}";
+        if ($validated['ticket_code'] !== $expectedCode) {
+            return $this->errorResponse('invalid_ticket', 'Invalid ticket code.', 400);
+        }
+
+        // Check if already scanned
+        if ($booking->scanned_at) {
+            return $this->errorResponse(
+                'already_scanned', 
+                'Ticket has already been scanned at ' . $booking->scanned_at->format('Y-m-d H:i:s'), 
+                400
+            );
+        }
+
+        // Mark as scanned
+        $booking->update(['scanned_at' => now()]);
+
+        return $this->successResponse([
+            'booking_id' => $booking->id,
+            'guest_name' => $booking->user->name ?? 'Guest',
+            'ticket_type' => $booking->ticket->name ?? 'General Admission',
+            'scanned_at' => $booking->scanned_at,
+        ], 'Ticket successfully scanned!');
+    }
 }
