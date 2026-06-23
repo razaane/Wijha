@@ -1,5 +1,6 @@
 import ListingClient from './ListingClient';
 
-export default function ListingPage({ params }: { params: { id: string } }) {
-    return <ListingClient id={params.id} />;
+export default async function ListingPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    return <ListingClient id={resolvedParams.id} />;
 }
