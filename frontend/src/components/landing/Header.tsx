@@ -20,6 +20,7 @@ interface HeaderProps {
         checkOut?: string | null;
         guests?: string | null;
     };
+    hideSearch?: boolean;
 }
 
 const SUGGESTED_DESTINATIONS = [
@@ -30,7 +31,7 @@ const SUGGESTED_DESTINATIONS = [
     { city: 'Tangier', country: 'Morocco', desc: 'Great for summer getaways', icon: Anchor, color: 'text-cyan-500', bg: 'bg-cyan-100 dark:bg-cyan-900/30' },
 ];
 
-export default function Header({ activeCategory, setActiveCategory, isCompact = false, searchQuery }: HeaderProps) {
+export default function Header({ activeCategory, setActiveCategory, isCompact = false, searchQuery, hideSearch = false }: HeaderProps) {
     const router = useRouter();
     const { isAuthenticated, user, fetchUser, logout } = useAuthStore();
     
@@ -334,9 +335,10 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
             </div>
 
             {/* Functional Search Bar with Popovers */}
-            <div className="relative z-40" ref={searchRef}>
-                {isCompact && !isExpanded ? (
-                    <div className="flex items-center gap-4 max-w-3xl mx-auto w-full transition-all">
+            {!hideSearch && (
+                <div className="relative z-40" ref={searchRef}>
+                    {isCompact && !isExpanded ? (
+                        <div className="flex items-center gap-4 max-w-3xl mx-auto w-full transition-all">
                         <div 
                             onClick={() => {
                                 setIsExpanded(true);
@@ -683,6 +685,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                     </div>
                 )}
             </div>
+            )}
 
             {/* Filters Modal */}
             <FiltersModal isOpen={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} />
