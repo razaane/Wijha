@@ -11,10 +11,10 @@ export default function DashboardOverviewPage() {
     if (!user) return null;
 
     const categories = [
-        { name: 'Stays', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-50' },
-        { name: 'Flights', icon: Plane, color: 'text-sky-500', bg: 'bg-sky-50' },
-        { name: 'Tours', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-        { name: 'Events', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-50' },
+        { name: 'Stays', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-50', href: '/dashboard/stays' },
+        { name: 'Flights', icon: Plane, color: 'text-sky-500', bg: 'bg-sky-50', href: '#' },
+        { name: 'Tours', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-50', href: '#' },
+        { name: 'Events', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-50', href: '#' },
     ];
 
     const popularDestinations = [
@@ -100,18 +100,19 @@ export default function DashboardOverviewPage() {
             <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
                     {categories.map((cat, idx) => (
-                        <motion.div 
-                            key={cat.name}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 + (idx * 0.1) }}
-                            className="bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-3xl p-6 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:border-transparent transition-all group"
-                        >
-                            <div className={`w-16 h-16 rounded-full ${cat.bg} dark:bg-opacity-10 ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                <cat.icon size={28} />
-                            </div>
-                            <span className="font-bold text-neutral-900 dark:text-white">{cat.name}</span>
-                        </motion.div>
+                        <Link href={cat.href} key={cat.name}>
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 + (idx * 0.1) }}
+                                className="h-full bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-3xl p-6 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:border-transparent transition-all group"
+                            >
+                                <div className={`w-16 h-16 rounded-full ${cat.bg} dark:bg-opacity-10 ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                                    <cat.icon size={28} />
+                                </div>
+                                <span className="font-bold text-neutral-900 dark:text-white">{cat.name}</span>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             </div>
