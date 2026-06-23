@@ -161,6 +161,21 @@ class ListingController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
+        if ($request->filled('location')) {
+            $parts = array_map('trim', explode(',', $request->location));
+            $query->where(function($q) use ($parts) {
+                $q->where('address_city', 'LIKE', '%' . $parts[0] . '%')
+                  ->orWhere('address_country', 'LIKE', '%' . $parts[0] . '%');
+                  
+                if (count($parts) > 1) {
+                    $q->orWhere(function($subQ) use ($parts) {
+                        $subQ->where('address_city', 'LIKE', '%' . $parts[0] . '%')
+                             ->where('address_country', 'LIKE', '%' . $parts[1] . '%');
+                    });
+                }
+            });
+        }
+        // Keep legacy city support just in case
         if ($request->filled('city')) {
             $query->where('address_city', 'LIKE', '%' . $request->city . '%');
         }
