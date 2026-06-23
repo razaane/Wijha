@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal } from 'lucide-react';
+import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { Category } from './LandingClient';
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
@@ -49,13 +49,13 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     const [eventName, setEventName] = useState(searchQuery?.eventName || '');
     
     // Date State
-    const [checkIn, setCheckIn] = useState<Date | null>(null);
-    const [checkOut, setCheckOut] = useState<Date | null>(null);
+    const [checkIn, setCheckIn] = useState<Date | null>(searchQuery?.checkIn ? new Date(searchQuery.checkIn + 'T00:00:00') : null);
+    const [checkOut, setCheckOut] = useState<Date | null>(searchQuery?.checkOut ? new Date(searchQuery.checkOut + 'T00:00:00') : null);
     const [datePickerFocus, setDatePickerFocus] = useState<'checkin' | 'checkout'>('checkin');
-    const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
+    const [currentMonth, setCurrentMonth] = useState(searchQuery?.checkIn ? startOfMonth(new Date(searchQuery.checkIn + 'T00:00:00')) : startOfMonth(new Date()));
     
     // Guests State
-    const [adults, setAdults] = useState(1);
+    const [adults, setAdults] = useState(searchQuery?.guests ? parseInt(searchQuery.guests) : 1);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
     const [pets, setPets] = useState(0);
@@ -106,6 +106,24 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
         if (totalGuests > 1 && activeCategory === 'stays') params.set('guests', totalGuests.toString());
         
         router.push(`/browse?${params.toString()}`);
+    };
+
+    const hasActiveSearch = Boolean(searchQuery?.location || searchQuery?.eventName || searchQuery?.checkIn || searchQuery?.checkOut || (searchQuery?.guests && parseInt(searchQuery.guests) > 1));
+
+    const handleClearSearch = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setLocation('');
+        setEventName('');
+        setCheckIn(null);
+        setCheckOut(null);
+        setAdults(1);
+        setChildren(0);
+        setInfants(0);
+        setPets(0);
+        setActivePopover(null);
+        setIsExpanded(false);
+        router.push(`/browse?type=${activeCategory === 'stays' ? 'rental' : (activeCategory === 'experiences' ? 'experience' : 'event')}`);
     };
 
     const handleLogout = () => {
@@ -361,6 +379,16 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                         >
                             <SlidersHorizontal size={16} /> Filters
                         </button>
+                        {hasActiveSearch && (
+                            <button 
+                                type="button"
+                                onClick={handleClearSearch}
+                                className="flex items-center gap-2 border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-3 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-900/20 dark:hover:border-rose-900/50 transition-colors shadow-sm bg-white dark:bg-[#1a1a1a] font-bold text-sm shrink-0"
+                            >
+                                <X size={16} />
+                                Clear
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-stretch max-w-4xl mx-auto w-full transition-all relative
