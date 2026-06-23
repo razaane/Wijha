@@ -16,7 +16,7 @@ const authPaths = [
   '/reset-password',
 ];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const token = request.cookies.get('wijha_token')?.value;
   const isLoggedIn = request.cookies.get('is_logged_in')?.value;
   
