@@ -2,198 +2,216 @@
 
 import { useAuthStore } from '@/store/auth.store';
 import { motion } from 'framer-motion';
-import { Search, MapPin, Calendar, Users, Hotel, Plane, Map, Ticket, CreditCard, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Hotel, Plane, Map, Ticket, CreditCard, ChevronRight, Star, Heart, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
+import { getStorageUrl } from '@/lib/url';
+import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 
 export default function DashboardOverviewPage() {
     const { user } = useAuthStore();
+    const [popularStays, setPopularStays] = useState([]);
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
+    const { formatConverted } = useCurrencyFormatter();
+
+    useEffect(() => {
+        const fetchFeeds = async () => {
+            try {
+                const staysRes = await api.get('/listings/browse?type=rental');
+                if (staysRes.data?.status === 'success') {
+                    setPopularStays(staysRes.data.data.data.slice(0, 10)); // Top 10
+                }
+
+                const eventsRes = await api.get('/listings/browse?type=event');
+                if (eventsRes.data?.status === 'success') {
+                    setUpcomingEvents(eventsRes.data.data.data.slice(0, 10));
+                }
+            } catch (err) {
+                console.error('Error fetching feeds', err);
+            }
+        };
+        fetchFeeds();
+    }, []);
 
     if (!user) return null;
 
     const categories = [
-        { name: 'Stays', icon: Hotel, color: 'text-blue-500', bg: 'bg-blue-50', href: '/dashboard/stays' },
-        { name: 'Flights', icon: Plane, color: 'text-sky-500', bg: 'bg-sky-50', href: '#' },
-        { name: 'Tours', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-50', href: '#' },
-        { name: 'Events', icon: Ticket, color: 'text-amber-500', bg: 'bg-amber-50', href: '#' },
+        { name: 'Stays', icon: Hotel, color: 'text-amber-500', href: '/dashboard/stays' },
+        { name: 'Experiences', icon: Map, color: 'text-neutral-400 hover:text-neutral-900 dark:hover:text-white', href: '#' },
+        { name: 'Events', icon: Ticket, color: 'text-neutral-400 hover:text-neutral-900 dark:hover:text-white', href: '#' },
+        { name: 'Flights', icon: Plane, color: 'text-neutral-400 hover:text-neutral-900 dark:hover:text-white', href: '#' },
     ];
 
-    const popularDestinations = [
-        { name: 'Marrakech', image: 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?q=80&w=600&auto=format&fit=crop', properties: 124 },
-        { name: 'Chefchaouen', image: 'https://images.unsplash.com/photo-1552688468-154a4ebda294?q=80&w=600&auto=format&fit=crop', properties: 86 },
-        { name: 'Agadir', image: 'https://images.unsplash.com/photo-1574005886326-11f8e136b13e?q=80&w=600&auto=format&fit=crop', properties: 210 },
-        { name: 'Essaouira', image: 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?q=80&w=600&auto=format&fit=crop', properties: 145 },
-    ];
+    const getImageUrl = (listing: any) => {
+        return getStorageUrl(listing.photo_urls?.[0]?.small || listing.photo_urls?.[0]?.original);
+    };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-20 transition-colors duration-300">
+        <div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a] pb-32 transition-colors duration-300">
             
-            {/* HERO BANNER SECTION (Eventbrite Style) */}
-            <div className="relative pt-8 px-4 sm:px-8 lg:px-12 xl:px-16 w-full">
-                <div className="relative h-[400px] md:h-[480px] rounded-[32px] overflow-hidden flex items-center justify-center">
-                    {/* Background Image & Overlay */}
-                    <img 
-                        src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2000&auto=format&fit=crop" 
-                        alt="Hero Background" 
-                        className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-black/80 to-transparent"></div>
+            {/* STICKY SEARCH & CATEGORY HEADER */}
+            <div className="bg-white dark:bg-[#0a0a0a] sticky top-24 z-40 pb-6 pt-4 border-b border-neutral-100 dark:border-neutral-800 shadow-sm">
+                <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 max-w-7xl mx-auto">
                     
-                    {/* Hero Content */}
-                    <div className="relative z-10 text-center px-4 w-full max-w-4xl">
-                        <motion.span 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white font-bold text-sm tracking-widest uppercase mb-4"
-                        >
-                            Find your next adventure
-                        </motion.span>
-                        <motion.h1 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tight"
-                            style={{ textShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
-                        >
-                            Where do you want <br className="hidden md:block"/> to go, <span className="text-amber-400">{user.name.split(' ')[0]}?</span>
-                        </motion.h1>
+                    {/* Search Pill */}
+                    <div className="bg-white dark:bg-neutral-900 rounded-full py-2 px-4 shadow-md flex items-center max-w-3xl mx-auto w-full border border-neutral-200 dark:border-neutral-800">
+                        <div className="flex-1 flex items-center px-4 md:border-r border-neutral-200 dark:border-neutral-800">
+                            <div className="w-full">
+                                <p className="text-[10px] font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Where</p>
+                                <input type="text" placeholder="Search destinations" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 font-medium" />
+                            </div>
+                        </div>
+                        <div className="flex-1 hidden md:flex items-center px-4 md:border-r border-neutral-200 dark:border-neutral-800">
+                            <div className="w-full">
+                                <p className="text-[10px] font-bold text-neutral-900 dark:text-white uppercase tracking-wider">When</p>
+                                <input type="text" placeholder="Add dates" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 font-medium" />
+                            </div>
+                        </div>
+                        <div className="flex-1 hidden md:flex items-center pl-4 pr-2 justify-between">
+                            <div>
+                                <p className="text-[10px] font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Who</p>
+                                <input type="text" placeholder="Add guests" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 font-medium" />
+                            </div>
+                        </div>
+                        <button className="bg-amber-500 hover:bg-amber-600 text-white w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95 flex-shrink-0 ml-2">
+                            <Search size={18} />
+                        </button>
+                    </div>
 
-                        {/* SEARCH PILL (Airbnb Style) */}
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="bg-white dark:bg-neutral-900 rounded-full p-2 shadow-2xl flex flex-col md:flex-row items-center max-w-3xl mx-auto w-full border border-white/20 dark:border-neutral-800 backdrop-blur-sm"
-                        >
-                            <div className="flex-1 flex items-center px-6 py-3 w-full md:border-r border-neutral-200 dark:border-neutral-800">
-                                <MapPin size={24} className="text-neutral-400 dark:text-neutral-500 mr-3" />
-                                <div className="text-left w-full">
-                                    <p className="text-xs font-bold text-neutral-900 dark:text-white">Where</p>
-                                    <input type="text" placeholder="Search destinations" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 placeholder-neutral-400 dark:placeholder-neutral-600" />
+                    {/* Categories Row */}
+                    <div className="flex items-center justify-center gap-10 mt-6 overflow-x-auto hide-scrollbar">
+                        {categories.map((cat, idx) => (
+                            <Link href={cat.href} key={idx} className="flex flex-col items-center gap-2 group min-w-[64px]">
+                                <cat.icon size={26} className={`${cat.color} group-hover:scale-110 transition-transform`} />
+                                <span className={`text-xs font-bold transition-colors ${cat.name === 'Stays' ? 'text-neutral-900 dark:text-white border-b-2 border-neutral-900 dark:border-white pb-1' : 'text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white'}`}>
+                                    {cat.name}
+                                </span>
+                            </Link>
+                        ))}
+                    </div>
+
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 mt-8 space-y-16">
+                
+                {/* POPULAR STAYS FEED */}
+                <section>
+                    <div className="flex items-end justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">Popular Stays</h2>
+                            <p className="text-neutral-500 text-sm font-medium mt-1">Highly rated homes right now</p>
+                        </div>
+                        <Link href="/dashboard/stays" className="text-sm font-bold text-amber-500 hover:text-amber-600 flex items-center gap-1">
+                            See all <ArrowRight size={16} />
+                        </Link>
+                    </div>
+                    
+                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+                        {popularStays.length > 0 ? popularStays.map((listing: any) => (
+                            <Link href={`/dashboard/stays/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[320px] max-w-[320px] snap-start group flex flex-col cursor-pointer shrink-0">
+                                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-200 dark:bg-neutral-800 mb-4 shadow-sm group-hover:shadow-xl transition-all border border-neutral-100 dark:border-neutral-800">
+                                    {getImageUrl(listing) ? (
+                                        <img src={getImageUrl(listing)} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-neutral-400">No Image</div>
+                                    )}
+                                    <button className="absolute top-4 right-4 p-2 text-white/80 hover:text-white hover:scale-110 transition-all z-10 drop-shadow-md">
+                                        <Heart size={24} />
+                                    </button>
                                 </div>
-                            </div>
-                            <div className="flex-1 flex items-center px-6 py-3 w-full md:border-r border-neutral-200 dark:border-neutral-800">
-                                <Calendar size={24} className="text-neutral-400 dark:text-neutral-500 mr-3" />
-                                <div className="text-left w-full">
-                                    <p className="text-xs font-bold text-neutral-900 dark:text-white">When</p>
-                                    <input type="text" placeholder="Add dates" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 placeholder-neutral-400 dark:placeholder-neutral-600" />
-                                </div>
-                            </div>
-                            <div className="flex-1 flex items-center pl-6 pr-2 py-3 w-full justify-between">
-                                <div className="flex items-center">
-                                    <Users size={24} className="text-neutral-400 dark:text-neutral-500 mr-3" />
-                                    <div className="text-left">
-                                        <p className="text-xs font-bold text-neutral-900 dark:text-white">Who</p>
-                                        <input type="text" placeholder="Add guests" className="w-full bg-transparent outline-none text-sm text-neutral-600 dark:text-neutral-400 placeholder-neutral-400 dark:placeholder-neutral-600" />
+                                <div className="flex items-start justify-between">
+                                    <div className="pr-4">
+                                        <h3 className="font-bold text-neutral-900 dark:text-white truncate">{listing.address_city}, {listing.address_country}</h3>
+                                        <p className="text-neutral-500 text-sm truncate max-w-[200px]">{listing.title}</p>
+                                        <div className="mt-1 flex items-baseline gap-1">
+                                            <span className="font-black text-neutral-900 dark:text-white">{formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
+                                            <span className="text-neutral-500 text-sm">night</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-sm font-bold bg-white dark:bg-neutral-800 px-2 py-1 rounded-full shadow-sm border border-neutral-100 dark:border-neutral-700">
+                                        <Star size={12} className="fill-amber-500 text-amber-500" />
+                                        <span>New</span>
                                     </div>
                                 </div>
-                                <button className="bg-amber-500 hover:bg-amber-600 text-white w-12 h-12 rounded-full flex items-center justify-center transition-transform active:scale-95 flex-shrink-0 shadow-lg">
-                                    <Search size={20} />
-                                </button>
+                            </Link>
+                        )) : (
+                            <div className="w-full text-center py-12 bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-800">
+                                <p className="text-neutral-500 font-medium">No stays found.</p>
                             </div>
-                        </motion.div>
+                        )}
                     </div>
-                </div>
-            </div>
+                </section>
 
-            {/* CATEGORIES SECTION */}
-            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-12">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
-                    {categories.map((cat, idx) => (
-                        <Link href={cat.href} key={cat.name}>
-                            <motion.div 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 + (idx * 0.1) }}
-                                className="h-full bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 rounded-3xl p-6 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:border-transparent transition-all group"
-                            >
-                                <div className={`w-16 h-16 rounded-full ${cat.bg} dark:bg-opacity-10 ${cat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                                    <cat.icon size={28} />
-                                </div>
-                                <span className="font-bold text-neutral-900 dark:text-white">{cat.name}</span>
-                            </motion.div>
+                {/* UPCOMING EVENTS FEED */}
+                <section>
+                    <div className="flex items-end justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">Upcoming Events</h2>
+                            <p className="text-neutral-500 text-sm font-medium mt-1">Concerts, workshops, and more</p>
+                        </div>
+                        <Link href="/dashboard/events" className="text-sm font-bold text-amber-500 hover:text-amber-600 flex items-center gap-1">
+                            See all <ArrowRight size={16} />
                         </Link>
-                    ))}
-                </div>
-            </div>
-
-            {/* WHY WIJHA (Booking.com feature cards style) */}
-            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-16">
-                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-6">Why book with Wijha?</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6 }}
-                        className="bg-neutral-50 dark:bg-neutral-900 rounded-3xl p-8 border border-transparent dark:border-neutral-800"
-                    >
-                        <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-500 flex items-center justify-center mb-6">
-                            <CreditCard size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Secure Payments</h3>
-                        <p className="text-neutral-500 dark:text-neutral-400">Book with confidence using our 100% secure payment gateway and flexible cancellation policies.</p>
-                    </motion.div>
-
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
-                        className="bg-neutral-50 dark:bg-neutral-900 rounded-3xl p-8 border border-transparent dark:border-neutral-800"
-                    >
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 flex items-center justify-center mb-6">
-                            <Map size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Local Experiences</h3>
-                        <p className="text-neutral-500 dark:text-neutral-400">Discover hidden gems and authentic experiences curated by verified local guides.</p>
-                    </motion.div>
-
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.8 }}
-                        className="bg-neutral-50 dark:bg-neutral-900 rounded-3xl p-8 border border-transparent dark:border-neutral-800"
-                    >
-                        <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-500 flex items-center justify-center mb-6">
-                            <Hotel size={24} />
-                        </div>
-                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Premium Stays</h3>
-                        <p className="text-neutral-500 dark:text-neutral-400">Choose from over 10,000 handpicked villas, riads, and luxury apartments.</p>
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* POPULAR DESTINATIONS (Airbnb card grid style) */}
-            <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 mt-16">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Popular Destinations</h2>
-                    <Link href="/explore" className="text-amber-500 font-bold flex items-center hover:text-amber-600 transition-colors">
-                        Explore All <ChevronRight size={20} />
-                    </Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                    {popularDestinations.map((dest, idx) => (
-                        <motion.div 
-                            key={dest.name}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.8 + (idx * 0.1) }}
-                            className="group cursor-pointer"
-                        >
-                            <div className="relative w-full aspect-square rounded-[32px] overflow-hidden mb-4 shadow-sm group-hover:shadow-xl transition-all">
-                                <img 
-                                    src={dest.image} 
-                                    alt={dest.name} 
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    
+                    <div className="flex gap-6 overflow-x-auto snap-x hide-scrollbar pb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+                        {upcomingEvents.length > 0 ? upcomingEvents.map((listing: any) => (
+                            <Link href={`/dashboard/events/${listing.id}`} key={listing.id} className="min-w-[280px] sm:min-w-[320px] max-w-[320px] snap-start group flex flex-col cursor-pointer shrink-0">
+                                <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-200 dark:bg-neutral-800 mb-4 shadow-sm group-hover:shadow-xl transition-all border border-neutral-100 dark:border-neutral-800">
+                                    {getImageUrl(listing) ? (
+                                        <img src={getImageUrl(listing)} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-neutral-400">No Image</div>
+                                    )}
+                                </div>
+                                <div className="flex items-start justify-between">
+                                    <div className="pr-4">
+                                        <h3 className="font-bold text-neutral-900 dark:text-white truncate">{listing.title}</h3>
+                                        <p className="text-neutral-500 text-sm truncate max-w-[200px]">{listing.event_meta?.venue_name || 'Location TBA'}</p>
+                                        <div className="mt-1 flex items-baseline gap-1">
+                                            <span className="font-black text-amber-500">From {formatConverted(listing.price || 0, listing.currency || 'USD')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Link>
+                        )) : (
+                            <div className="w-full text-center py-12 bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-100 dark:border-neutral-800">
+                                <p className="text-neutral-500 font-medium">No upcoming events found.</p>
                             </div>
-                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">{dest.name}</h3>
-                            <p className="text-neutral-500 dark:text-neutral-400 text-sm">{dest.properties} properties</p>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
+                        )}
+                    </div>
+                </section>
 
+                {/* WHY WIJHA */}
+                <section className="pt-8">
+                    <h2 className="text-2xl font-black text-neutral-900 dark:text-white mb-6">Why book with Wijha?</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-neutral-100 dark:border-neutral-800 shadow-sm">
+                            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center mb-6">
+                                <CreditCard size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Secure Payments</h3>
+                            <p className="text-neutral-500 text-sm leading-relaxed">Book with confidence using our 100% secure payment gateway and flexible cancellation policies.</p>
+                        </div>
+                        <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-neutral-100 dark:border-neutral-800 shadow-sm">
+                            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center mb-6">
+                                <Map size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Local Experiences</h3>
+                            <p className="text-neutral-500 text-sm leading-relaxed">Discover hidden gems and authentic experiences curated by verified local guides.</p>
+                        </div>
+                        <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 border border-neutral-100 dark:border-neutral-800 shadow-sm">
+                            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-500 flex items-center justify-center mb-6">
+                                <Hotel size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">Premium Stays</h3>
+                            <p className="text-neutral-500 text-sm leading-relaxed">Choose from over 10,000 handpicked villas, riads, and luxury apartments.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     );
 }
