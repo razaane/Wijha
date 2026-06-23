@@ -15,6 +15,7 @@ interface HeaderProps {
     isCompact?: boolean;
     searchQuery?: {
         location?: string | null;
+        eventName?: string | null;
         checkIn?: string | null;
         checkOut?: string | null;
         guests?: string | null;
@@ -43,7 +44,8 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     // Form State
-    const [location, setLocation] = useState('');
+    const [location, setLocation] = useState(searchQuery?.location || '');
+    const [eventName, setEventName] = useState(searchQuery?.eventName || '');
     
     // Date State
     const [checkIn, setCheckIn] = useState<Date | null>(null);
@@ -82,8 +84,9 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
         setActivePopover(null);
         
         const params = new URLSearchParams();
-        params.set('type', activeCategory === 'experiences' ? 'event' : 'rental');
+        params.set('type', activeCategory === 'stays' ? 'rental' : (activeCategory === 'experiences' ? 'experience' : 'event'));
         if (location) params.set('location', location);
+        if (activeCategory === 'events' && eventName) params.set('q', eventName);
         if (checkIn) params.set('check_in', format(checkIn, 'yyyy-MM-dd'));
         if (checkOut) params.set('check_out', format(checkOut, 'yyyy-MM-dd'));
         if (totalGuests > 1 && activeCategory === 'stays') params.set('guests', totalGuests.toString());
@@ -298,24 +301,36 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                     <div className="flex items-center gap-4 max-w-3xl mx-auto w-full transition-all">
                         <div className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-2 flex-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-[#1a1a1a]">
                             <div className="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700 w-full">
+                                {activeCategory === 'events' && (
+                                    <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
+                                        {searchQuery?.eventName || eventName || 'All Events'}
+                                    </div>
+                                )}
                                 <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
                                     {searchQuery?.location || location || 'Anywhere'}
                                 </div>
                                 <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
                                     {searchQuery?.checkIn && searchQuery?.checkOut 
                                         ? `${format(new Date(searchQuery.checkIn), 'MMM d')} - ${format(new Date(searchQuery.checkOut), 'MMM d')}` 
-                                        : checkIn && checkOut ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` : 'Any week'}
+                                        : checkIn && checkOut ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` : 'Any time'}
                                 </div>
-                                <div className="px-4 text-sm text-neutral-500 truncate flex-1">
-                                    {searchQuery?.guests ? `${searchQuery.guests} guest${parseInt(searchQuery.guests) > 1 ? 's' : ''}` : totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
-                                </div>
+                                {activeCategory !== 'events' && (
+                                    <div className="px-4 text-sm text-neutral-500 truncate flex-1">
+                                        {searchQuery?.guests ? `${searchQuery.guests} guest${parseInt(searchQuery.guests) > 1 ? 's' : ''}` : totalGuests > 0 ? `${totalGuests} guest${totalGuests > 1 ? 's' : ''}` : 'Add guests'}
+                                    </div>
+                                )}
                             </div>
                             <button className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full p-2.5 transition-all shrink-0">
                                 <Search size={16} strokeWidth={3} />
                             </button>
                         </div>
                         <button 
-                            onClick={() => setIsFiltersOpen(true)}
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsFiltersOpen(true);
+                            }}
                             className="flex items-center gap-2 border border-neutral-200 dark:border-neutral-800 rounded-full px-5 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors shadow-sm bg-white dark:bg-[#1a1a1a] font-bold text-sm shrink-0"
                         >
                             <SlidersHorizontal size={16} /> Filters
@@ -327,10 +342,34 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                         style={{ height: '66px' }}
                     >
                     
+                    {activeCategory === 'events' && (
+                        <>
+                            {/* What Button */}
+                            <div 
+                                onClick={() => setActivePopover('location')} // Reuse location popover focus or create a new one, but for now just focus input
+                                className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] rounded-full transition-all cursor-text relative z-10 hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80`}
+                            >
+                                <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">What</span>
+                                <input 
+                                    type="text" 
+                                    value={eventName}
+                                    onChange={(e) => setEventName(e.target.value)}
+                                    placeholder="Search events, festivals..." 
+                                    className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate" 
+                                />
+                            </div>
+
+                            {/* Divider */}
+                            <div className={`hidden lg:flex items-center shrink-0 transition-opacity opacity-100`}>
+                                <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
+                            </div>
+                        </>
+                    )}
+
                     {/* Location Button */}
                     <div 
                         onClick={() => setActivePopover('location')}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[30%] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full ${activeCategory === 'events' ? 'lg:w-[30%]' : 'lg:w-[30%]'} rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'location' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
                         <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Where</span>
@@ -351,46 +390,61 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                     {/* Date Button */}
                     <div 
                         onClick={() => { setActivePopover('date'); if (!checkIn) setDatePickerFocus('checkin'); }}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full ${activeCategory === 'events' ? 'lg:flex-1 pl-8 pr-2 flex-row justify-between items-center' : 'lg:w-[35%]'} rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase whitespace-nowrap">Check in - Check out</span>
-                        <span className={`font-medium text-sm w-full truncate ${checkIn || checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                            {checkIn && checkOut 
-                                ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` 
-                                : checkIn 
-                                    ? `${format(checkIn, 'MMM d')} - Add checkout` 
-                                    : 'Add dates'}
-                        </span>
-                    </div>
-
-                    {/* Divider 3 */}
-                    <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}>
-                        <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
-                    </div>
-
-                    {/* Guests / Tickets Button + Search */}
-                    <div 
-                        className={`flex items-center pl-8 w-full lg:flex-1 justify-between rounded-full transition-all cursor-pointer relative z-10
-                        ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
-                        onClick={() => setActivePopover('guests')}
-                    >
                         <div className="flex flex-col justify-center text-left">
-                            <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">
-                                {activeCategory === 'experiences' ? 'Tickets' : 'Who'}
-                            </span>
-                            <span className={`font-medium text-sm truncate ${totalGuests > 0 ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                                {totalGuests > 0 ? `${totalGuests} ${activeCategory === 'experiences' ? 'ticket' : 'guest'}${totalGuests > 1 ? 's' : ''}` : (activeCategory === 'experiences' ? 'Add tickets' : 'Add guests')}
+                            <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase whitespace-nowrap">When</span>
+                            <span className={`font-medium text-sm w-full truncate ${checkIn || checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                                {checkIn && checkOut 
+                                    ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` 
+                                    : checkIn 
+                                        ? `${format(checkIn, 'MMM d')} - Add dates` 
+                                        : 'Any time'}
                             </span>
                         </div>
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
-                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center transition-all shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide mx-2"
-                            style={{ height: '48px', width: '48px', minWidth: 'auto' }}
-                        >
-                            <Search size={18} strokeWidth={3} />
-                        </button>
+                        {activeCategory === 'events' && (
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
+                                className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center transition-all shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
+                                style={{ height: '48px', width: '48px', minWidth: 'auto' }}
+                            >
+                                <Search size={18} strokeWidth={3} />
+                            </button>
+                        )}
                     </div>
+
+                    {activeCategory !== 'events' && (
+                        <>
+                            {/* Divider 3 */}
+                            <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}>
+                                <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
+                            </div>
+
+                            {/* Guests / Tickets Button + Search */}
+                            <div 
+                                className={`flex items-center pl-8 w-full lg:flex-1 justify-between rounded-full transition-all cursor-pointer relative z-10
+                                ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
+                                onClick={() => setActivePopover('guests')}
+                            >
+                                <div className="flex flex-col justify-center text-left">
+                                    <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">
+                                        {activeCategory === 'experiences' ? 'Tickets' : 'Who'}
+                                    </span>
+                                    <span className={`font-medium text-sm truncate ${totalGuests > 0 ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                                        {totalGuests > 0 ? `${totalGuests} ${activeCategory === 'experiences' ? 'ticket' : 'guest'}${totalGuests > 1 ? 's' : ''}` : (activeCategory === 'experiences' ? 'Add tickets' : 'Add guests')}
+                                    </span>
+                                </div>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
+                                    className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-full flex items-center justify-center transition-all shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide mx-2"
+                                    style={{ height: '48px', width: '48px', minWidth: 'auto' }}
+                                >
+                                    <Search size={18} strokeWidth={3} />
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
                 )}
 
@@ -575,6 +629,9 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                     </div>
                 )}
             </div>
+
+            {/* Filters Modal */}
+            <FiltersModal isOpen={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} />
         </nav>
     );
 }
