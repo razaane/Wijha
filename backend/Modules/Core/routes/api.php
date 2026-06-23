@@ -14,7 +14,7 @@ use Modules\Core\Http\Controllers\LocationController;
  *
 */
 
-Route::prefix('locations')->group(function () {
+Route::prefix('v1/locations')->group(function () {
     Route::get('/regions', [LocationController::class, 'getRegions'])->name('core.locations.regions');
     Route::get('/cities', [LocationController::class, 'getCities'])->name('core.locations.cities');
 });

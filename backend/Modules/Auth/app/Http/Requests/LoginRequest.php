@@ -26,4 +26,18 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string'],
         ];
     }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Please enter your email address to log in.',
+            'email.email' => 'The email address you entered doesn\'t look quite right.',
+            'password.required' => 'Don\'t forget your password!',
+        ];
+    }
 }

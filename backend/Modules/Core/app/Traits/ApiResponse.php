@@ -63,6 +63,19 @@ trait ApiResponse
             $data['user'] = $user;
         }
 
-        return $this->successResponse($data, 'Authenticated successfully');
+        $response = $this->successResponse($data, 'Authenticated successfully');
+
+        $ttlMinutes = config('jwt.ttl');
+        $refreshTtlMinutes = config('jwt.refresh_ttl');
+        $secure = app()->environment('production');
+
+        // HttpOnly cookies for sensitive tokens
+        $response->cookie('wijha_token', $accessToken, $ttlMinutes, '/', null, $secure, true, false, 'Lax');
+        $response->cookie('wijha_refresh_token', $refreshToken, $refreshTtlMinutes, '/', null, $secure, true, false, 'Lax');
+        
+        // Non-HttpOnly hint cookie for the frontend UI state
+        $response->cookie('is_logged_in', '1', $refreshTtlMinutes, '/', null, $secure, false, false, 'Lax');
+
+        return $response;
     }
 }

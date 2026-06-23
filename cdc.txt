@@ -1,0 +1,616 @@
+WIJHA
+La super-app du tourisme marocain
+CAHIER DES CHARGES TECHNIQUE
+Next.js 14 + Laravel 11 – Architecture Full-Stack
+Version
+1.0 – Document Initial
+Date
+Avril 2026
+Statut
+Draft – En revue
+Secteur
+Tourisme & Voyage
+Plateforme
+Application Web – Desktop & Mobile Browser
+Frontend
+Next.js 14 (App Router) + TypeScript + Tailwind CSS
+Backend
+Laravel 11 (PHP 8.3) – API REST
+Langue cible
+FR / AR / EN
+1. Introduction & Contexte
+1.1 Présentation du Projet
+Wijha est une super-app touristique dédiée à l'exploration du Maroc et d'autres destinations. Elle centralise sur une seule plateforme : réservation de vols, hébergements, activités locales, événements culturels et découverte de sites touristiques.
+L'ambition est de créer le référentiel digital du tourisme marocain – combinant les fonctionnalités de Booking.com, Airbnb Experiences, Eventbrite et Google Travel – avec une dimension culturelle locale forte et un support natif de la langue arabe (RTL).
+1.2 Contexte du Marché
+Indicateur
+Valeur
+Touristes accueillis (2024)
+17+ millions
+Part du tourisme dans le PIB
+~10%
+Réservations en ligne (locales)
+< 30%
+Super-app locale existante
+Aucune
+1.3 Problématique
+Le voyageur souhaitant organiser un séjour au Maroc doit aujourd'hui jongler entre de multiples plateformes :
+Vol sur Skyscanner / Expedia
+Hôtel ou riad sur Booking.com
+Location courte durée sur Airbnb
+Activités et expériences sur des blogs ou Airbnb Experiences
+Événements culturels sur Eventbrite ou des pages Facebook
+Sites à visiter via Google Maps ou guides papier
+Cette fragmentation génère de la friction, de la perte de temps et un manque de cohérence dans l'expérience utilisateur. Wijha résout ce problème.
+1.4 Vision & Objectifs Stratégiques
+Objectif
+KPI cible
+Horizon
+50 000 utilisateurs actifs
+MAU ≥ 50K
+Année 1
+500 partenaires référencés
+Offres actives
+Année 1
+Taux de conversion booking
+≥ 3,5%
+Année 2
+NPS utilisateur
+≥ 60
+Année 2
+Expansion régionale
+3 pays couverts
+Année 3
+2. Architecture & Stack Technique
+2.1 Vue d'Ensemble
+L'application repose sur une architecture découplée (decoupled / headless) : le frontend Next.js communique avec le backend Laravel exclusivement via une API REST JSON sécurisée. Chaque domaine métier est encapsulé dans un module Laravel indépendant (Domain-Driven Design).
+2.2 Frontend – Next.js 14
+Composant
+Technologie / Librairie
+Rôle
+Framework
+Next.js 14 – App Router
+Routing, SSR, SSG, ISR
+Langage
+TypeScript 5.x
+Typage statique, maintenabilité
+Styles
+Tailwind CSS 3.x + shadcn/ui
+Design system, composants
+État global
+Zustand
+Panier, session, préférences
+Requêtes API
+TanStack Query (React Query)
+Cache, fetching, mutations
+Formulaires
+React Hook Form + Zod
+Validation côté client
+Cartes
+Mapbox GL JS
+Carte interactive, POI, clustering
+Internationalisation
+next-intl
+FR / AR (RTL) / EN
+Animations
+Framer Motion
+Transitions, micro-interactions
+Paiement UI
+Stripe Elements
+Formulaires paiement sécurisés
+Tests
+Vitest + Playwright
+Tests unitaires & E2E
+Linting
+ESLint + Prettier
+Qualité de code
+PWA
+next-pwa
+Mode hors-ligne, installation mobile
+2.3 Backend – Laravel 11
+Composant
+Technologie / Package
+Rôle
+Framework
+Laravel 11 (PHP 8.3)
+API REST, logique métier
+Architecture
+Laravel Modules (nwidart)
+DDD – modules indépendants
+Authentification
+Laravel Sanctum
+SPA Auth, tokens API
+Social Auth
+Laravel Socialite
+Google, Facebook, Apple SSO
+Base de données
+PostgreSQL 16
+Données relationnelles principales
+ORM
+Eloquent ORM
+Modèles, relations, migrations
+Cache
+Redis (via Predis)
+Sessions, prix temps réel, queues
+Search
+Laravel Scout + Meilisearch
+Recherche full-text (POI, héb.)
+Files d'attente
+Laravel Queue + Horizon
+Notifications, bookings async
+Stockage
+AWS S3 via Flysystem
+Images, documents, médias
+Paiement
+Stripe SDK + CMI Maroc
+Transactions sécurisées
+Vols API
+Amadeus for Developers
+Recherche et réservation vols
+Email
+Laravel Mail + Mailgun
+Confirmations, notifications
+SMS OTP
+Twilio / Infobip
+Vérification téléphone
+Tests
+PHPUnit + Pest
+Tests unitaires & feature
+Documentation API
+Scribe (Laravel)
+OpenAPI / Swagger auto-générée
+2.4 Infrastructure & DevOps
+Composant
+Technologie
+Détail
+Cloud
+AWS (EC2, RDS, S3, CloudFront)
+Hébergement principal
+Conteneurisation
+Docker + Docker Compose
+Environnements dev/prod
+Orchestration
+Kubernetes (EKS)
+Scalabilité, HA
+CI/CD
+GitHub Actions
+Tests auto, déploiement continu
+CDN
+AWS CloudFront
+Assets statiques, médias
+Monitoring
+Datadog + Sentry
+APM, erreurs, alertes
+Logs
+Laravel Telescope (dev) + Cloudwatch
+Debug et observabilité
+Sécurité réseau
+Cloudflare
+DDoS, WAF, DNS
+2.5 Architecture des Modules Laravel
+Le backend est organisé en modules Domain-Driven Design via le package nwidart/laravel-modules. Chaque module possède ses propres Controllers, Models, Services, Repositories, Requests, Resources, Migrations et Tests.
+Module Laravel
+Responsabilité
+API Prefix
+Auth
+Inscription, connexion, OAuth, 2FA, refresh tokens
+/api/v1/auth
+Users
+Profil, préférences, badges, journal de voyage
+/api/v1/users
+Places
+Destinations, POI, fiches, filtres, favoris
+/api/v1/places
+Activities
+Expériences locales, prestataires, réservations
+/api/v1/activities
+Events
+Agenda, billetterie, QR codes, rappels
+/api/v1/events
+Accommodations
+Hôtels, riads, locations, disponibilités
+/api/v1/accommodations
+Flights
+Recherche vols (Amadeus), réservation, suivi
+/api/v1/flights
+Bookings
+Panier multi-services, checkout unifié
+/api/v1/bookings
+Payments
+Stripe, CMI, remboursements, factures
+/api/v1/payments
+Reviews
+Avis, notes, modération, UGC
+/api/v1/reviews
+Notifications
+Push, email, SMS, in-app
+/api/v1/notifications
+Recommendations
+IA/ML, personnalisation, suggestions
+/api/v1/recommendations
+3. Périmètre Fonctionnel
+L'application est structurée autour de 6 modules fonctionnels principaux, chacun correspondant à un pilier de l'expérience voyageur.
+3.1 Module Exploration – Places to Visit
+Catalogue de destinations : villes, régions, sites naturels, monuments, médinas
+Fiches détaillées : photos HD, vidéos, description multilingue, horaires, tarifs
+Carte interactive Mapbox avec clustering de POI (hors-ligne possible via cache)
+Filtres avancés : catégorie, région, gratuit/payant, accessibilité, saison
+Collections thématiques : "Maroc Impérial", "Désert & Dunes", "Côte Atlantique"
+Itinéraires suggérés par l'IA : 3 jours à Marrakech, Circuit du Sud, etc.
+Contenu généré par les utilisateurs (UGC) : photos, avis, conseils
+Fonctionnalité Favoris et listes de voyage collaboratives
+3.2 Module Activités – Activities to Do
+Équivalent d'Airbnb Experiences : activités proposées par des prestataires locaux vérifiés, réservables en ligne.
+Cours de cuisine marocaine, ateliers poterie, calligraphie, zellige
+Randonnées guidées (Atlas, Sahara, côte atlantique)
+Sports nautiques : plongée, surf, kitesurf, windsurf
+Visites guidées de médinas, musées, kasbahs, greniers
+Expériences wellness : hammam traditionnel, soins à l'huile d'argan
+Photoshoots professionnels dans des lieux iconiques
+Profil prestataire vérifié (badge, avis, certifications)
+Calendrier de disponibilité temps réel via API Laravel
+Réservation instantanée ou sur demande avec gestion groupes (min/max)
+3.3 Module Événements – Events to Attend
+Agenda culturel complet : festivals, concerts, expositions, marchés
+Événements récurrents : Moussem de Tan-Tan, Festival de Fès, Marrakech du Rire
+Achat de billets en ligne avec QR code d'entrée (généré côté Laravel)
+Rappels et notifications personnalisées (email + push)
+Partage social et invitation d'amis
+Plan de salle interactif pour événements à places numérotées
+Filtres : ville, date, catégorie, prix, langue
+3.4 Module Hébergement – Hotels & Houses to Rent
+Type
+Cible
+Commission
+Hôtels & Riads classés
+Touristes premium
+12–15%
+Guesthouses & Maisons d'hôtes
+Voyageurs authentiques
+10–12%
+Locations courte durée
+Groupes & familles
+8–10%
+Auberges de jeunesse / Hostels
+Backpackers
+8%
+Camping & Glamping
+Aventuriers
+10%
+Dars & Maisons traditionnelles
+Expérience culturelle
+12%
+Recherche par destination, dates, nombre de voyageurs
+Filtres avancés : prix, équipements, notation, label qualité
+Photos HR + visite virtuelle 360° (intégration Matterport)
+Disponibilités temps réel et prix dynamiques
+Messagerie intégrée hôte-voyageur (WebSocket via Laravel Broadcasting)
+Onboarding propriétaire : ajout de logement, gestion de calendrier
+3.5 Module Vols – Flights
+Intégration API Amadeus for Developers pour la recherche et la réservation de vols.
+Recherche aller simple, aller-retour, multi-destinations
+Filtres : escales, compagnies, durée, bagage inclus
+Alertes de prix personnalisées (stockées en BDD, envoyées via Queue Laravel)
+Calendrier heatmap des tarifs par date
+Carte d'embarquement PDF générée via Laravel (DomPDF)
+Tracking de vol en temps réel
+Suggestions packages : vol + hébergement combinés
+3.6 Module Profil & Social
+Profil voyageur : photo, bio, pays d'origine, langues parlées
+Journal de voyage : documenter et partager ses aventures
+Système d'abonnements entre voyageurs
+Wishlist collaborative (planification de groupe)
+Badges et gamification : "Explorer Bronze", "Nomade Culturel", "Guide Local"
+4. Spécifications API REST (Laravel)
+4.1 Conventions Générales
+Versioning : toutes les routes préfixées par /api/v1/
+Format : JSON uniquement (Accept: application/json)
+Authentification : Bearer Token via Laravel Sanctum
+Pagination : cursor-based (cursor, per_page, next_cursor)
+Erreurs : format standardisé { error, message, details, trace_id }
+Rate Limiting : 60 req/min pour les endpoints publics, 300 req/min pour les authentifiés
+Documentation auto-générée : Scribe → /api/docs (OpenAPI 3.0)
+4.2 Endpoints Clés
+Méthode
+Endpoint
+Description
+POST
+/api/v1/auth/register
+Inscription utilisateur
+POST
+/api/v1/auth/login
+Connexion, retourne access_token + refresh_token
+POST
+/api/v1/auth/social/{provider}
+SSO Google / Facebook / Apple
+GET
+/api/v1/places
+Liste des destinations (filtres, pagination)
+GET
+/api/v1/places/{slug}
+Fiche détaillée d'une destination
+GET
+/api/v1/activities
+Liste des activités disponibles
+POST
+/api/v1/activities/{id}/book
+Réserver une activité
+GET
+/api/v1/events
+Agenda événementiel filtrable
+POST
+/api/v1/events/{id}/tickets
+Acheter des billets
+GET
+/api/v1/accommodations/search
+Recherche hébergements (dates, voyageurs)
+POST
+/api/v1/accommodations/{id}/book
+Réserver un hébergement
+GET
+/api/v1/flights/search
+Recherche vols (proxy Amadeus)
+POST
+/api/v1/flights/book
+Réserver un vol
+POST
+/api/v1/bookings/checkout
+Checkout unifié multi-services
+GET
+/api/v1/users/me/bookings
+Historique des réservations
+GET
+/api/v1/recommendations
+Suggestions personnalisées IA
+5. Sécurité
+5.1 Authentification & Autorisation
+Laravel Sanctum : tokens SPA pour le frontend Next.js
+OAuth 2.0 via Laravel Socialite (Google, Facebook, Apple)
+2FA optionnelle via TOTP (Google Authenticator) ou SMS OTP (Twilio)
+Politique RBAC (Role-Based Access Control) : Admin, Partner, User, Guest
+Refresh token rotation : access_token (15min), refresh_token (30j)
+5.2 Protection des Données
+Chiffrement TLS 1.3 pour toutes les communications
+Mots de passe hashés avec bcrypt (cost factor 12) via Hash facade Laravel
+Données sensibles chiffrées en BDD via laravel-encryption
+Conformité RGPD et loi 09-08 marocaine sur la protection des données
+Audit de sécurité trimestriel – penetration testing OWASP
+Rate limiting et protection DDoS via Cloudflare + Laravel Throttle
+Validation stricte de toutes les entrées via Form Requests Laravel
+Protection CSRF native Laravel pour les routes SPA
+6. Performance & Qualité
+6.1 Objectifs de Performance
+Métrique
+Cible
+Méthode de mesure
+LCP (Largest Contentful Paint)
+< 2,5s
+Lighthouse / Web Vitals
+TTI (Time to Interactive)
+< 3,5s
+Lighthouse
+API Response Time (p95)
+< 300ms
+Datadog APM
+Uptime
+99,9% SLA mensuel
+AWS CloudWatch
+Score Lighthouse
+≥ 85 (Perf / A11y / SEO)
+CI/CD Lighthouse CI
+Couverture de tests
+≥ 80% (back + front)
+PHPUnit + Vitest
+Support hors-ligne
+Cartes + favoris
+Service Worker / PWA
+6.2 Stratégies de Mise en Cache
+Redis : cache des prix de vols (TTL 5min), sessions, résultats de recherche
+Next.js : ISR (Incremental Static Regeneration) pour les fiches destinations
+CloudFront : CDN pour images, assets JS/CSS (Cache-Control long terme)
+Meilisearch : index dénormalisé pour la recherche ultra-rapide
+Eager Loading Eloquent : prévention des problèmes N+1 avec telescope
+7. Expérience Utilisateur (UX)
+7.1 Personas Cibles
+Persona
+Profil
+Besoin Principal
+Touriste International
+Européen, 28–45 ans
+Tout-en-un EN/FR, confiance & sécurité
+MRE
+Marocain résidant à l'étranger
+Louer une maison, retrouver la famille
+Voyageur Interne
+Casablancais en week-end
+Hébergement + activités last minute
+Backpacker Budget
+18–30 ans, low-cost
+Bons plans, hostel, activités gratuites
+Voyageur Premium
+40–60 ans, budget élevé
+Riads exclusifs, expériences privées
+7.2 Parcours Utilisateur Principal
+Onboarding : inscription SSO ou email en < 30 secondes
+Découverte : page d'accueil personnalisée selon profil et géolocalisation
+Exploration : navigation par module (Places / Activités / Événements / Vols / Hébergement)
+Sélection : fiche détaillée avec photos, avis, disponibilités temps réel
+Réservation : panier multi-services (vol + hôtel + activité en 1 checkout)
+Paiement : Stripe / CMI – confirmation instantanée + email + QR code
+Pré-voyage : rappels, itinéraire généré automatiquement, météo
+Sur place : mode hors-ligne, carte Mapbox, QR codes d'entrée
+Post-voyage : évaluation, partage, recommandations personnalisées
+7.3 Design System
+Composants : shadcn/ui + Tailwind CSS – design atomique, réutilisable
+Accessibilité : conformité WCAG 2.1 niveau AA
+Mode sombre / mode clair (prefers-color-scheme + toggle manuel)
+Support RTL natif : next-intl + Tailwind dir:rtl pour la langue arabe
+Palette Maroc : terracotta #E8622A, zellige turquoise #0EA5E9, sable doré #F5C842
+Typographies : Inter (latin) + Noto Sans Arabic (arabe), variable fonts
+Icônes : Lucide React (cohérence, tree-shaking)
+8. Modèle Économique
+Source de Revenus
+Mécanisme
+Part CA (An 1)
+Commissions Hébergement
+10–15% par réservation
+40%
+Commissions Activités
+15–20% par réservation
+25%
+Commissions Vols
+2–5% ou frais fixes
+15%
+Billetterie Événements
+8–12% par billet
+10%
+Abonnement Premium
+99 MAD/mois – fonctions avancées
+5%
+Publicité & Sponsoring
+Mise en avant partenaires
+5%
+9. Planning & Phases de Développement
+Phase
+Durée
+Livrables clés
+Phase 0 – Discovery & Design
+6 semaines
+Wireframes Figma, design system, maquettes responsive validées
+Phase 1 – Setup & Auth
+3 semaines
+Monorepo Next.js + Laravel, CI/CD, Auth Sanctum + OAuth, BDD
+Phase 2 – MVP Core
+10 semaines
+Modules Places, Hébergement, Vols (basique), Panier & Paiement
+Phase 3 – Activités & Événements
+8 semaines
+Modules Activités + Billetterie + QR codes + Profil
+Phase 4 – Social & IA
+6 semaines
+Recommandations IA, journal, gamification, UGC
+Phase 5 – Optimisation
+8 semaines
+Perf, sécurité, onboarding partenaires, analytics, PWA hors-ligne
+Phase 6 – Lancement
+4 semaines
+Beta publique, marketing, partenariats clés, monitoring prod
+Durée totale estimée (Discovery à lancement public) : 11 à 13 mois.
+10. Contraintes & Risques
+10.1 Contraintes Réglementaires
+Licence d'agence de voyages requise pour la vente de vols et packages
+Conformité à la loi 09-08 relative à la protection des données personnelles au Maroc
+Respect des CGU des API partenaires (Amadeus, Stripe Connect, etc.)
+Réglementation des paiements électroniques par Bank Al-Maghrib
+Certification PCI-DSS pour le traitement des données de cartes bancaires
+10.2 Risques Identifiés
+Risque
+Probabilité
+Impact
+Mitigation
+Faible adoption partenaires
+Moyenne
+Élevé
+Onboarding simplifié + équipe dédiée
+Concurrence internationale
+Élevée
+Moyen
+Focus authenticité locale & arabe
+Problèmes de paiement
+Moyenne
+Élevé
+Multi-gateway : CMI + Stripe + cash on arrival
+Scalabilité backend Laravel
+Faible
+Élevé
+Octane (Swoole), Queue Horizon, autoscaling K8s
+Fraudes & faux avis
+Moyenne
+Moyen
+Modération IA + vérification identité KYC
+11. Critères d'Acceptation & Recette
+11.1 Fonctionnels
+Un utilisateur peut s'inscrire et se connecter (SSO ou email) en < 60 secondes
+La recherche de vols via Amadeus retourne des résultats en < 5 secondes
+Un hébergement peut être réservé et payé de bout en bout
+Les événements sont affichés avec agenda à jour via API
+Les activités sont réservables avec confirmation instantanée et email automatique
+La carte fonctionne en mode hors-ligne pour les favoris (Service Worker + Mapbox cache)
+Le checkout multi-services (vol + hôtel + activité) fonctionne en 1 seule transaction
+11.2 Non-Fonctionnels
+Score Lighthouse ≥ 85 (Performance, Accessibilité, SEO, Best Practices)
+Couverture de tests ≥ 80% (PHPUnit/Pest pour Laravel + Vitest pour Next.js)
+Aucune faille critique en audit OWASP Top 10
+Application déployée et accessible sur domaine public HTTPS
+Support complet des 3 langues : FR, AR (RTL), EN
+API Laravel documentée via Scribe (OpenAPI 3.0) et accessible aux partenaires
+Temps de réponse API p95 < 300ms en charge nominale
+12. Annexes
+12.1 Intégrations API Tierces
+Service
+Usage
+SDK / Package
+Amadeus for Developers
+Vols – recherche & réservation GDS
+amadeus/amadeus-php
+Stripe Connect
+Paiements multi-parties, remboursements
+stripe/stripe-php
+CMI Maroc
+Cartes bancaires marocaines
+Intégration directe CMI
+Mapbox GL JS
+Cartes interactives, POI, routing
+mapbox-gl (npm)
+Meilisearch
+Recherche full-text (Scout)
+meilisearch/meilisearch-php
+Twilio / Infobip
+SMS OTP, vérification téléphone
+twilio/sdk
+AWS S3 + CloudFront
+Stockage médias, CDN
+aws/aws-sdk-php
+Firebase FCM
+Push notifications mobile/web
+Firebase Admin SDK
+OpenAI API
+Chatbot d'assistance & recommandations IA
+openai-php/client
+AWS Rekognition
+Modération images UGC
+AWS SDK Rekognition
+12.2 Glossaire
+Terme
+Définition
+MVP
+Minimum Viable Product – Version minimale fonctionnelle
+POI
+Point of Interest – Point d'intérêt touristique
+UGC
+User Generated Content – Contenu créé par les utilisateurs
+GDS
+Global Distribution System – Amadeus, Sabre (aérien)
+MRE
+Marocain Résidant à l'Étranger
+SLA
+Service Level Agreement – Accord de niveau de service
+MAU
+Monthly Active Users – Utilisateurs actifs mensuels
+NPS
+Net Promoter Score – Indicateur de satisfaction client
+SSO
+Single Sign-On – Connexion unique via compte existant
+RTL
+Right-To-Left – Sens d'écriture arabe
+DDD
+Domain-Driven Design – Architecture orientée domaine métier
+ISR
+Incremental Static Regeneration – Régénération statique Next.js
+ORM
+Object-Relational Mapping – Eloquent (Laravel)
+RBAC
+Role-Based Access Control – Contrôle d'accès par rôles
+KYC
+Know Your Customer – Vérification d'identité
+— Fin du Document —

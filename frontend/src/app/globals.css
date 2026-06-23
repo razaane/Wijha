@@ -5,13 +5,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
@@ -25,3 +24,91 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Custom styles for react-phone-number-input */
+.wijha-phone-input {
+  display: flex;
+  align-items: center;
+}
+.wijha-phone-input input {
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-weight: 500;
+  color: #171717; /* neutral-900 */
+}
+.wijha-phone-input .PhoneInputCountry {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  margin-right: 0.75rem;
+  padding-left: 0.25rem;
+}
+.wijha-phone-input .PhoneInputCountrySelect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.wijha-phone-input .PhoneInputCountryIcon {
+  width: 28px;
+  height: 20px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.wijha-phone-input .PhoneInputCountryIconImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wijha-phone-input .PhoneInputCountrySelectArrow {
+  opacity: 0.5;
+  margin-left: 0.5rem;
+  width: 0.4em;
+  height: 0.4em;
+  border-style: solid;
+  border-color: currentColor;
+  border-width: 0 1px 1px 0;
+  transform: rotate(45deg);
+}
+
+/* Fix browser autofill background for light and dark modes */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #fffbeb inset !important; /* Tailwind amber-50 */
+    -webkit-text-fill-color: #171717 !important;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus, 
+.dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #451a03 inset !important; /* Tailwind amber-950 for dark mode */
+    -webkit-text-fill-color: #fff !important;
+}
+/* style(frontend): format spacing in dashboard layout */
+/* docs(readme): add host onboarding section */
+/* refactor(host): optimize city deduplication logic */
+/* style(map): polish Leaflet container styles */
+/* docs(kyc): add inline documentation for admin notes */
+/* chore(deps): audit frontend dependencies */
+/* style(auth): polish auth store types */
+/* refactor(ui): clean up unused variables in profile */
+/* style(traveler): format ticket page imports */
+/* docs(api): add comments to Jwt middleware */
+/* refactor(models): format User model traits */
+/* style(admin): polish admin module statuses */
+/* chore(backend): optimize composer autoloader */
+/* docs(host): document onboarding form state */
+/* style(css): format global stylesheet variables */

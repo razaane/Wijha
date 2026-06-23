@@ -10,6 +10,7 @@ use Modules\Auth\Http\Requests\ForgotPasswordRequest;
 use Modules\Auth\Http\Requests\LoginRequest;
 use Modules\Auth\Http\Requests\RegisterRequest;
 use Modules\Auth\Http\Requests\ResetPasswordRequest;
+use Modules\Auth\Http\Requests\SendOtpRequest;
 use Modules\Auth\Services\AuthService;
 use Modules\Core\Traits\ApiResponse;
 
@@ -20,6 +21,23 @@ class AuthController extends Controller
     public function __construct(
         private readonly AuthService $authService,
     ) {}
+
+    /**
+     * Generate and send an OTP for registration.
+     *
+     * POST /api/v1/auth/register/send-otp
+     */
+    public function sendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $this->authService->generateAndSendOtp(
+            $request->input('email'),
+            $request->input('name')
+        );
+
+        return $this->successResponse(
+            message: 'Verification code sent to your email.'
+        );
+    }
 
     /**
      * Register a new user.
@@ -63,7 +81,7 @@ class AuthController extends Controller
         if (!$result) {
             return $this->errorResponse(
                 'INVALID_CREDENTIALS',
-                'The provided credentials are incorrect.',
+                'The email or password you entered is incorrect. Please double-check and try again.',
                 401
             );
         }
@@ -84,9 +102,13 @@ class AuthController extends Controller
     {
         $this->authService->logout();
 
-        return $this->successResponse(
+        $response = $this->successResponse(
             message: 'Successfully logged out.'
         );
+
+        return $response->withoutCookie('wijha_token')
+                        ->withoutCookie('wijha_refresh_token')
+                        ->withoutCookie('is_logged_in');
     }
 
     /**
@@ -96,12 +118,18 @@ class AuthController extends Controller
      */
     public function refresh(Request $request): JsonResponse
     {
-        $request->validate([
-            'refresh_token' => ['required', 'string'],
-        ]);
+        $refreshToken = $request->input('refresh_token') ?? $request->cookie('wijha_refresh_token');
+
+        if (!$refreshToken) {
+            return $this->errorResponse(
+                'TOKEN_ABSENT',
+                'Refresh token is required.',
+                400
+            );
+        }
 
         $result = $this->authService->refresh(
-            $request->input('refresh_token'),
+            $refreshToken,
             [
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -145,9 +173,16 @@ class AuthController extends Controller
     {
         $status = $this->authService->sendPasswordResetLink($request->input('email'));
 
-        // Always return success to prevent email enumeration
-        return $this->successResponse(
-            message: 'If an account exists with that email, a password reset link has been sent.'
+        if ($status === Password::RESET_LINK_SENT) {
+            return $this->successResponse(
+                message: 'A password reset link has been sent to your email address.'
+            );
+        }
+
+        return $this->errorResponse(
+            'USER_NOT_FOUND',
+            'No account exists with this email address.',
+            404
         );
     }
 

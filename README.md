@@ -20,9 +20,9 @@ Wijha is structured as a **Monorepo** consisting of a modern, SEO-optimized fron
 - **Data Fetching:** React Query (TanStack Query)
 
 ### ⚙️ Backend (`/backend`)
-- **Framework:** [Laravel 11](https://laravel.com/)
+- **Framework:** [Laravel 11.x](https://laravel.com/) (PHP 8.3+)
 - **Architecture:** Domain-Driven Design (DDD) via `nwidart/laravel-modules`
-- **Database:** PostgreSQL 16
+- **Database:** SQLite (default for local dev) / PostgreSQL 16
 - **Authentication:** JWT (JSON Web Tokens) via `tymon/jwt-auth`
 - **Media Management:** Spatie MediaLibrary v11
 - **Multilingual Support:** Spatie Translatable (Arabic, French, English)
@@ -55,7 +55,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 ### Prerequisites
 - PHP 8.3+
 - Node.js 20+
-- PostgreSQL 16
+- SQLite (default) or PostgreSQL 16
 - Composer
 - Git
 
@@ -107,7 +107,7 @@ The backend is strictly modularized to maintain separation of concerns:
 
 1. **Auth Module:** Handles user registration, login, JWT token rotation, and Role-Based Access Control (RBAC).
 2. **Core Module:** The foundation layer. Contains shared geographic dictionaries (Countries, Regions, Cities with coordinates) and global API response traits. Fully supports `ar`, `fr`, and `en` translations.
-3. *(Upcoming)* **Places Module:** Management of Points of Interest (Monuments, Medinas, Parks).
+3. **Listing Module:** Management of Points of Interest, Rentals, Events, Tours.
 4. *(Upcoming)* **Events Module:** Ticketing and local event management.
 5. *(Upcoming)* **Accommodations Module:** Hotel and riad bookings.
 
