@@ -30,7 +30,8 @@ export default function LoginPage() {
             if (user.role === 'admin') {
                 router.push('/admin');
             } else {
-                router.push('/dashboard');
+                router.back();
+                setTimeout(() => router.refresh(), 100);
             }
         } catch (err: unknown) {
             const error = err as { response?: { data?: { message?: string, errors?: Record<string, string[]> } } };
