@@ -310,6 +310,7 @@ class BookingController extends Controller
         $validated = $request->validate([
             'booking_id' => 'required|integer',
             'ticket_code' => 'required|string',
+            'listing_id' => 'required|integer',
         ]);
 
         $booking = Booking::with(['listing', 'user', 'ticket'])->find($validated['booking_id']);
@@ -321,6 +322,11 @@ class BookingController extends Controller
         // Verify the authenticated user is the host of the listing
         if ($booking->listing->user_id !== Auth::id()) {
             return $this->errorResponse('unauthorized', 'You are not authorized to scan this ticket.', 403);
+        }
+
+        // Verify the ticket belongs to the selected event
+        if ($booking->listing_id != $validated['listing_id']) {
+            return $this->errorResponse('invalid_event', 'This ticket is for a different event.', 400);
         }
 
         // Verify ticket code (current naive verification WJ-booking_id-user_id)
