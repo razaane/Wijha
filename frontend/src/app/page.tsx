@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
-import HomeFeeds from '@/components/landing/HomeFeeds';
-import Header from '@/components/landing/Header';
+import LandingClient from '@/components/landing/LandingClient';
 
 export const metadata: Metadata = {
   title: 'Wijha | Home',
@@ -8,14 +7,8 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a] flex flex-col font-sans">
-      
-      <Header />
-
-      <main className="flex-1 w-full">
-        <HomeFeeds />
-      </main>
-
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex flex-col font-sans">
+      <LandingClient />
     </div>
   );
 }
