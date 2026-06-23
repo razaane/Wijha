@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { Category } from './LandingClient';
-import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay } from 'date-fns';
+import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
 
 interface HeaderProps {
     activeCategory: Category;
@@ -37,7 +37,9 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
     const [location, setLocation] = useState('');
     
     // Date State
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [checkIn, setCheckIn] = useState<Date | null>(null);
+    const [checkOut, setCheckOut] = useState<Date | null>(null);
+    const [datePickerFocus, setDatePickerFocus] = useState<'checkin' | 'checkout'>('checkin');
     const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
     
     // Guests State
@@ -73,7 +75,8 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
         const params = new URLSearchParams();
         params.set('type', activeCategory === 'experiences' ? 'event' : 'rental');
         if (location) params.set('location', location);
-        if (selectedDate) params.set('date', format(selectedDate, 'yyyy-MM-dd'));
+        if (checkIn) params.set('check_in', format(checkIn, 'yyyy-MM-dd'));
+        if (checkOut) params.set('check_out', format(checkOut, 'yyyy-MM-dd'));
         if (totalGuests > 1 && activeCategory === 'stays') params.set('guests', totalGuests.toString());
         
         router.push(`/browse?${params.toString()}`);
@@ -106,22 +109,38 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                 formattedDate = format(day, dateFormat);
                 const cloneDay = day;
                 const isCurrentMonth = isSameMonth(day, monthStart);
-                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                const isCheckIn = checkIn && isSameDay(day, checkIn);
+                const isCheckOut = checkOut && isSameDay(day, checkOut);
                 const isPast = isBefore(day, startOfDay(new Date()));
+                const isInRange = checkIn && checkOut && isCurrentMonth && !isPast && 
+                    isAfter(day, checkIn) && isBefore(day, checkOut);
 
                 days.push(
                     <div 
                         key={day.toString()} 
-                        className={`flex justify-center items-center w-10 h-10 rounded-full text-sm font-semibold transition-all cursor-pointer
+                        className={`flex justify-center items-center w-10 h-10 text-sm font-semibold transition-all cursor-pointer relative
                             ${!isCurrentMonth ? 'text-transparent pointer-events-none' : ''}
                             ${isCurrentMonth && isPast ? 'text-neutral-300 dark:text-neutral-600 pointer-events-none line-through decoration-1' : ''}
-                            ${isCurrentMonth && !isPast && !isSelected ? 'text-neutral-900 dark:text-neutral-100 hover:border hover:border-neutral-900 dark:hover:border-white' : ''}
-                            ${isSelected ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900' : ''}
+                            ${isInRange ? 'bg-amber-50 dark:bg-amber-900/20' : ''}
+                            ${isCheckIn || isCheckOut ? 'bg-amber-500 text-white rounded-full z-10' : ''}
+                            ${isCurrentMonth && !isPast && !isCheckIn && !isCheckOut ? 'text-neutral-900 dark:text-neutral-100 hover:border hover:border-neutral-900 dark:hover:border-white rounded-full' : ''}
                         `}
                         onClick={() => {
                             if (isCurrentMonth && !isPast) {
-                                setSelectedDate(cloneDay);
-                                setActivePopover('guests'); // Auto-advance
+                                if (datePickerFocus === 'checkin') {
+                                    setCheckIn(cloneDay);
+                                    setCheckOut(null);
+                                    setDatePickerFocus('checkout');
+                                } else {
+                                    if (checkIn && isBefore(cloneDay, checkIn)) {
+                                        setCheckIn(cloneDay);
+                                        setCheckOut(null);
+                                    } else {
+                                        setCheckOut(cloneDay);
+                                        setDatePickerFocus('checkin');
+                                        setActivePopover('guests');
+                                    }
+                                }
                             }
                         }}
                     >
@@ -292,19 +311,36 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
                     </div>
 
-                    {/* Date Button */}
+                    {/* Check In */}
                     <div 
-                        onClick={() => setActivePopover('date')}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[25%] rounded-full transition-all cursor-pointer relative z-10
-                        ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
+                        onClick={() => { setActivePopover('date'); setDatePickerFocus('checkin'); }}
+                        className={`flex flex-col justify-center text-left px-6 w-full lg:w-[18%] rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'date' && datePickerFocus === 'checkin' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">When</span>
-                        <span className={`font-medium text-sm w-full truncate ${selectedDate ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                            {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Add dates'}
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check in</span>
+                        <span className={`font-medium text-sm w-full truncate ${checkIn ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                            {checkIn ? format(checkIn, 'MMM d') : 'Add date'}
                         </span>
                     </div>
 
                     {/* Divider 2 */}
+                    <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' ? 'opacity-0' : 'opacity-100'}`}>
+                        <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
+                    </div>
+
+                    {/* Check Out */}
+                    <div 
+                        onClick={() => { setActivePopover('date'); setDatePickerFocus('checkout'); }}
+                        className={`flex flex-col justify-center text-left px-6 w-full lg:w-[18%] rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'date' && datePickerFocus === 'checkout' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
+                    >
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check out</span>
+                        <span className={`font-medium text-sm w-full truncate ${checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                            {checkOut ? format(checkOut, 'MMM d') : 'Add date'}
+                        </span>
+                    </div>
+
+                    {/* Divider 3 */}
                     <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}>
                         <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
                     </div>
@@ -364,14 +400,29 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Date Popover */}
                 {activePopover === 'date' && (
-                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 w-full max-w-[750px] bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-[9999] overflow-hidden">
+                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-[9999]" style={{ width: '850px' }}>
                         
-                        {/* Tabs for Date/Flexible */}
-                        <div className="flex justify-center mb-8">
-                            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-full p-1.5 flex gap-1">
-                                <button className="px-6 py-2 bg-white dark:bg-neutral-900 rounded-full font-bold shadow-sm text-neutral-900 dark:text-white text-sm">Dates</button>
-                                <button className="px-6 py-2 rounded-full font-semibold text-neutral-500 hover:text-neutral-900 dark:hover:text-white text-sm">Flexible</button>
-                            </div>
+                        {/* Check-in / Check-out Summary */}
+                        <div className="flex items-center justify-center gap-4 mb-6">
+                            <button 
+                                onClick={() => setDatePickerFocus('checkin')}
+                                className={`flex flex-col items-center px-6 py-3 rounded-2xl border-2 transition-all ${datePickerFocus === 'checkin' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-neutral-200 dark:border-neutral-700'}`}
+                            >
+                                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Check in</span>
+                                <span className={`text-sm font-bold ${checkIn ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`}>
+                                    {checkIn ? format(checkIn, 'MMM d, yyyy') : 'Select date'}
+                                </span>
+                            </button>
+                            <div className="w-8 h-px bg-neutral-300 dark:bg-neutral-700"></div>
+                            <button 
+                                onClick={() => setDatePickerFocus('checkout')}
+                                className={`flex flex-col items-center px-6 py-3 rounded-2xl border-2 transition-all ${datePickerFocus === 'checkout' ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-neutral-200 dark:border-neutral-700'}`}
+                            >
+                                <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Check out</span>
+                                <span className={`text-sm font-bold ${checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-400'}`}>
+                                    {checkOut ? format(checkOut, 'MMM d, yyyy') : 'Select date'}
+                                </span>
+                            </button>
                         </div>
 
                         {/* Calendar Body */}
@@ -390,15 +441,19 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                             </button>
                         </div>
 
-                        {/* Options */}
-                        <div className="mt-8 flex justify-center gap-3 overflow-x-auto pb-2">
-                            {['Exact dates', '± 1 day', '± 2 days', '± 3 days', '± 7 days'].map(opt => (
-                                <button key={opt} className={`px-4 py-2 border rounded-full text-xs font-semibold whitespace-nowrap transition-colors
-                                    ${opt === 'Exact dates' ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white bg-neutral-50 dark:bg-neutral-800' : 'border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-900 dark:hover:border-white'}`}
-                                >
-                                    {opt}
-                                </button>
-                            ))}
+                        {/* Footer with Clear and Duration */}
+                        <div className="mt-6 flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                            <button 
+                                onClick={() => { setCheckIn(null); setCheckOut(null); setDatePickerFocus('checkin'); }}
+                                className="text-sm font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white underline underline-offset-4 transition-colors"
+                            >
+                                Clear dates
+                            </button>
+                            {checkIn && checkOut && (
+                                <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                                    {Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24))} nights
+                                </span>
+                            )}
                         </div>
                     </div>
                 )}
