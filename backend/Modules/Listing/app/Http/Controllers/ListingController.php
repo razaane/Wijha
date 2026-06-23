@@ -173,6 +173,32 @@ class ListingController extends Controller
         if ($request->filled('guests_count')) {
             $query->where('guests_count', '>=', $request->guests_count);
         }
+        
+        // Rooms and beds
+        if ($request->filled('bedrooms')) {
+            $query->where('bedrooms_count', '>=', $request->bedrooms);
+        }
+        if ($request->filled('beds')) {
+            $query->where('beds_count', '>=', $request->beds);
+        }
+        if ($request->filled('bathrooms')) {
+            $query->where('bathrooms_count', '>=', $request->bathrooms);
+        }
+
+        // Property type
+        if ($request->filled('property_type')) {
+            $types = explode(',', $request->property_type);
+            $query->whereIn('property_type', $types);
+        }
+
+        // Amenities
+        if ($request->filled('amenities')) {
+            $amenities = explode(',', $request->amenities);
+            foreach ($amenities as $amenity) {
+                // Assuming amenities are stored as a JSON array like ["wifi", "kitchen"]
+                $query->whereJsonContains('amenities', $amenity);
+            }
+        }
 
         $listings = $query->with('user:id,name,avatar')
             ->latest()

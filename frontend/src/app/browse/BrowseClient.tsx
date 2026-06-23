@@ -46,7 +46,17 @@ export default function BrowseClient() {
 
     return (
         <div className="flex flex-col font-sans w-full bg-white dark:bg-[#0a0a0a] min-h-screen">
-            <Header activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
+            <Header 
+                activeCategory={activeCategory} 
+                setActiveCategory={setActiveCategory} 
+                isCompact={true}
+                searchQuery={{
+                    location: searchParams.get('location'),
+                    checkIn: searchParams.get('check_in'),
+                    checkOut: searchParams.get('check_out'),
+                    guests: searchParams.get('guests'),
+                }}
+            />
             
             <main className="flex-1 w-full px-4 md:px-8 xl:px-16 pb-16 pt-8">
                 <div className="mb-8">
