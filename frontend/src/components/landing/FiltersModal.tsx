@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { X, Minus, Plus, Home, Building, Tent, Hotel, Wifi, Utensils, Tv, Wind, Car, Waves, Monitor, Snowflake } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -108,7 +110,7 @@ export default function FiltersModal({ isOpen, onClose }: FiltersModalProps) {
         <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 md:p-12">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
             
-            <div className="relative bg-white dark:bg-[#1a1a1a] rounded-3xl shadow-2xl w-full max-w-2xl h-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="relative bg-white dark:bg-[#1a1a1a] rounded-3xl shadow-2xl w-full max-w-2xl h-full max-h-[90vh] flex flex-col overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
                     <button onClick={onClose} className="p-2 -ml-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
@@ -217,7 +219,14 @@ export default function FiltersModal({ isOpen, onClose }: FiltersModalProps) {
                             {AMENITIES.map(amenity => {
                                 const isSelected = selectedAmenities.includes(amenity.id);
                                 return (
-                                    <label key={amenity.id} className="flex items-center gap-3 cursor-pointer group">
+                                    <label 
+                                        key={amenity.id} 
+                                        className="flex items-center gap-3 cursor-pointer group"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            toggleArrayItem(setSelectedAmenities, selectedAmenities, amenity.id);
+                                        }}
+                                    >
                                         <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'bg-black border-black dark:bg-white dark:border-white' : 'border-neutral-300 dark:border-neutral-600 group-hover:border-black dark:group-hover:border-white'}`}>
                                             {isSelected && <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style={{ display: 'block', fill: 'none', height: '14px', width: '14px', stroke: 'currentColor', strokeWidth: 4, overflow: 'visible' }} className={isSelected ? 'text-white dark:text-black' : 'text-transparent'}><path fill="none" d="m4 16.5 8 8 16-16"></path></svg>}
                                         </div>

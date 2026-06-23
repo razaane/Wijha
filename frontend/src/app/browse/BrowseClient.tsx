@@ -18,7 +18,7 @@ export default function BrowseClient() {
     // Parse the category from the URL 'type' param
     const typeParam = searchParams.get('type');
     const [activeCategory, setActiveCategory] = useState<'all' | 'stays' | 'events' | 'experiences'>(
-        typeParam === 'event' ? 'experiences' : 'stays'
+        typeParam === 'event' ? 'events' : (typeParam === 'experience' ? 'experiences' : 'stays')
     );
 
     useEffect(() => {
@@ -52,6 +52,7 @@ export default function BrowseClient() {
                 isCompact={true}
                 searchQuery={{
                     location: searchParams.get('location'),
+                    eventName: searchParams.get('q'),
                     checkIn: searchParams.get('check_in'),
                     checkOut: searchParams.get('check_out'),
                     guests: searchParams.get('guests'),
