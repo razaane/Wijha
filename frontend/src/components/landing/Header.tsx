@@ -311,32 +311,19 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
                     </div>
 
-                    {/* Check In */}
+                    {/* Date Button */}
                     <div 
-                        onClick={() => { setActivePopover('date'); setDatePickerFocus('checkin'); }}
-                        className={`flex flex-col justify-center text-left px-6 w-full lg:w-[18%] rounded-full transition-all cursor-pointer relative z-10
-                        ${activePopover === 'date' && datePickerFocus === 'checkin' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
+                        onClick={() => { setActivePopover('date'); if (!checkIn) setDatePickerFocus('checkin'); }}
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[25%] rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check in</span>
-                        <span className={`font-medium text-sm w-full truncate ${checkIn ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                            {checkIn ? format(checkIn, 'MMM d') : 'Add date'}
-                        </span>
-                    </div>
-
-                    {/* Divider 2 */}
-                    <div className={`hidden lg:flex items-center shrink-0 transition-opacity ${activePopover === 'date' ? 'opacity-0' : 'opacity-100'}`}>
-                        <div className="w-px h-8 bg-neutral-300 dark:bg-neutral-700"></div>
-                    </div>
-
-                    {/* Check Out */}
-                    <div 
-                        onClick={() => { setActivePopover('date'); setDatePickerFocus('checkout'); }}
-                        className={`flex flex-col justify-center text-left px-6 w-full lg:w-[18%] rounded-full transition-all cursor-pointer relative z-10
-                        ${activePopover === 'date' && datePickerFocus === 'checkout' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
-                    >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check out</span>
-                        <span className={`font-medium text-sm w-full truncate ${checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                            {checkOut ? format(checkOut, 'MMM d') : 'Add date'}
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check in - Check out</span>
+                        <span className={`font-medium text-sm w-full truncate ${checkIn || checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                            {checkIn && checkOut 
+                                ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` 
+                                : checkIn 
+                                    ? `${format(checkIn, 'MMM d')} - Add checkout` 
+                                    : 'Add dates'}
                         </span>
                     </div>
 
@@ -400,7 +387,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Date Popover */}
                 {activePopover === 'date' && (
-                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-[9999]" style={{ width: '850px' }}>
+                    <div className="absolute top-[120%] left-1/2 -translate-x-1/2 bg-white dark:bg-neutral-900 rounded-[2rem] shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 z-[9999]" style={{ width: '450px' }}>
                         
                         {/* Check-in / Check-out Summary */}
                         <div className="flex items-center justify-center gap-4 mb-6">
@@ -426,19 +413,17 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                         </div>
 
                         {/* Calendar Body */}
-                        <div className="flex items-start justify-center gap-8 relative px-8">
-                            <button onClick={prevMonth} className="absolute left-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
-                                <ChevronLeft size={20} />
-                            </button>
+                        <div className="flex flex-col items-center relative px-8">
+                            <div className="w-full flex justify-between absolute top-0 px-4">
+                                <button onClick={prevMonth} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button onClick={nextMonth} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
                             
                             {renderCalendarMonth(currentMonth)}
-                            <div className="hidden md:block">
-                                {renderCalendarMonth(addMonths(currentMonth, 1))}
-                            </div>
-
-                            <button onClick={nextMonth} className="absolute right-0 top-0 p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
-                                <ChevronRight size={20} />
-                            </button>
                         </div>
 
                         {/* Footer with Clear and Duration */}
