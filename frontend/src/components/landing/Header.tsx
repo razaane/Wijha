@@ -42,6 +42,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     const [activePopover, setActivePopover] = useState<'location' | 'date' | 'guests' | null>(null);
     const searchRef = useRef<HTMLDivElement>(null);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     // Form State
     const [location, setLocation] = useState(searchQuery?.location || '');
@@ -76,12 +77,25 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isExpanded) {
+                setIsExpanded(false);
+                setActivePopover(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isExpanded]);
 
     const handleSearch = (e: React.FormEvent | React.MouseEvent) => {
         if (e) e.preventDefault();
         setActivePopover(null);
+        setIsExpanded(false);
         
         const params = new URLSearchParams();
         params.set('type', activeCategory === 'stays' ? 'rental' : (activeCategory === 'experiences' ? 'experience' : 'event'));
@@ -187,6 +201,17 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     return (
         <nav className="w-full bg-white dark:bg-[#0a0a0a] border-b border-neutral-100 dark:border-neutral-800 flex flex-col items-center pt-4 pb-8 px-4 md:px-8 xl:px-16 relative z-50">
             
+            {/* Background Dimmer when Popover is open or search is expanded */}
+            {(activePopover || isExpanded) && (
+                <div 
+                    className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-[-1] transition-opacity" 
+                    onClick={() => {
+                        setActivePopover(null);
+                        setIsExpanded(false);
+                    }}
+                ></div>
+            )}
+
             {/* Top Row: Logo, Pill Categories, User Actions */}
             <div className="w-full flex items-center justify-between mb-8">
                 <Link href="/" className="flex items-center gap-2">
@@ -292,14 +317,15 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
 
             {/* Functional Search Bar with Popovers */}
             <div className="relative z-40" ref={searchRef}>
-                {/* Background Dimmer when Popover is open */}
-                {activePopover && (
-                    <div className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[-1]" onClick={() => setActivePopover(null)}></div>
-                )}
-
-                {isCompact ? (
+                {isCompact && !isExpanded ? (
                     <div className="flex items-center gap-4 max-w-3xl mx-auto w-full transition-all">
-                        <div className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-2 flex-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-[#1a1a1a]">
+                        <div 
+                            onClick={() => {
+                                setIsExpanded(true);
+                                setActivePopover('location');
+                            }}
+                            className="flex items-center justify-between border border-neutral-200 dark:border-neutral-800 rounded-full px-4 py-2 flex-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-[#1a1a1a]"
+                        >
                             <div className="flex items-center divide-x divide-neutral-200 dark:divide-neutral-700 w-full">
                                 {activeCategory === 'events' && (
                                     <div className="px-4 font-bold text-sm text-neutral-900 dark:text-white truncate">
