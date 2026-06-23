@@ -293,7 +293,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     {/* Location Button */}
                     <div 
                         onClick={() => setActivePopover('location')}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[30%] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'location' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
                         <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Where</span>
@@ -314,10 +314,10 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     {/* Date Button */}
                     <div 
                         onClick={() => { setActivePopover('date'); if (!checkIn) setDatePickerFocus('checkin'); }}
-                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[25%] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex flex-col justify-center text-left px-8 w-full lg:w-[35%] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Check in - Check out</span>
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase whitespace-nowrap">Check in - Check out</span>
                         <span className={`font-medium text-sm w-full truncate ${checkIn || checkOut ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
                             {checkIn && checkOut 
                                 ? `${format(checkIn, 'MMM d')} - ${format(checkOut, 'MMM d')}` 
