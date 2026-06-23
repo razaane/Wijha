@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Search, MapPin, Calendar, Users, Compass } from 'lucide-react';
 import { Metadata } from 'next';
+import HomeFeeds from '@/components/landing/HomeFeeds';
 
 export const metadata: Metadata = {
   title: 'Wijha | Home',
@@ -95,6 +96,7 @@ export default function LandingPage() {
         </div>
       </main>
 
+      <HomeFeeds />
     </div>
   );
 }
