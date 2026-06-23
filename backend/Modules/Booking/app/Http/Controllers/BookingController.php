@@ -329,6 +329,11 @@ class BookingController extends Controller
             return $this->errorResponse('invalid_event', 'This ticket is for a different event.', 400);
         }
 
+        // Verify the event date has started (allow scanning on the day of the event)
+        if ($booking->check_in && now()->startOfDay()->lt($booking->check_in->startOfDay())) {
+            return $this->errorResponse('too_early', 'This event has not started yet. Tickets can only be scanned on or after the event date.', 400);
+        }
+
         // Verify ticket code (current naive verification WJ-booking_id-user_id)
         $expectedCode = "WJ-{$booking->id}-{$booking->user_id}";
         if ($validated['ticket_code'] !== $expectedCode) {
