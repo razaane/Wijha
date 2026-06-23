@@ -263,50 +263,52 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                     <div className="fixed inset-0 bg-black/20 dark:bg-black/40 z-[-1]" onClick={() => setActivePopover(null)}></div>
                 )}
 
-                <div className={`bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-center max-w-5xl mx-auto w-full transition-all shadow-md relative
-                    ${activePopover ? 'bg-neutral-200 dark:bg-neutral-800 shadow-none' : ''}`}
+                <div className={`border border-neutral-200 dark:border-neutral-800 rounded-full flex flex-col lg:flex-row items-center max-w-4xl mx-auto w-full transition-all relative
+                    ${activePopover ? 'bg-neutral-200 dark:bg-neutral-900 shadow-none' : 'bg-neutral-100 dark:bg-neutral-800 shadow-md'}`}
                 >
                     
                     {/* Location Button */}
                     <div 
                         onClick={() => setActivePopover('location')}
-                        className={`flex items-center px-8 lg:border-r border-neutral-200 dark:border-neutral-700 w-full lg:w-[35%] py-3.5 hover:bg-white dark:hover:bg-neutral-800 rounded-full transition-colors cursor-pointer
-                        ${activePopover === 'location' ? 'bg-white dark:bg-neutral-800 shadow-xl lg:border-r-0' : ''}`}
+                        className={`flex flex-col text-left px-8 w-full lg:w-[35%] py-3.5 rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'location' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <div className="flex flex-col text-left w-full">
-                            <span className="text-xs font-black text-neutral-900 dark:text-white tracking-wider mb-0.5">Where</span>
-                            <input 
-                                type="text" 
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                placeholder="Search destinations" 
-                                className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate" 
-                            />
-                        </div>
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">Where</span>
+                        <input 
+                            type="text" 
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            placeholder="Search destinations" 
+                            className="bg-transparent text-neutral-900 dark:text-white focus:outline-none placeholder:text-neutral-500 font-medium text-sm w-full truncate" 
+                        />
                     </div>
+
+                    {/* Divider 1 */}
+                    <div className={`hidden lg:block w-[1px] h-8 bg-neutral-300 dark:bg-neutral-700 shrink-0 transition-opacity ${activePopover === 'location' || activePopover === 'date' ? 'opacity-0' : 'opacity-100'}`}></div>
 
                     {/* Date Button */}
                     <div 
                         onClick={() => setActivePopover('date')}
-                        className={`flex items-center px-8 lg:border-r border-neutral-200 dark:border-neutral-700 w-full lg:w-[30%] py-3.5 hover:bg-white dark:hover:bg-neutral-800 rounded-full transition-colors cursor-pointer
-                        ${activePopover === 'date' ? 'bg-white dark:bg-neutral-800 shadow-xl lg:border-r-0' : ''}`}
+                        className={`flex flex-col text-left px-8 w-full lg:w-[30%] py-3.5 rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'date' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                     >
-                        <div className="flex flex-col text-left w-full">
-                            <span className="text-xs font-black text-neutral-900 dark:text-white tracking-wider mb-0.5">When</span>
-                            <span className={`font-medium text-sm w-full truncate ${selectedDate ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
-                                {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Add dates'}
-                            </span>
-                        </div>
+                        <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">When</span>
+                        <span className={`font-medium text-sm w-full truncate ${selectedDate ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
+                            {selectedDate ? format(selectedDate, 'MMM d, yyyy') : 'Add dates'}
+                        </span>
                     </div>
+
+                    {/* Divider 2 */}
+                    <div className={`hidden lg:block w-[1px] h-8 bg-neutral-300 dark:bg-neutral-700 shrink-0 transition-opacity ${activePopover === 'date' || activePopover === 'guests' ? 'opacity-0' : 'opacity-100'}`}></div>
 
                     {/* Guests / Tickets Button */}
                     <div 
-                        className={`flex items-center pl-8 pr-2 w-full lg:w-[35%] justify-between py-2 hover:bg-white dark:hover:bg-neutral-800 rounded-full transition-colors cursor-pointer
-                        ${activePopover === 'guests' ? 'bg-white dark:bg-neutral-800 shadow-xl' : ''}`}
+                        className={`flex items-center pl-8 pr-2 w-full lg:w-[35%] justify-between py-2 rounded-full transition-all cursor-pointer relative z-10
+                        ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                         onClick={() => setActivePopover('guests')}
                     >
                         <div className="flex flex-col text-left">
-                            <span className="text-xs font-black text-neutral-900 dark:text-white tracking-wider mb-0.5">
+                            <span className="text-[11px] font-black text-neutral-900 dark:text-white tracking-widest mb-0.5 uppercase">
                                 {activeCategory === 'experiences' ? 'Tickets' : 'Who'}
                             </span>
                             <span className={`font-medium text-sm w-full truncate ${totalGuests > 0 ? 'text-neutral-900 dark:text-white' : 'text-neutral-500'}`}>
@@ -314,8 +316,8 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                             </span>
                         </div>
                         <button 
-                            onClick={handleSearch} 
-                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-6 py-4 rounded-full flex items-center justify-center transition-all ml-4 shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
+                            onClick={(e) => { e.stopPropagation(); handleSearch(e); }} 
+                            className="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white px-6 py-3.5 rounded-full flex items-center justify-center transition-all ml-4 shrink-0 shadow-lg shadow-amber-500/30 gap-2 font-black tracking-wide"
                         >
                             <Search size={18} strokeWidth={3} />
                             <span className="hidden xl:block">Search</span>
