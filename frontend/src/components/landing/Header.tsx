@@ -193,9 +193,15 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                 {/* Auth Menu */}
                 <div className="flex items-center gap-4 relative" ref={menuRef}>
-                    <Link href="/host/onboarding" className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-5 py-2.5 rounded-full transition-colors hidden lg:block">
-                        Switch to hosting
-                    </Link>
+                    {isAuthenticated ? (
+                        <Link href={user?.role === 'host' ? '/host/dashboard' : '/host/onboarding'} className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-5 py-2.5 rounded-full transition-colors hidden lg:block">
+                            {user?.role === 'host' ? 'Switch to hosting' : 'Become a host'}
+                        </Link>
+                    ) : (
+                        <Link href="/host/onboarding" className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-5 py-2.5 rounded-full transition-colors hidden lg:block">
+                            Become a host
+                        </Link>
+                    )}
                     
                     <button 
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -220,9 +226,6 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
                                         <p className="font-bold text-neutral-900 dark:text-white truncate">{user?.name}</p>
                                         <p className="text-sm text-neutral-500 truncate">{user?.email}</p>
                                     </div>
-                                    <Link href="/dashboard/stays" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                        <LayoutDashboard size={18} /> Dashboard
-                                    </Link>
                                     <Link href="/trips" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                         <Navigation size={18} /> My Trips
                                     </Link>
@@ -303,7 +306,7 @@ export default function Header({ activeCategory, setActiveCategory }: HeaderProp
 
                     {/* Guests / Tickets Button */}
                     <div 
-                        className={`flex items-center pl-8 pr-2 w-full lg:w-[35%] justify-between h-[66px] rounded-full transition-all cursor-pointer relative z-10
+                        className={`flex items-center pl-8 pr-4 w-full lg:w-[35%] justify-between h-[66px] rounded-full transition-all cursor-pointer relative z-10
                         ${activePopover === 'guests' ? 'bg-white dark:bg-[#1a1a1a] shadow-[0_6px_20px_rgba(0,0,0,0.08)]' : 'hover:bg-neutral-200/80 dark:hover:bg-neutral-700/80'}`}
                         onClick={() => setActivePopover('guests')}
                     >
