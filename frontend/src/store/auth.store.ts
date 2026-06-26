@@ -61,11 +61,24 @@ export const useAuthStore = create<AuthState>((set) => ({
                 const res = await api.get('/auth/me');
                 if (res.data?.data) {
                     set({ user: res.data.data, isAuthenticated: true, isLoading: false });
+                    
+                    // Fetch favorite IDs
+                    try {
+                        const { getFavoriteIds } = await import('@/lib/favorites.api');
+                        const { useFavoriteStore } = await import('@/store/favorite.store');
+                        const favoriteIds = await getFavoriteIds();
+                        useFavoriteStore.getState().setFavorites(favoriteIds);
+                    } catch (e) {
+                        console.error('Failed to fetch favorite ids', e);
+                    }
                 } else {
                     useAuthStore.getState().logout();
                 }
-            } catch (error) {
-                console.error("Failed to fetch user session:", error);
+            } catch (error: any) {
+                // Ignore 401 errors as they are expected when a session naturally expires
+                if (error.response?.status !== 401) {
+                    console.error("Failed to fetch user session:", error.message || error);
+                }
                 useAuthStore.getState().logout();
             }
         } else {

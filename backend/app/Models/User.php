@@ -121,4 +121,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasPendingVerification();
     }
+
+    public function favorites()
+    {
+        return $this->hasMany(\Modules\Listing\Models\Favorite::class);
+    }
 }

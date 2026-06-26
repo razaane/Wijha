@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X, User, Heart, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { getStorageUrl } from '@/lib/url';
 import { Category } from './LandingClient';
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
 import FiltersModal from './FiltersModal';
 
 interface HeaderProps {
-    activeCategory: Category;
-    setActiveCategory: (c: Category) => void;
+    activeCategory?: Category;
+    setActiveCategory?: (c: Category) => void;
     isCompact?: boolean;
     searchQuery?: {
         location?: string | null;
@@ -33,6 +34,7 @@ const SUGGESTED_DESTINATIONS = [
 
 export default function Header({ activeCategory, setActiveCategory, isCompact = false, searchQuery, hideSearch = false }: HeaderProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const { isAuthenticated, user, fetchUser, logout } = useAuthStore();
     
     // Auth Menu State
@@ -218,7 +220,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     };
 
     return (
-        <nav className="w-full bg-white dark:bg-[#0a0a0a] border-b border-neutral-100 dark:border-neutral-800 flex flex-col items-center pt-4 pb-8 px-4 md:px-8 xl:px-16 relative z-50">
+        <nav className={`w-full bg-white dark:bg-[#0a0a0a] border-b border-neutral-100 dark:border-neutral-800 flex flex-col items-center pt-4 px-4 md:px-8 xl:px-16 relative z-50 ${hideSearch ? 'pb-4' : 'pb-8'}`}>
             
             {/* Background Dimmer when Popover is open or search is expanded */}
             {(activePopover || isExpanded) && (
@@ -232,51 +234,45 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
             )}
 
             {/* Top Row: Logo, Pill Categories, User Actions */}
-            <div className="w-full flex items-center justify-between mb-8">
+            <div className={`w-full flex items-center justify-between ${hideSearch ? '' : 'mb-8'}`}>
                 <Link href="/" className="flex items-center gap-2">
                     <Compass size={36} className="text-amber-500" />
                     <span className="text-3xl font-black tracking-tight text-amber-500 hidden lg:block">Wijha</span>
                 </Link>
 
                 {/* Wijha Custom Pill Categories */}
-                <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-900 rounded-full p-1.5 shadow-inner border border-neutral-200 dark:border-neutral-800 overflow-x-auto hide-scrollbar max-w-full">
+                {pathname === '/' && (
+                    <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-900 rounded-full p-1.5 shadow-inner border border-neutral-200 dark:border-neutral-800 overflow-x-auto hide-scrollbar max-w-full">
                     <button 
-                        onClick={() => setActiveCategory('all')}
+                        onClick={() => setActiveCategory?.('all')}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'all' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Globe size={18} /> All
                     </button>
                     <button 
-                        onClick={() => setActiveCategory('stays')}
+                        onClick={() => setActiveCategory?.('stays')}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'stays' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Home size={18} /> Stays
                     </button>
                     <button 
-                        onClick={() => setActiveCategory('events')}
+                        onClick={() => setActiveCategory?.('events')}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'events' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Ticket size={18} /> Events
                     </button>
                     <button 
-                        onClick={() => setActiveCategory('experiences')}
+                        onClick={() => setActiveCategory?.('experiences')}
                         className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'experiences' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <MapIcon size={18} /> Experiences
-                    </button>
-                </div>
+                        </button>
+                    </div>
+                )}
 
                 {/* Auth Menu */}
                 <div className="flex items-center gap-4 relative" ref={menuRef}>
-                    {isAuthenticated ? (
-                        <Link href={user?.role === 'host' ? '/host/dashboard' : '/host/onboarding'} className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-5 py-2.5 rounded-full transition-colors hidden lg:block">
-                            {user?.role === 'host' ? 'Switch to hosting' : 'Become a host'}
-                        </Link>
-                    ) : (
-                        <Link href="/host/onboarding" className="text-sm font-bold text-neutral-900 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 px-5 py-2.5 rounded-full transition-colors hidden lg:block">
-                            Become a host
-                        </Link>
-                    )}
+
                     
                     <button 
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -285,7 +281,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                         <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style={{ display: 'block', fill: 'none', height: '16px', width: '16px', stroke: 'currentColor', strokeWidth: 3, overflow: 'visible' }} className="text-neutral-500"><g fill="none" fillRule="nonzero"><path d="m2 16h28"></path><path d="m2 24h28"></path><path d="m2 8h28"></path></g></svg>
                         <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white overflow-hidden shadow-sm">
                             {isAuthenticated && user?.avatar ? (
-                                <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                                <img src={getStorageUrl(user.avatar)} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
                                 <UserCircle size={20} />
                             )}
@@ -305,7 +301,20 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                                         <Navigation size={18} /> My Trips
                                     </Link>
                                     <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <User size={18} /> Profile
+                                    </Link>
+                                    <Link href="/favorites" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <Heart size={18} /> Favorites
+                                    </Link>
+                                    <Link href="/messages" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <MessageSquare size={18} /> Messages
+                                    </Link>
+                                    <Link href="/settings" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                         <Settings size={18} /> Settings
+                                    </Link>
+                                    <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
+                                    <Link href={user?.is_verified_host ? '/host/dashboard' : '/host/onboarding'} onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        {user?.is_verified_host ? <><Compass size={18} /> Switch to hosting</> : <><Building size={18} /> Become a host</>}
                                     </Link>
                                     <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
                                     <button onClick={handleLogout} className="px-4 py-3 flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm font-medium text-red-500 text-left w-full">

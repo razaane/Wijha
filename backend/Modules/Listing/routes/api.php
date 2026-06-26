@@ -19,6 +19,11 @@ Route::prefix('v1/listings')->group(function () {
 
     // Protected routes (JWT authentication required)
     Route::middleware('auth:api')->group(function () {
+        // Favorites
+        Route::get('/favorites', [\Modules\Listing\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+        Route::get('/favorites/ids', [\Modules\Listing\Http\Controllers\FavoriteController::class, 'ids'])->name('favorites.ids');
+        Route::post('/{id}/favorite', [\Modules\Listing\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
         Route::get('/me', [ListingController::class, 'myListings'])->name('listings.me');
         Route::post('/', [ListingController::class, 'store'])->name('listings.store');
         Route::get('/{id}', [ListingController::class, 'show'])->name('listings.show');

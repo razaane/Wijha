@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const protectedPaths = [
-  '/dashboard',
   '/settings',
   '/host',
   // add other protected routes here
@@ -46,7 +45,7 @@ export function proxy(request: NextRequest) {
 
   // 2. If trying to access login/register while ALREADY logged in -> Redirect to dashboard
   if (isAuthPath && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();
@@ -55,7 +54,6 @@ export function proxy(request: NextRequest) {
 // Only run middleware on specific paths to optimize performance
 export const config = {
   matcher: [
-    '/dashboard/:path*',
     '/settings/:path*',
     '/host/:path*',
     '/login',

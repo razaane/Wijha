@@ -212,10 +212,10 @@ export default function VerifyIdentityPage() {
                         </a>
                     ) : (
                         <Link 
-                            href="/dashboard" 
+                            href="/" 
                             className="block w-full text-center py-4 rounded-xl font-bold transition-colors bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white hover:bg-neutral-200"
                         >
-                            Return to Dashboard
+                            Return to Homepage
                         </Link>
                     )}
                 </motion.div>
@@ -226,8 +226,8 @@ export default function VerifyIdentityPage() {
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col py-12 px-4 sm:px-6">
             <div className="max-w-3xl mx-auto w-full">
-                <Link href="/dashboard" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:text-white mb-8 inline-block font-bold">
-                    ← Back to Traveler Dashboard
+                <Link href="/" className="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:text-white mb-8 inline-block font-bold">
+                    ← Back to Homepage
                 </Link>
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white dark:bg-neutral-900 rounded-3xl p-8 sm:p-12 shadow-sm border border-neutral-200 dark:border-neutral-800 relative overflow-hidden">
