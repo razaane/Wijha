@@ -109,12 +109,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
                 {/* Profile & Action Buttons (Right) */}
                 <div className="flex items-center gap-4">
                     
-                    {/* Notifications (Desktop) */}
-                    <button className="hidden md:flex p-2.5 rounded-full text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors relative">
-                        <Bell size={20} />
-                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0a0a0a]"></span>
-                    </button>
-                    
+
                     {/* Profile Dropdown (Desktop) */}
                     <div className="hidden md:block relative" ref={dropdownRef}>
                         <button 
@@ -155,7 +150,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
                                     
                                     <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
 
-                                    <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+                                    <Link href="/" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10">
                                         <Compass size={18} className="text-amber-500" /> Switch to Traveling
                                     </Link>
                                     
@@ -205,7 +200,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
                             
                             <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
                             
-                            <Link href="/dashboard" className="px-4 py-3 rounded-xl font-bold text-lg text-amber-600 flex items-center gap-3">
+                            <Link href="/" className="px-4 py-3 rounded-xl font-bold text-lg text-amber-600 flex items-center gap-3">
                                 <Compass size={20} /> Switch to Traveling
                             </Link>
                             

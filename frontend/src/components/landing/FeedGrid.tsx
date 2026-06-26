@@ -7,6 +7,9 @@ import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import Link from 'next/link';
 import { Star, Heart } from 'lucide-react';
 import { Category } from './LandingClient';
+import { useAuthStore } from '@/store/auth.store';
+import { useFavoriteStore } from '@/store/favorite.store';
+import { toggleFavorite } from '@/lib/favorites.api';
 
 interface FeedGridProps {
     activeCategory: Category;
@@ -17,6 +20,39 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
     const [eventsListings, setEventsListings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const { formatConverted } = useCurrencyFormatter();
+    
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const { hasFavorite, addFavorite, removeFavorite } = useFavoriteStore();
+
+    const handleToggleFavorite = async (e: React.MouseEvent, listingId: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            alert('Please login to save favorites.');
+            return;
+        }
+
+        const isFav = hasFavorite(listingId);
+        
+        // Optimistic update
+        if (isFav) {
+            removeFavorite(listingId);
+        } else {
+            addFavorite(listingId);
+        }
+
+        try {
+            await toggleFavorite(listingId);
+        } catch (error) {
+            if (isFav) {
+                addFavorite(listingId);
+            } else {
+                removeFavorite(listingId);
+            }
+            console.error('Failed to toggle favorite', error);
+        }
+    };
 
     useEffect(() => {
         const fetchListings = async () => {
@@ -74,8 +110,11 @@ export default function FeedGrid({ activeCategory }: FeedGridProps) {
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-neutral-400">No Image</div>
                             )}
-                            <button className="absolute top-3 right-3 p-2 text-white/80 hover:text-white hover:scale-110 transition-all z-10 drop-shadow-md">
-                                <Heart size={24} />
+                            <button 
+                                onClick={(e) => handleToggleFavorite(e, listing.id)}
+                                className="absolute top-3 right-3 p-2 text-white/80 hover:text-white hover:scale-110 transition-all z-10 drop-shadow-md"
+                            >
+                                <Heart size={24} className={hasFavorite(listing.id) ? 'fill-rose-500 text-rose-500' : ''} />
                             </button>
                             {listing.type === 'rental' && listing.rating >= 4.8 && (
                                 <div className="absolute top-3 left-3 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 border border-neutral-200/50 dark:border-neutral-700/50 text-neutral-900">

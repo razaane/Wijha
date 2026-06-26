@@ -138,4 +138,9 @@ class Listing extends Model implements HasMedia
     {
         return $this->hasMany(\Modules\Booking\Models\Booking::class);
     }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'listing_id', 'user_id')->withTimestamps();
+    }
 }

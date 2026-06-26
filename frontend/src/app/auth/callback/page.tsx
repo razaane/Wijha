@@ -18,7 +18,7 @@ function AuthCallbackContent() {
             .then(response => {
                 const user = response.data.data;
                 setAuth(user, ''); // Token is managed via HttpOnly cookie, no need to store it
-                router.push('/dashboard');
+                router.push('/');
             })
             .catch(error => {
                 console.error("Failed to fetch user profile", error);

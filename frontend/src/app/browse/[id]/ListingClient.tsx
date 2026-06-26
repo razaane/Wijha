@@ -8,14 +8,10 @@ import Header from '@/components/landing/Header';
 import { Category } from '@/components/landing/LandingClient';
 import { Star, Heart, Share, MapPin, Check, Grid, X, ChevronLeft, ChevronRight, MessageCircle, ShieldCheck, Award } from 'lucide-react';
 import { differenceInDays, format, addDays } from 'date-fns';
-
-// --- MOCK REVIEWS DATA ---
-const MOCK_REVIEWS = [
-    { id: 1, name: "Sarah M.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", date: "August 2026", rating: 5, text: "Absolutely stunning place! The host was incredibly responsive and the location couldn't be better. Would highly recommend to anyone looking for a premium stay." },
-    { id: 2, name: "James L.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James", date: "July 2026", rating: 5, text: "Everything was exactly as pictured, if not better. The amenities were top-notch and we loved the attention to detail throughout the property." },
-    { id: 3, name: "Elena R.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena", date: "June 2026", rating: 4, text: "Great experience overall. The neighborhood is vibrant and there's so much to do nearby. Only minor issue was the Wi-Fi being a bit slow on the last day, but otherwise perfect." },
-    { id: 4, name: "David K.", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David", date: "May 2026", rating: 5, text: "We had the most amazing time here. The host gave us excellent local recommendations and made us feel right at home. 10/10!" }
-];
+import { useAuthStore } from '@/store/auth.store';
+import { useFavoriteStore } from '@/store/favorite.store';
+import { toggleFavorite } from '@/lib/favorites.api';
+import Link from 'next/link';
 
 export default function ListingClient({ id }: { id: string }) {
     const [listing, setListing] = useState<any>(null);
@@ -24,8 +20,11 @@ export default function ListingClient({ id }: { id: string }) {
     const { formatConverted } = useCurrencyFormatter();
 
     // UI States
-    const [isSaved, setIsSaved] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
+    
+    // Auth & Favorites
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const { hasFavorite, addFavorite, removeFavorite } = useFavoriteStore();
     
     // Gallery State
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -91,9 +90,9 @@ export default function ListingClient({ id }: { id: string }) {
     const totalPrice = nightsTotal + cleaningFee + serviceFee;
 
     // Photos
-    const photos = listing.photo_urls && listing.photo_urls.length > 0 ? listing.photo_urls : [null, null, null, null, null];
+    const photos = listing.photo_urls && listing.photo_urls.length > 0 ? listing.photo_urls : [];
     const getPhoto = (index: number) => {
-        return photos[index]?.original ? getStorageUrl(photos[index].original) : `https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80&sig=${index}`;
+        return photos[index]?.original ? getStorageUrl(photos[index].original) : '';
     };
 
     // Actions
@@ -115,8 +114,33 @@ export default function ListingClient({ id }: { id: string }) {
         }
     };
 
-    const handleSave = () => {
-        setIsSaved(!isSaved);
+    const handleSave = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            alert('Please login to save favorites.');
+            return;
+        }
+
+        const listingId = Number(id);
+        const isFav = hasFavorite(listingId);
+        
+        if (isFav) {
+            removeFavorite(listingId);
+        } else {
+            addFavorite(listingId);
+        }
+
+        try {
+            await toggleFavorite(listingId);
+        } catch (error) {
+            if (isFav) {
+                addFavorite(listingId);
+            } else {
+                removeFavorite(listingId);
+            }
+        }
     };
 
     const openGallery = (index: number) => {
@@ -158,38 +182,54 @@ export default function ListingClient({ id }: { id: string }) {
                             {isCopied ? 'Copied!' : 'Share'}
                         </button>
                         <button onClick={handleSave} className="flex items-center gap-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm">
-                            <Heart size={16} className={isSaved ? "fill-rose-500 text-rose-500" : ""} /> 
-                            {isSaved ? 'Saved' : 'Save'}
+                            <Heart size={16} className={hasFavorite(Number(id)) ? "fill-rose-500 text-rose-500" : ""} /> 
+                            {hasFavorite(Number(id)) ? 'Saved' : 'Save'}
                         </button>
                     </div>
                 </div>
 
                 {/* Cinematic Photo Grid */}
-                <div className="grid grid-cols-4 grid-rows-2 gap-2 h-[40vh] md:h-[50vh] min-h-[300px] md:min-h-[400px] mb-12 rounded-2xl overflow-hidden relative">
-                    <div onClick={() => openGallery(0)} className="col-span-4 md:col-span-2 row-span-2 h-full cursor-pointer relative group overflow-hidden">
-                        <img src={getPhoto(0)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Main" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                {photos.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 h-[40vh] md:h-[50vh] min-h-[300px] md:min-h-[400px] mb-12 rounded-2xl overflow-hidden relative">
+                        <div onClick={() => openGallery(0)} className={`col-span-1 md:col-span-2 row-span-2 h-full cursor-pointer relative group overflow-hidden ${photos.length === 1 ? 'md:col-span-4' : ''}`}>
+                            <img src={getPhoto(0)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Main" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                        </div>
+                        {photos[1] && (
+                            <div onClick={() => openGallery(1)} className={`hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden ${photos.length === 2 ? 'row-span-2 md:col-span-2' : ''}`}>
+                                <img src={getPhoto(1)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 1" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                            </div>
+                        )}
+                        {photos[2] && photos.length > 2 && (
+                            <div onClick={() => openGallery(2)} className={`hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden ${photos.length === 3 ? 'md:col-span-2' : ''}`}>
+                                <img src={getPhoto(2)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 2" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                            </div>
+                        )}
+                        {photos[3] && photos.length > 3 && (
+                            <div onClick={() => openGallery(3)} className={`hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden ${photos.length === 4 ? 'row-span-2' : ''}`}>
+                                <img src={getPhoto(3)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 3" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                            </div>
+                        )}
+                        {photos[4] && photos.length > 4 && (
+                            <div onClick={() => openGallery(4)} className="hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden">
+                                <img src={getPhoto(4)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 4" />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                            </div>
+                        )}
+                        {photos.length > 0 && (
+                            <button onClick={(e) => { e.stopPropagation(); openGallery(0); }} className="absolute bottom-4 right-4 bg-white dark:bg-neutral-900 px-4 py-1.5 rounded-lg border border-neutral-900 dark:border-neutral-100 text-sm font-bold flex items-center gap-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-10 shadow-sm">
+                                <Grid size={16} /> Show all photos
+                            </button>
+                        )}
                     </div>
-                    <div onClick={() => openGallery(1)} className="hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden">
-                        <img src={getPhoto(1)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 1" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                ) : (
+                    <div className="w-full h-[300px] mb-12 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 font-medium">
+                        No photos available
                     </div>
-                    <div onClick={() => openGallery(2)} className="hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden">
-                        <img src={getPhoto(2)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 2" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                    </div>
-                    <div onClick={() => openGallery(3)} className="hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden">
-                        <img src={getPhoto(3)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 3" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                    </div>
-                    <div onClick={() => openGallery(4)} className="hidden md:block col-span-1 row-span-1 h-full cursor-pointer relative group overflow-hidden">
-                        <img src={getPhoto(4)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Gallery 4" />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
-                        <button onClick={(e) => { e.stopPropagation(); openGallery(0); }} className="absolute bottom-4 right-4 bg-white dark:bg-neutral-900 px-4 py-1.5 rounded-lg border border-neutral-900 dark:border-neutral-100 text-sm font-bold flex items-center gap-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors z-10 shadow-sm">
-                            <Grid size={16} /> Show all photos
-                        </button>
-                    </div>
-                </div>
+                )}
 
                 {/* Content Split */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
@@ -247,33 +287,41 @@ export default function ListingClient({ id }: { id: string }) {
                         <div className="py-8 border-b border-neutral-200 dark:border-neutral-800">
                             <div className="flex items-center gap-2 mb-8">
                                 <Star size={24} className="text-neutral-900 dark:text-white fill-current" />
-                                <h2 className="text-2xl font-bold">4.98 · 120 reviews</h2>
+                                <h2 className="text-2xl font-bold">{listing.rating || 'New'} · {listing.reviews_count || 0} reviews</h2>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                {MOCK_REVIEWS.map(review => (
-                                    <div key={review.id} className="flex flex-col">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <img src={review.avatar} alt={review.name} className="w-12 h-12 rounded-full bg-neutral-100" />
-                                            <div>
-                                                <h3 className="font-bold">{review.name}</h3>
-                                                <div className="text-sm text-neutral-500">{review.date}</div>
+                            {listing.reviews && listing.reviews.length > 0 ? (
+                                <>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        {listing.reviews.map((review: any) => (
+                                            <div key={review.id} className="flex flex-col">
+                                                <div className="flex items-center gap-4 mb-4">
+                                                    <img src={review.user?.avatar ? getStorageUrl(review.user.avatar) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.user?.name || 'User'}`} alt={review.user?.name || 'User'} className="w-12 h-12 rounded-full bg-neutral-100" />
+                                                    <div>
+                                                        <h3 className="font-bold">{review.user?.name || 'Anonymous'}</h3>
+                                                        <div className="text-sm text-neutral-500">{format(new Date(review.created_at), 'MMMM yyyy')}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-1 mb-2">
+                                                    {[...Array(review.rating || 5)].map((_, i) => (
+                                                        <Star key={i} size={12} className="text-amber-500 fill-amber-500" />
+                                                    ))}
+                                                </div>
+                                                <p className="text-neutral-700 dark:text-neutral-300 font-light leading-relaxed">
+                                                    {review.comment}
+                                                </p>
                                             </div>
-                                        </div>
-                                        <div className="flex gap-1 mb-2">
-                                            {[...Array(review.rating)].map((_, i) => (
-                                                <Star key={i} size={12} className="text-amber-500 fill-amber-500" />
-                                            ))}
-                                        </div>
-                                        <p className="text-neutral-700 dark:text-neutral-300 font-light leading-relaxed">
-                                            {review.text}
-                                        </p>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                            <button className="mt-8 px-6 py-3 border border-neutral-900 dark:border-neutral-100 rounded-lg font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-                                Show all 120 reviews
-                            </button>
+                                    {listing.reviews_count > 4 && (
+                                        <button className="mt-8 px-6 py-3 border border-neutral-900 dark:border-neutral-100 rounded-lg font-bold hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+                                            Show all {listing.reviews_count} reviews
+                                        </button>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-neutral-500 dark:text-neutral-400 italic">No reviews yet. Be the first to leave a review after your stay!</p>
+                            )}
                         </div>
 
                         {/* Map Placeholder */}
@@ -320,9 +368,9 @@ export default function ListingClient({ id }: { id: string }) {
                                 Superhosts are experienced, highly rated hosts who are committed to providing great stays for guests. We look forward to welcoming you to our beautiful home!
                             </p>
 
-                            <button className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg font-bold flex items-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors">
+                            <Link href={{ pathname: `/contact-host/${listing.id}`, query: { guests: guests, check_in: checkInStr, check_out: checkOutStr } }} className="inline-flex px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg font-bold items-center gap-2 hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors">
                                 <MessageCircle size={18} /> Contact Host
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
@@ -413,7 +461,7 @@ export default function ListingClient({ id }: { id: string }) {
                                 <Share size={20} />
                             </button>
                             <button onClick={handleSave} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                                <Heart size={20} className={isSaved ? "fill-white" : ""} />
+                                <Heart size={20} className={hasFavorite(Number(id)) ? "fill-rose-500 text-rose-500" : ""} />
                             </button>
                         </div>
                     </div>
