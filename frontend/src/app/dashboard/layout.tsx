@@ -62,6 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const navLinks = [
         { name: 'Stays', href: '/dashboard' },
         { name: 'Experiences', href: '/dashboard/experiences' },
+        { name: 'Transport', href: '/dashboard/transport' },
         { name: 'My Bookings', href: '/dashboard/bookings' },
     ];
 

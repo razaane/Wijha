@@ -4,5 +4,6 @@
     "Listing": true,
     "Booking": false,
     "Payment": true,
-    "Admin": true
+    "Admin": true,
+    "Transport": true
 }
