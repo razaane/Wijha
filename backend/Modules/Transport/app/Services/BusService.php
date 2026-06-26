@@ -17,7 +17,7 @@ class BusService
             [
                 'id' => 'BS-'.rand(100,999),
                 'operator' => 'CTM',
-                'logo' => 'https://upload.wikimedia.org/wikipedia/commons/4/4b/CTM_Maroc_logo.svg',
+                'logo' => 'https://ui-avatars.com/api/?name=CTM&background=10b981&color=fff&rounded=true&bold=true&size=128',
                 'departure' => [
                     'station' => ucfirst($origin) . ' Central Station',
                     'time' => $date . 'T' . str_pad(rand(6, 10), 2, '0', STR_PAD_LEFT) . ':30:00',
@@ -28,7 +28,7 @@ class BusService
                 ],
                 'duration' => rand(3, 8) . 'h ' . rand(0, 59) . 'm',
                 'price' => [
-                    'amount' => rand(15, 45),
+                    'amount' => 160,
                     'currency' => 'MAD'
                 ],
                 'amenities' => ['WiFi', 'Air Conditioning', 'Power Outlets'],
@@ -37,7 +37,7 @@ class BusService
             [
                 'id' => 'BS-'.rand(100,999),
                 'operator' => 'Supratours',
-                'logo' => 'https://www.oncf.ma/themes/custom/oncf/logo.svg', // Proxy for Supratours
+                'logo' => 'https://ui-avatars.com/api/?name=SUP&background=f59e0b&color=fff&rounded=true&bold=true&size=128',
                 'departure' => [
                     'station' => ucfirst($origin) . ' ONCF Station',
                     'time' => $date . 'T' . str_pad(rand(14, 18), 2, '0', STR_PAD_LEFT) . ':00:00',
@@ -48,7 +48,7 @@ class BusService
                 ],
                 'duration' => rand(3, 8) . 'h ' . rand(0, 59) . 'm',
                 'price' => [
-                    'amount' => rand(12, 40),
+                    'amount' => 140,
                     'currency' => 'MAD'
                 ],
                 'amenities' => ['Air Conditioning'],

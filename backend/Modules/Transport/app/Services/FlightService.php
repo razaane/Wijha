@@ -28,14 +28,14 @@ class FlightService
         */
 
         // Simulating API latency
-        usleep(500000); // 500ms
+        // usleep(500000); // 500ms
 
         return [
             [
                 'id' => 'FL-'.rand(1000,9999),
                 'airline' => 'Royal Air Maroc',
                 'airline_code' => 'RAM',
-                'logo' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Royal_Air_Maroc_Logo.svg/512px-Royal_Air_Maroc_Logo.svg.png',
+                'logo' => 'https://ui-avatars.com/api/?name=RAM&background=ef4444&color=fff&rounded=true&bold=true&size=128',
                 'departure' => [
                     'iataCode' => strtoupper($originCode),
                     'time' => $date . 'T' . str_pad(rand(6, 12), 2, '0', STR_PAD_LEFT) . ':00:00',
@@ -46,8 +46,8 @@ class FlightService
                 ],
                 'duration' => rand(1, 4) . 'h ' . rand(0, 59) . 'm',
                 'price' => [
-                    'amount' => rand(150, 600),
-                    'currency' => 'USD'
+                    'amount' => 1850,
+                    'currency' => 'MAD'
                 ],
                 'stops' => rand(0, 1),
                 'seats_available' => rand(2, 20)
@@ -56,7 +56,7 @@ class FlightService
                 'id' => 'FL-'.rand(1000,9999),
                 'airline' => 'Air France',
                 'airline_code' => 'AF',
-                'logo' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Air_France_Logo.svg/512px-Air_France_Logo.svg.png',
+                'logo' => 'https://ui-avatars.com/api/?name=AF&background=1d4ed8&color=fff&rounded=true&bold=true&size=128',
                 'departure' => [
                     'iataCode' => strtoupper($originCode),
                     'time' => $date . 'T' . str_pad(rand(10, 16), 2, '0', STR_PAD_LEFT) . ':00:00',
@@ -67,8 +67,8 @@ class FlightService
                 ],
                 'duration' => rand(2, 6) . 'h ' . rand(0, 59) . 'm',
                 'price' => [
-                    'amount' => rand(200, 800),
-                    'currency' => 'USD'
+                    'amount' => 2400,
+                    'currency' => 'MAD'
                 ],
                 'stops' => rand(0, 1),
                 'seats_available' => rand(1, 15)

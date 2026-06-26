@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import { BusFront, Search, Calendar, Users, MapPin, Loader2, ArrowRightLeft, Clock, Wifi, Plug, Airplay } from 'lucide-react';
@@ -18,6 +18,13 @@ interface Bus {
     seats_available: number;
 }
 
+const BUS_CITIES = [
+    'Casablanca', 'Rabat', 'Marrakech', 'Tangier', 'Agadir', 'Fes', 'Meknes', 'Oujda', 'Nador', 
+    'Tetouan', 'Essaouira', 'Dakhla', 'Laayoune', 'Chefchaouen', 'Safi', 'El Jadida', 'Kenitra', 
+    'Taza', 'Taroudant', 'Guelmim', 'Errachidia', 'Ouarzazate', 'Tiznit', 'Zagora', 'Khenifra', 
+    'Khouribga', 'Beni Mellal', 'Khemisset', 'Settat', 'Berrechid'
+].sort();
+
 export default function BusesSearch() {
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
@@ -28,6 +35,18 @@ export default function BusesSearch() {
     const [loading, setLoading] = useState(false);
     const [searched, setSearched] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const defaultCity = 'Casablanca';
+        setOrigin(defaultCity);
+        setLoading(true);
+        api.get(`/transport/buses/discover?origin=${defaultCity}`)
+            .then(res => {
+                setBuses(res.data.data);
+                setSearched(true);
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,44 +106,46 @@ export default function BusesSearch() {
                     <div className="lg:col-span-1 space-y-1.5">
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider pl-1">From</label>
                         <div className="relative group">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
-                            <input 
-                                type="text"
-                                placeholder="City (e.g. Marrakech)"
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-amber-500 transition-colors" size={20} />
+                            <select 
                                 value={origin}
                                 onChange={(e) => setOrigin(e.target.value)}
                                 required
-                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-emerald-500 transition-all capitalize"
-                            />
+                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-amber-500 transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="" disabled>Select Origin</option>
+                                {BUS_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
                     </div>
 
                     <div className="lg:col-span-1 space-y-1.5">
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider pl-1">To</label>
                         <div className="relative group">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
-                            <input 
-                                type="text"
-                                placeholder="City (e.g. Agadir)"
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-amber-500 transition-colors" size={20} />
+                            <select 
                                 value={destination}
                                 onChange={(e) => setDestination(e.target.value)}
                                 required
-                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-emerald-500 transition-all capitalize"
-                            />
+                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-amber-500 transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="" disabled>Select Destination</option>
+                                {BUS_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
                         </div>
                     </div>
 
                     <div className="lg:col-span-1 space-y-1.5">
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider pl-1">Date</label>
                         <div className="relative group">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
+                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-amber-500 transition-colors" size={20} />
                             <input 
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
                                 required
                                 min={new Date().toISOString().split('T')[0]}
-                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-emerald-500 transition-all"
+                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-amber-500 transition-all"
                             />
                         </div>
                     </div>
@@ -132,7 +153,7 @@ export default function BusesSearch() {
                     <div className="lg:col-span-1 space-y-1.5">
                         <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider pl-1">Passengers</label>
                         <div className="relative group">
-                            <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-emerald-500 transition-colors" size={20} />
+                            <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-amber-500 transition-colors" size={20} />
                             <input 
                                 type="number"
                                 min={1}
@@ -140,7 +161,7 @@ export default function BusesSearch() {
                                 value={passengers}
                                 onChange={(e) => setPassengers(parseInt(e.target.value))}
                                 required
-                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-emerald-500 transition-all"
+                                className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-xl pl-12 pr-4 py-4 text-neutral-900 dark:text-white font-bold focus:ring-2 focus:ring-amber-500 transition-all"
                             />
                         </div>
                     </div>
@@ -149,7 +170,7 @@ export default function BusesSearch() {
                         <button 
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 h-[56px]"
+                            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-amber-500/30 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 h-[56px]"
                         >
                             {loading ? <Loader2 size={24} className="animate-spin" /> : <><Search size={20} /> Search</>}
                         </button>
@@ -193,7 +214,7 @@ export default function BusesSearch() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                                 key={bus.id}
-                                className="bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 p-6 rounded-3xl hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition-all group flex flex-col lg:flex-row gap-6 items-center"
+                                className="bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 p-6 rounded-3xl hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/5 transition-all group flex flex-col lg:flex-row gap-6 items-center"
                             >
                                 {/* Operator Info */}
                                 <div className="w-full lg:w-48 flex items-center gap-4">
@@ -247,7 +268,10 @@ export default function BusesSearch() {
                                         <span className="text-3xl font-black text-neutral-900 dark:text-white leading-none">{bus.price.amount}</span>
                                     </div>
                                     <p className="text-xs text-red-500 font-semibold mb-2">Only {bus.seats_available} seats left</p>
-                                    <button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl transition-colors">
+                                    <button 
+                                        onClick={() => window.open('https://www.markoub.ma', '_blank')}
+                                        className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                                    >
                                         Select
                                     </button>
                                 </div>
