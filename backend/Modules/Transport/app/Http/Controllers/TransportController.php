@@ -152,8 +152,8 @@ class TransportController extends Controller
 
     public function discoverFlights(Request $request)
     {
-        $origin = strtolower($request->query('origin', 'casablanca'));
-        $destinations = ['tunis', 'cairo', 'dubai', 'doha', 'riyadh'];
+        $origin = strtoupper($request->query('origin', 'CMN'));
+        $destinations = ['TUN', 'CAI', 'DXB', 'DOH', 'RUH'];
         $results = [];
         $date = date('Y-m-d', strtotime('+1 day'));
         foreach ($destinations as $dest) {
