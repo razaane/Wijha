@@ -60,6 +60,8 @@ class Listing extends Model implements HasMedia
         'is_draft' => 'boolean',
     ];
 
+    protected $appends = ['photo_urls'];
+
     /**
      * Register the media collections for listings.
      * - 'photos': Multiple listing images (min 5 required by frontend).

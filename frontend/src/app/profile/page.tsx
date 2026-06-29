@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { getStorageUrl } from "@/lib/url";
 import { api } from "@/lib/api";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function PremiumPublicProfilePage() {
     const { user, fetchUser } = useAuthStore();
@@ -15,6 +15,13 @@ export default function PremiumPublicProfilePage() {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Auth guard
+    useEffect(() => {
+        if (!user) {
+            router.replace('/login');
+        }
+    }, [user, router]);
 
     if (!user) return null;
 

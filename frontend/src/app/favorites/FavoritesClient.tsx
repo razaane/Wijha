@@ -7,11 +7,22 @@ import { Star, Heart, MapPin, Search } from 'lucide-react';
 import Header from '@/components/landing/Header';
 import { getFavorites, toggleFavorite } from '@/lib/favorites.api';
 import { useFavoriteStore } from '@/store/favorite.store';
+import { useAuthStore } from '@/store/auth.store';
+import { useRouter } from 'next/navigation';
 
 export default function FavoritesClient() {
     const [favorites, setFavorites] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { removeFavorite } = useFavoriteStore();
+    const { isAuthenticated } = useAuthStore();
+    const router = useRouter();
+
+    // Auth guard
+    useEffect(() => {
+        if (!isAuthenticated) {
+            router.replace('/login');
+        }
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         const fetchFavorites = async () => {

@@ -49,6 +49,9 @@
             "Modules\\Transport\\": "Modules/Transport/app/",
             "Modules\\Transport\\Database\\Factories\\": "Modules/Transport/database/factories/",
             "Modules\\Transport\\Database\\Seeders\\": "Modules/Transport/database/seeders/",
+            "Modules\\Message\\": "Modules/Message/app/",
+            "Modules\\Message\\Database\\Factories\\": "Modules/Message/database/factories/",
+            "Modules\\Message\\Database\\Seeders\\": "Modules/Message/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

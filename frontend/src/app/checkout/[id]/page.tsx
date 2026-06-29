@@ -30,6 +30,13 @@ export default function SecureCheckoutPage() {
     const [expiry, setExpiry] = useState('');
     const [cvc, setCvc] = useState('');
 
+    // Auth guard
+    useEffect(() => {
+        if (!user) {
+            router.replace('/login');
+        }
+    }, [user, router]);
+
     useEffect(() => {
         const fetchListing = async () => {
             try {
