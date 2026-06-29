@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X, User, Heart, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { useMessageStore } from '@/store/message.store';
 import { getStorageUrl } from '@/lib/url';
 import { Category } from './LandingClient';
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
@@ -36,6 +37,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     const router = useRouter();
     const pathname = usePathname();
     const { isAuthenticated, user, fetchUser, logout } = useAuthStore();
+    const { unreadCount } = useMessageStore();
     
     // Auth Menu State
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,7 +134,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     const handleLogout = () => {
         logout();
         setIsMenuOpen(false);
-        router.refresh();
+        router.push('/');
     };
 
     const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -276,8 +278,11 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                     
                     <button 
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="flex items-center gap-3 border border-neutral-200 dark:border-neutral-700 rounded-full p-1.5 pl-4 hover:shadow-md transition-all cursor-pointer bg-white dark:bg-neutral-900 shadow-sm"
+                        className="flex items-center gap-3 border border-neutral-200 dark:border-neutral-700 rounded-full p-1.5 pl-4 hover:shadow-md transition-all cursor-pointer bg-white dark:bg-neutral-900 shadow-sm relative"
                     >
+                        {unreadCount > 0 && (
+                            <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white dark:border-[#0a0a0a] rounded-full z-10"></div>
+                        )}
                         <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style={{ display: 'block', fill: 'none', height: '16px', width: '16px', stroke: 'currentColor', strokeWidth: 3, overflow: 'visible' }} className="text-neutral-500"><g fill="none" fillRule="nonzero"><path d="m2 16h28"></path><path d="m2 24h28"></path><path d="m2 8h28"></path></g></svg>
                         <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white overflow-hidden shadow-sm">
                             {isAuthenticated && user?.avatar ? (
@@ -306,8 +311,15 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                                     <Link href="/favorites" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                         <Heart size={18} /> Favorites
                                     </Link>
-                                    <Link href="/messages" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                        <MessageSquare size={18} /> Messages
+                                    <Link href="/messages" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                        <div className="flex items-center gap-3">
+                                            <MessageSquare size={18} /> Messages
+                                        </div>
+                                        {unreadCount > 0 && (
+                                            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                                {unreadCount}
+                                            </span>
+                                        )}
                                     </Link>
                                     <Link href="/settings" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
                                         <Settings size={18} /> Settings

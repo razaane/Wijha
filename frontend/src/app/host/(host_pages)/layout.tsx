@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthStore } from '@/store/auth.store';
+import { useMessageStore } from '@/store/message.store';
 import { useRouter, usePathname } from 'next/navigation';
 import { Compass, User, Settings, LogOut, Menu, X, Home, Bell } from 'lucide-react';
 import Link from 'next/link';
@@ -10,6 +11,7 @@ import { getStorageUrl } from '@/lib/url';
 
 export default function HostDashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isAuthenticated, logout } = useAuthStore();
+    const { unreadCount } = useMessageStore();
     const router = useRouter();
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
@@ -93,13 +95,16 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    className={`px-4 py-2 rounded-full text-sm font-bold transition-colors ${
+                                    className={`px-4 py-2 rounded-full text-sm font-bold transition-colors relative ${
                                         isActive 
                                             ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-white' 
                                             : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800'
                                     }`}
                                 >
                                     {link.name}
+                                    {link.name === 'Inbox' && unreadCount > 0 && (
+                                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                    )}
                                 </Link>
                             );
                         })}
@@ -216,7 +221,7 @@ export default function HostDashboardLayout({ children }: { children: React.Reac
             </AnimatePresence>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full px-4 sm:px-8 xl:px-12 py-8">
+            <main className={`flex-1 w-full ${pathname === '/host/inbox' ? 'p-0' : 'px-4 sm:px-8 xl:px-12 py-8'}`}>
                 {children}
             </main>
         </div>

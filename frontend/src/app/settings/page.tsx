@@ -12,6 +12,13 @@ export default function PremiumHostSettingsPage() {
     const { user, fetchUser } = useAuthStore();
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('personal');
+
+    // Auth guard
+    useEffect(() => {
+        if (!user) {
+            router.replace('/login');
+        }
+    }, [user, router]);
     
     // UI State
     const [successMsg, setSuccessMsg] = useState('');
