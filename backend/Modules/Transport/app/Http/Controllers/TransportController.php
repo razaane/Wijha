@@ -35,8 +35,9 @@ class TransportController extends Controller
         $request->validate([
             'origin' => 'required|string|in:' . $validCities,
             'destination' => 'required|string|different:origin|in:' . $validCities,
-            'date' => 'required|date|after_or_equal:today',
+            'date' => 'required|date|after_or_equal:yesterday',
             'passengers' => 'nullable|integer|min:1|max:9',
+            'provider' => 'nullable|string|in:all,amadeus,skyscanner,duffel',
         ], [
             'origin.in' => 'Please enter a valid city like Casablanca, Paris, or Dubai.',
             'destination.in' => 'Please enter a valid city.',
@@ -49,7 +50,8 @@ class TransportController extends Controller
                 $request->destination,
                 $request->date,
                 null,
-                $request->passengers ?? 1
+                $request->passengers ?? 1,
+                $request->provider ?? 'all'
             );
 
             return response()->json([
@@ -62,6 +64,26 @@ class TransportController extends Controller
                 'message' => 'Failed to retrieve flights: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get details for a specific flight by ID from the cache.
+     */
+    public function getFlightDetails($id)
+    {
+        $flight = $this->flightService->getFlightDetails($id);
+
+        if (!$flight) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Flight not found or has expired. Please search again.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $flight,
+        ]);
     }
 
     /**
@@ -79,7 +101,7 @@ class TransportController extends Controller
         $request->validate([
             'origin' => 'required|string|in:' . $validCities,
             'destination' => 'required|string|different:origin|in:' . $validCities,
-            'date' => 'required|date|after_or_equal:today',
+            'date' => 'required|date|after_or_equal:yesterday',
             'passengers' => 'nullable|integer|min:1|max:9',
         ], [
             'origin.in' => 'Fake inputs are not allowed. Please enter a real Moroccan city (e.g., Casablanca, Marrakech).',
@@ -122,7 +144,7 @@ class TransportController extends Controller
         $request->validate([
             'origin' => 'required|string|in:' . $validCities,
             'destination' => 'required|string|different:origin|in:' . $validCities,
-            'date' => 'required|date|after_or_equal:today',
+            'date' => 'required|date|after_or_equal:yesterday',
             'passengers' => 'nullable|integer|min:1|max:9',
         ], [
             'origin.in' => 'Please enter a valid Moroccan train city (e.g., Tangier, Rabat).',

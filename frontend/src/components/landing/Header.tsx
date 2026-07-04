@@ -3,13 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X, User, Heart, MessageSquare } from 'lucide-react';
+import { Compass, Search, Users, Home, Map as MapIcon, Briefcase, UserCircle, LogOut, LayoutDashboard, Settings, Navigation, Globe, MapPin, Building2, Umbrella, Anchor, Minus, Plus, ChevronLeft, ChevronRight, Building, Ticket, SlidersHorizontal, X, User, Heart, MessageSquare, Plane } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useMessageStore } from '@/store/message.store';
 import { getStorageUrl } from '@/lib/url';
 import { Category } from './LandingClient';
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addDays, isBefore, startOfDay, isAfter, isWithinInterval } from 'date-fns';
 import FiltersModal from './FiltersModal';
+import HostSelectionModal from '../HostSelectionModal';
 
 interface HeaderProps {
     activeCategory?: Category;
@@ -41,6 +42,7 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
     
     // Auth Menu State
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isHostModalOpen, setIsHostModalOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     // Search Popovers State
@@ -135,6 +137,14 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
         logout();
         setIsMenuOpen(false);
         router.push('/');
+    };
+
+    const handleCategoryClick = (category: 'all' | 'stays' | 'events' | 'experiences') => {
+        if (pathname === '/') {
+            setActiveCategory?.(category);
+        } else {
+            router.push('/');
+        }
     };
 
     const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -243,34 +253,39 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                 </Link>
 
                 {/* Wijha Custom Pill Categories */}
-                {pathname === '/' && (
-                    <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-900 rounded-full p-1.5 shadow-inner border border-neutral-200 dark:border-neutral-800 overflow-x-auto hide-scrollbar max-w-full">
+                <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-900 rounded-full p-1.5 shadow-inner border border-neutral-200 dark:border-neutral-800 overflow-x-auto hide-scrollbar max-w-full">
                     <button 
-                        onClick={() => setActiveCategory?.('all')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'all' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
+                        onClick={() => handleCategoryClick('all')}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${pathname === '/' && activeCategory === 'all' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Globe size={18} /> All
                     </button>
                     <button 
-                        onClick={() => setActiveCategory?.('stays')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'stays' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
+                        onClick={() => handleCategoryClick('stays')}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${pathname === '/' && activeCategory === 'stays' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Home size={18} /> Stays
                     </button>
                     <button 
-                        onClick={() => setActiveCategory?.('events')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'events' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
+                        onClick={() => handleCategoryClick('events')}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${pathname === '/' && activeCategory === 'events' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <Ticket size={18} /> Events
                     </button>
                     <button 
-                        onClick={() => setActiveCategory?.('experiences')}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeCategory === 'experiences' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
+                        onClick={() => handleCategoryClick('experiences')}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${pathname === '/' && activeCategory === 'experiences' ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
                     >
                         <MapIcon size={18} /> Experiences
-                        </button>
-                    </div>
-                )}
+                    </button>
+                    <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
+                    <Link 
+                        href="/transport"
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${pathname.startsWith('/transport') ? 'bg-white dark:bg-neutral-800 text-amber-500 shadow-md scale-105' : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'}`}
+                    >
+                        <Plane size={18} /> Transport
+                    </Link>
+                </div>
 
                 {/* Auth Menu */}
                 <div className="flex items-center gap-4 relative" ref={menuRef}>
@@ -325,9 +340,15 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
                                         <Settings size={18} /> Settings
                                     </Link>
                                     <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
-                                    <Link href={user?.is_verified_host ? '/host/dashboard' : '/host/onboarding'} onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                                        {user?.is_verified_host ? <><Compass size={18} /> Switch to hosting</> : <><Building size={18} /> Become a host</>}
-                                    </Link>
+                                    {user?.is_verified_host ? (
+                                        <Link href="/host/dashboard" onClick={() => setIsMenuOpen(false)} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                            <Compass size={18} /> Switch to hosting
+                                        </Link>
+                                    ) : (
+                                        <button onClick={() => { setIsMenuOpen(false); setIsHostModalOpen(true); }} className="px-4 py-3 flex items-center gap-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm font-medium text-neutral-700 dark:text-neutral-300 w-full text-left">
+                                            <Building size={18} /> Become a host
+                                        </button>
+                                    )}
                                     <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2"></div>
                                     <button onClick={handleLogout} className="px-4 py-3 flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors text-sm font-medium text-red-500 text-left w-full">
                                         <LogOut size={18} /> Log out
@@ -710,6 +731,9 @@ export default function Header({ activeCategory, setActiveCategory, isCompact = 
 
             {/* Filters Modal */}
             <FiltersModal isOpen={isFiltersOpen} onClose={() => setIsFiltersOpen(false)} />
+
+            {/* Host Selection Modal */}
+            <HostSelectionModal isOpen={isHostModalOpen} onClose={() => setIsHostModalOpen(false)} />
         </nav>
     );
 }
